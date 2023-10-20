@@ -13,7 +13,7 @@ A typical Map/Reduce workflow is as follows:
 2. The MapReduce library in the user program splits the input files into M pieces (typically of 16MB to 64MB)
 3. M (possibly different) workers pick up the M input splits
 4. A map-worker reads the different (k1, v1) pairs from its input split, runs them through the map function
-5. The output of the map function are stored in R *intermediary output files*, list(k2, v2) pairs being stored in the (hash(k2) % R)th file
+5. The intermediate list of (k2, v2) pairs is stored in R *intermediary output files*, an arbitrary pair (k2, v2) being stored in the (hash(k2) % R)-th file
     - each map worker has (up to) R intermediary output files, so there are in total (up to) M*R intermediary output files globally
 6. R (possibly different) workers pick up the R reduce tasks
 7. A reduce-worker reads the (up to) M different intermediary output files corresponding to its reduce partition
@@ -52,7 +52,7 @@ A typical Map/Reduce workflow is as follows:
     - Master node:
         - This is the node that coordinates the scheduling of all map and reduce tasks and monitors the worker pool
     - Worker pool:
-        - This are nodes that can run different map and reduce tasks
+        - These are nodes that can run different map and reduce tasks
 
 #### Communication
 - To make these different entities communicate, we may employ a number of strategies. One (very simple) proposal could be as follows:

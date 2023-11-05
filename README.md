@@ -107,3 +107,5 @@ We might break up the implementation into several stages:
         - for each reduce job, we can separately sort all M intermediary files as they are produced by map workers
         - run M-way merge to read (k2, list(v2)) pairs in order
 5. Translate problems into the Map/Reduce programming model to show potential use cases
+
+[User stories](user-stories.md)

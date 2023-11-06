@@ -1,3 +1,56 @@
+## How to set up and run?
+
+#### Preview
+As is the case with compiled languages, dependencies might take a while to set up.
+Points to remember:
+- The initial setup can take a while
+- Subsequent builds, if they do not introduce external dependencies, are fast
+- The docker build is separated into multi-stage builds. Be careful when purging old images, you might delete the multi-stage cache and trigger a long rebuild!
+
+
+#### Initial steup
+1. Clone this repo
+2. Install prerequisites (may require sudo):
+    - ```apt-get install -y build-essential autoconf libtool pkg-config```
+    - ```apt-get install -y cmake```
+    - ```apt-get install -y clang libc++-dev```
+3. Create a build directory (where the cmake cache and executables will reside):
+    - ```mkdir build && cd build```
+    - ```cmake ..``` (CMakeLists.txt is one level above in the directory tree)
+    - ```cmake --build .```
+4. Create the associated docker image:
+    - ```cd ..``` (return to the root directory of the project)
+    - ```docker build . -t map_reduce:0.0.1```
+
+#### Running locally
+1. Make sure you have a successful local build (with all your modifications)
+2. In the ```build/``` directory:
+    - launch the master: ```./master```
+    - launch the worker: ```./worker <address of master>```
+        - ```<address of master>``` is of the form ```ip.ip.ip.ip:port```
+    - launch the sample code (user code): ```./sample <address of master> <mode> <class>```
+        - ```<address of master>``` is of the form ```ip.ip.ip.ip:port```
+        - ```<mode>``` is one of ```user, mapper, reducer```
+        - ```<class>``` is the name of the mapper/reducer you want to run if starting in mapper/reducer mode
+
+#### Running in docker
+1. Make sure you have a successful image build (with all your modifications)
+2. Run the image: ```docker run map_reduce:0.0.1``` (this image just sleeps for 3000 seconds)
+3. Open another terminal (or terminals) to launch the master, worker, or sample code:
+    - ```docker ps -a``` (get the id of the running container)
+    - ```docker exec -it <id_container> bash``` (opens a terminal inside the container - it should already be located in nfs/)
+    - Use the same commands as above to launch the master, worker or sample code
+
+#### Running in docker-compose
+TODO :)
+
+#### How to build your changes?
+- If you just modified the source code: ```cd build && cmake --build .```
+- If you modified the source code and cmake configuration: ```cd build && cmake .. && cmake --build .```
+- If you modified the definition of the protobufs (they need to be regenerated): ```sh generate_proto.sh && cd build && cmake --build .``` (if new files are introduced, then a cmake configuration update is also needed)
+- If you want to recreate the docker image: ```docker build . -t map_reduce:<version>```
+
+
 # Intro
 
 This project aims to implement a distributed Map/Reduce programming model. Using this model, large amounts of data can be processed in parallel by multiple workers.

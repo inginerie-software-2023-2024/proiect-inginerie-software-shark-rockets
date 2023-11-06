@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+service WorkerService {
+    rpc AssignWork(AssignWorkRequest) returns (AssignWorkReply) {}
+}
+
+message AssignWorkRequest {
+    string path = 1;
+    string mode = 2;
+    string class = 3;
+}
+
+message AssignWorkReply {
+    bool ok = 1;
+}

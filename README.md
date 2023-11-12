@@ -108,4 +108,3 @@ We might break up the implementation into several stages:
         - run M-way merge to read (k2, list(v2)) pairs in order
 5. Translate problems into the Map/Reduce programming model to show potential use cases
 
-[User stories](user-stories.md)

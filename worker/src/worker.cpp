@@ -73,6 +73,7 @@ public:
             char *arguments[] = {path, master_ip, mode, class_, NULL};
             execve(request->path().c_str(), arguments, NULL);
         }
+        return grpc::Status::CANCELLED;
     }
 };
 

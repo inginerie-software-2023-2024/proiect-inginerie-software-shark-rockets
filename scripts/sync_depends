@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# This syncs all depends that are obtainable with apt-get, as well as build grpc from source code and install it locally
+# It should take around 20 minutes
+
+GRPC_VERSION="v1.59.2"
+GRPC_INSTALL_DIR="$HOME/grpc_install" 
+
+apt_get_with_sudo() {
+    sudo apt-get "$@"
+}
+apt_get_as_root() {
+    apt-get "$@"
+}
+if [ "$(id -u)" -eq 0 ]; then
+    apt_get_command="apt_get_as_root"
+else
+    apt_get_command="apt_get_with_sudo"
+fi
+
+set -e # fail if any command fails
+$apt_get_command update -y
+$apt_get_command install -y build-essential autoconf libtool pkg-config cmake git libboost-all-dev
+
+# Check if gRPC is already installed
+if [ -d "$GRPC_INSTALL_DIR" ]; then
+    echo "gRPC is already installed in $GRPC_INSTALL_DIR."
+    exit 0
+fi
+
+# FIXME? : I don't think we need all of this as it is rather large, maybe optimize for size 
+#  handpick which submodules we use 'daca te da harnicia afara din casa:)'
+git clone -b $GRPC_VERSION https://github.com/grpc/grpc
+cd grpc
+git submodule update --init --recursive
+
+mkdir -p cmake/build
+cd cmake/build
+cmake -DgRPC_INSTALL=ON \
+      -DgRPC_BUILD_TESTS=OFF \
+      -DCMAKE_INSTALL_PREFIX=$GRPC_INSTALL_DIR \
+      ../..
+make -j$(nproc) #compile on all cores
+make install
+
+cd ../../..
+rm -rf grpc
+
+echo SUCCES

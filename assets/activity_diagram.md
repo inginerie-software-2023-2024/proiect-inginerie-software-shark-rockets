@@ -2,4 +2,4 @@
 
 This diagram shows the usual flow for a user/guest.
 
-![Activity diagram](activity_diagram.md)
+![Activity diagram](ActivityDiagram.svg)

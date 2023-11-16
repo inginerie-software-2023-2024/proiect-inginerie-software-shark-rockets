@@ -1,0 +1,2 @@
+# Product Vision
+Koala is a programming library and monitoring solution catered to developers who want to process large amounts of raw data through computations that have to be distributed across machines. Our product allows the user to express such computations in a straightforward manner while hiding the messy details of parallelization, data distribution and fault tolerance through simple abstractions.

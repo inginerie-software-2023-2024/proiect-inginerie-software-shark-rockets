@@ -1,8 +1,6 @@
 ## Name: Bob
 
-<div style="float: left; margin-right: 20px;">
-  <img src="assets/Bob.png" width="200px"/>
-</div>
+<img align = 'right' src="Bob.png" width="200px"/>
 
 ### <u>Demographic Information:</u>
 
@@ -27,10 +25,7 @@
 
 ## Name: Alice
 
-
-<div style="float: right; margin-right: 20px;">
-  <img src="assets/Alice.png" width="200"/>
-</div>
+<img align = 'right' src="Alice.png" width="200"/>
 
 ### <u>Demographic Information:</u>
 

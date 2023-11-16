@@ -1,4 +1,4 @@
-# [Insert-Product-Name] - User stories
+# Koala - User stories
 
 ## Guest
 - As a guest, I want to create a map-reduce job and submit it on the local machine so that I can explore the functionality of the product without creating an account.

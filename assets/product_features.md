@@ -17,4 +17,4 @@ Here, we have compiled the list of features and functionalities that deliver val
 
 ## Product roadmap
 
-![Roadmap](assets/Roadmap.png)
+![Roadmap](Roadmap.png)

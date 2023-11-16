@@ -1,4 +1,14 @@
-# Intro
+# Intermediate deliverables
+
+- Product vision: [Product vision](assets/product_vision.md)
+- Product features: [Product features](assets/product_features.md)
+- Non functional requirements: [Non functional requirements](assets/non_functional_requirements.md)
+- Customer journey: [Customer journey](assets/user_personas.md)
+- Activity diagram: [Activity diagram](assets/activity_diagram.md)
+- User stories: [User stories](assets/user_stories.md)
+- Product backlog: [Product backlog](https://trello.com/b/w71cxBJY/map-reduce)
+
+# Koala - Intro
 
 This project aims to implement a distributed Map/Reduce programming model. Using this model, large amounts of data can be processed in parallel by multiple workers.
 <br>

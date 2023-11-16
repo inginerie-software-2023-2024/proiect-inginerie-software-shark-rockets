@@ -1,7 +1,7 @@
 ## Name: Bob
 
 <div style="float: left; margin-right: 20px;">
-  <img src="assets/Bob.png" width="200px"/>
+  <img src="Bob.png" width="200px"/>
 </div>
 
 ### <u>Demographic Information:</u>
@@ -29,7 +29,7 @@
 
 
 <div style="float: right; margin-right: 20px;">
-  <img src="assets/Alice.png" width="200"/>
+  <img src="Alice.png" width="200"/>
 </div>
 
 ### <u>Demographic Information:</u>

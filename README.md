@@ -51,7 +51,17 @@ TODO :)
 - If you want to recreate the docker image: ```docker build . -t map_reduce:<version>```
 
 
-# Intro
+# Intermediate deliverables
+
+- Product vision: [Product vision](assets/product_vision.md)
+- Product features: [Product features](assets/product_features.md)
+- Non functional requirements: [Non functional requirements](assets/non_functional_requirements.md)
+- Customer journey: [Customer journey](assets/user_personas.md)
+- Activity diagram: [Activity diagram](assets/activity_diagram.md)
+- User stories: [User stories](assets/user_stories.md)
+- Product backlog: [Product backlog](https://trello.com/b/w71cxBJY/map-reduce)
+
+# Koala - Intro
 
 This project aims to implement a distributed Map/Reduce programming model. Using this model, large amounts of data can be processed in parallel by multiple workers.
 <br>
@@ -160,3 +170,4 @@ We might break up the implementation into several stages:
         - for each reduce job, we can separately sort all M intermediary files as they are produced by map workers
         - run M-way merge to read (k2, list(v2)) pairs in order
 5. Translate problems into the Map/Reduce programming model to show potential use cases
+

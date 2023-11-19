@@ -1,6 +1,8 @@
-#pragma once
-#include "master_service.grpc.pb.h"
-#include "master_service.pb.h"
+/*
+*   Public Interface lib koala
+*/
+
+
 #include <string>
 
 // Macro that loads an instance of a mapper into a static dictionary

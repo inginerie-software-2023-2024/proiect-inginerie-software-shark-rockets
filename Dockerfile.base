@@ -1,0 +1,4 @@
+FROM ubuntu:23.10 as build_app
+
+COPY scripts/sync_depends sync_depends
+RUN ./sync_depends

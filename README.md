@@ -118,3 +118,6 @@ We might break up the implementation into several stages:
         - run M-way merge to read (k2, list(v2)) pairs in order
 5. Translate problems into the Map/Reduce programming model to show potential use cases
 
+# How to set up and run?
+- This only works under linux, we recommend ubuntu but any debian based distro should work
+- Check [Setup](assets/setup.md)

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+service MasterService {
+    rpc RegisterWorker(RegisterWorkerRequest) returns (RegisterWorkerReply) {}
+    rpc RegisterJob(RegisterJobRequest) returns (RegisterJobReply) {}
+}
+
+message RegisterWorkerRequest {
+    string ip = 1;
+    int32 port = 2;
+}
+
+message RegisterWorkerReply {
+    bool ok = 1;
+}
+
+message RegisterJobRequest {
+    string path = 1;
+    string mapper = 2;
+    string reducer = 3;
+}
+
+message RegisterJobReply {
+    bool ok = 1;
+}

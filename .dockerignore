@@ -1,0 +1,9 @@
+.vscode/
+assets/
+build/
+.generated/
+.gitignore
+Dockerfile
+.dockerignore
+generate_proto.sh
+README.md

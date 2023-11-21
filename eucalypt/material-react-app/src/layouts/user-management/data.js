@@ -33,7 +33,6 @@ export default function data() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    console.log('use effect')
     const fetchUsers = async () => {
       try {
         const response = await UserManagementService.getUsers();
@@ -44,6 +43,55 @@ export default function data() {
     };
     fetchUsers();
   }, []);
+
+  const handleEdit = async (id, data) => {
+    try {
+      const updatedUser = await UserManagementService.editUser(id, userData);
+      setUsers(users.map(user => user.id === id ? updatedUser : user)); 
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      await UserManagementService.deleteUser(id);
+      setUsers(users.filter((user) => user.id !== id));
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  console.log(users);
+
+  const Action = ({ id }) => (
+    <MDBox display="flex" justifyContent="center">
+      <MDBox mr={1}>
+        <button onClick={() => handleEdit(id)}>
+          <MDTypography
+            variant="button"
+            fontWeight="bold"
+            textColor="info"
+          >
+            Edit
+          </MDTypography>
+        </button>
+      </MDBox>
+      <MDBox ml={1}>
+        <button onClick={() => handleDelete(id)}>
+          <MDTypography
+            variant="button"
+            fontWeight="bold"
+            textColor="error"
+          >
+            Delete
+          </MDTypography>
+        </button>
+      </MDBox>
+    </MDBox>
+  );
 
   console.log(users);
 
@@ -72,11 +120,7 @@ export default function data() {
       user: <Author image={team2} name={user.name} email={user.email} />,
       email: user.email,
       creationdate: user.created_at,
-      action: (
-        <MDBox display="flex" justifyContent="center">
-          <MDBadge color="success" variant="dot" anchorOrigin={{ vertical: "top", horizontal: "right" }} />
-        </MDBox>
-      ),
+      action: <Action id={user.id} />,
     })),
   };
 }

@@ -16,16 +16,15 @@ import DataTable from "examples/Tables/DataTable";
 
 // Data
 import authorsTableData from "layouts/user-management/data";
-
-// Create, edit, delete user
-//import { editUser, deleteUser } from "services/htttp.service";
+import { useEffect, useState } from "react";
+import UserManagementService from "services/user-management-service";
 
 const UserManagement = () => {
   const { columns, rows } = authorsTableData();
 
-  const handleEdit = async (id) => {
+  const handleEdit = async (id, data) => {
     try {
-      const response = await editUser(id, { name: "test" });
+      const response = await UserManagementService.editUser(id, data);
       console.log(response);
     }
     catch (error) {
@@ -35,7 +34,7 @@ const UserManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await deleteUser(id);
+      const response = await UserManagementService.deleteUser(id);
       console.log(response);
     }
     catch (error) {

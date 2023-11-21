@@ -39,7 +39,7 @@ export const editUserRouteHandler = async (req, res) => {
         const { name, email, password } = req.body.data.attributes;
         await userModel.updateOne(
             { email: user.email },
-            { $set: { name: name, email: email, password: password } }
+            { $set: { name: "update", email: email, password: password } }
         );
         res.send({ data: user });
     } catch (error) {

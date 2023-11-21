@@ -17,21 +17,64 @@ import DataTable from "examples/Tables/DataTable";
 // Data
 import authorsTableData from "layouts/user-management/data";
 
+// Create, edit, delete user
+import { editUser, deleteUser } from "services/htttp.service";
+
 const UserManagement = () => {
   const { columns, rows } = authorsTableData();
+
+  const handleEdit = async (id) => {
+    try {
+      const response = await editUser(id, { name: "test" });
+      console.log(response);
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await deleteUser(id);
+      console.log(response);
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  const Action = ({ id }) => (
+    <MDBox display="flex" justifyContent="center">
+      <MDBox mr={1}>
+        <MDTypography
+          variant="button"
+          fontWeight="bold"
+          textColor="info"
+          onClick={() => handleEdit(id)}
+        >
+          Edit
+        </MDTypography>
+      </MDBox>
+      <MDBox ml={1}>
+        <MDTypography
+          variant="button"
+          fontWeight="bold"
+          textColor="error"
+          onClick={() => handleDelete(id)}
+        >
+          Delete
+        </MDTypography>
+
+      </MDBox>
+    </MDBox>
+  );
+
+  
+
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDAlert mt={2} color="dark">
-        <MDTypography variant="body2" color="white" fontWeight="medium">
-          This is a PRO feature. Click
-          <a href="https://www.creative-tim.com/product/material-dashboard-pro-react-nodejs" target="_blank" style={{color: '#1A73E8'}}>
-            &nbsp;here&nbsp;
-          </a>
-          to see the PRO version
-        </MDTypography>
-      </MDAlert>
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
           <Grid item xs={12}>

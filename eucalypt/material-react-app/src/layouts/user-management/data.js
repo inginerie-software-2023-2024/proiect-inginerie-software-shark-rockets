@@ -26,7 +26,26 @@ import team2 from "assets/images/team-2.jpg";
 import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
 
+import { getUsers } from "services/htttp.service";
+import { useEffect, useState } from "react";
+
 export default function data() {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await getUsers();
+        setUsers(response.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  console.log(users);
+
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" />
@@ -39,97 +58,24 @@ export default function data() {
     </MDBox>
   );
 
-  const Job = ({ title, description }) => (
-    <MDBox lineHeight={1} textAlign="left">
-      <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
-        {title}
-      </MDTypography>
-      <MDTypography variant="caption">{description}</MDTypography>
-    </MDBox>
-  );
 
   return {
     columns: [
       { Header: "user", accessor: "user", width: "45%", align: "left" },
       { Header: "email", accessor: "email", align: "left" },
-      { Header: "role", accessor: "role", align: "left" },
       { Header: "creation date", accessor: "creationdate", align: "center" },
       { Header: "action", accessor: "action", align: "center" },
     ],
 
-    rows: [
-      {
-        user: <Author image={team2} name="John Michael" email="" />,
-        role: <Job title="Admin" description="" />,
-        email: (
-          <MDTypography variant="caption" color="text" fontWeight="medium">
-            admin@material.com
-          </MDTypography>
-        ),
-        creationdate: (
-          <MDTypography variant="caption" color="text" fontWeight="medium">
-            23/04/18
-          </MDTypography>
-        ),
-        action: (
-            <MDBox>
-                <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium" mr={2}>
-                Edit
-                </MDTypography>
-                <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                Delete
-                </MDTypography>
-            </MDBox>
-        ),
-      },
-      {
-        user: <Author image={team3} name="Alexa Liras" email="" />,
-        role: <Job title="Creator" description="" />,
-        email: (
-          <MDTypography variant="caption" color="text" fontWeight="medium">
-            creator@material.com
-          </MDTypography>
-        ),
-        creationdate: (
-          <MDTypography variant="caption" color="text" fontWeight="medium">
-            11/01/19
-          </MDTypography>
-        ),
-        action: (
-            <MDBox>
-                <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium" mr={2}>
-                Edit
-                </MDTypography>
-                <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                Delete
-                </MDTypography>
-            </MDBox>
-        ),
-      },
-      {
-        user: <Author image={team4} name="Laurent Perrier" email="" />,
-        role: <Job title="Member" description="" />,
-        email: (
-          <MDTypography variant="caption" color="text" fontWeight="medium">
-            member@material.com
-          </MDTypography>
-        ),
-        creationdate: (
-          <MDTypography variant="caption" color="text" fontWeight="medium">
-            19/09/17
-          </MDTypography>
-        ),
-        action: (
-          <MDBox>
-            <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium" mr={2}>
-              Edit
-            </MDTypography>
-            <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-              Delete
-            </MDTypography>
-          </MDBox>
-        ),
-      },
-    ],
+    rows: users.map((user) => ({
+      user: <Author image={team2} name={user.name} email={user.email} />,
+      email: user.email,
+      creationdate: user.created_at,
+      action: (
+        <MDBox display="flex" justifyContent="center">
+          <MDBadge color="success" variant="dot" anchorOrigin={{ vertical: "top", horizontal: "right" }} />
+        </MDBox>
+      ),
+    })),
   };
 }

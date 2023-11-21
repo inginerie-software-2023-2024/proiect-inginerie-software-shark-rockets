@@ -18,7 +18,7 @@ import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/user-management/data";
 
 // Create, edit, delete user
-import { editUser, deleteUser } from "services/htttp.service";
+//import { editUser, deleteUser } from "services/htttp.service";
 
 const UserManagement = () => {
   const { columns, rows } = authorsTableData();

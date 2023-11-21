@@ -26,16 +26,17 @@ import team2 from "assets/images/team-2.jpg";
 import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
 
-import { getUsers } from "services/htttp.service";
+import UserManagementService from "services/user-management-service";
 import { useEffect, useState } from "react";
 
 export default function data() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
+    console.log('use effect')
     const fetchUsers = async () => {
       try {
-        const response = await getUsers();
+        const response = await UserManagementService.getUsers();
         setUsers(response.data);
       } catch (err) {
         console.error(err);

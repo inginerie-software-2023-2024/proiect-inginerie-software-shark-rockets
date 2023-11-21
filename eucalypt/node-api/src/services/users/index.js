@@ -7,7 +7,6 @@ dotenv.config();
 
 export const getUsersRouteHandler = async (req, res) => {
     try {
-        console.log("getUsersRouteHandler");
         const users = await userModel.find({});
         res.send({ data: users });
     } catch (error) {

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+    master:
+        image: map_reduce:0.0.1
+        volumes:
+            - ./nfs:/nfs
+        networks:
+            cluster:
+              ipv4_address: 172.7.0.10
+        expose:
+          - 50051
+        tty: true
+        command: bash -c "mv -f /build/master /nfs/master && mv -f /build/worker /nfs/worker && ./master"
+    worker:
+        image: map_reduce:0.0.1
+        volumes:
+            - ./nfs:/nfs
+        networks:
+            cluster:
+        expose:
+          - 2023
+        depends_on:
+          - "master"
+        tty: true
+        command: bash -c "./worker 172.7.0.10:50051"
+        deploy:
+            mode: replicated
+            replicas: 5
+    user:
+        image: map_reduce:0.0.1
+        volumes:
+            - ./nfs:/nfs
+        networks:
+            cluster:
+        tty: true
+        command: bash -c "mv -f /build/sample /nfs/sample && sleep 3000"
+
+networks:
+    cluster:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+              - subnet: 172.7.0.0/16

@@ -1,9 +1,9 @@
 # Intermediate deliverables
 
 - Product vision: [Product vision](assets/product_vision.md)
-- Product features: [Product features](assets/product_features.md)
+- Product features and product roadmap: [Product features](assets/product_features.md)
 - Non functional requirements: [Non functional requirements](assets/non_functional_requirements.md)
-- Customer journey: [Customer journey](assets/customer_journey.md)
+- User Personas and customer journey Map: [Customer journey](assets/customer_journey.md)
 - Activity diagram: [Activity diagram](assets/activity_diagram.md)
 - User stories: [User stories](assets/user_stories.md)
 - Product backlog: [Product backlog](https://trello.com/b/w71cxBJY/map-reduce)

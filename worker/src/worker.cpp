@@ -19,16 +19,15 @@ std::string parse_address(int argc, char **argv)
 }
 
 // Should have some worker state, which should persist the channel to the master service
-void notify_master(const std::string &master_address, const std::string &ip, int port)
+void notify_master(const std::string &master_address, int port)
 {
     auto channel = grpc::CreateChannel(master_address, grpc::InsecureChannelCredentials());
     auto master_service = MasterService::NewStub(channel);
 
-    std::cout << "Worker: sending a register worker request with ip " << ip << " and port " << port << '\n';
+    std::cout << "Worker: sending a register worker request with port " << port << '\n';
 
     RegisterWorkerRequest request;
-    request.set_ip(ip);
-    request.set_port(port);
+    request.set_worker_port(port);
 
     RegisterWorkerReply reply;
     grpc::ClientContext context;
@@ -82,13 +81,11 @@ int main(int argc, char **argv)
     // Parse master's address
     std::string master_address = parse_address(argc, argv);
 
-    // Ip and port are hardcoded for now
-    // Should we get the ip dinamically and the port via a CLI argument?
-    std::string ip = "0.0.0.0";
+    // We should get the port via a CLI argument
     int port = 2023;
 
     // Signal to master that we're up
-    notify_master(master_address, ip, port);
+    notify_master(master_address, port);
 
     // Start a grpc server, waiting for work to be assigned
     WorkerServiceImpl worker_service;

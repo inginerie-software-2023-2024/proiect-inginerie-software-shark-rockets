@@ -8,4 +8,3 @@ Dockerfile
 generate_proto.sh
 README.md
 docker-compose.yml
-nfs/

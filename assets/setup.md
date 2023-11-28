@@ -47,11 +47,11 @@ Points to remember:
     - Use the same commands as above to launch the master, worker or sample code
 
 #### Running in docker-compose
-0. One-time only: ```mkdir nfs``` in the root of the project (this will be the shared volume between the containers)
-1. Make sure you have a successful image build (with all your modifications)
+0. One-time only: ```mkdir nfs``` in the home directory of your machine (this will be the shared volume between the containers)
+1. Make sure you have a successful image build (with all your modifications), or, alternatively, run ```docker compose build```
 2. ```docker compose up``` - this will bring up the master and worker nodes (by default 5)
 3. Enter the user container: ```docker exec -it <user_container_id> bash``` and launch the sample code, for example ```./sample 172.7.0.10:50051 user -```. You can add more user containers by configuring ```replicas``` to be >1 (similar to the workers)
-4. If you force kill docker compose (double CTRL+C), run ```docker compose down``` (I recommend force killing, it takes more to wait for containers to end gracefully)
+4. If you force kill docker compose (double CTRL+C), run ```docker compose down``` (I recommend force killing, it takes more time to wait for containers to end gracefully)
 
 #### How to build your changes?
 - If you just modified the source code: ```cd build && cmake --build .```

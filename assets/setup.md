@@ -31,7 +31,7 @@ Points to remember:
 1. Make sure you have a successful local build (with all your modifications)
 2. In the ```package/``` directory:
     - launch the master: ```./master```
-    - launch the worker: ```./worker <address of master>```
+    - launch the worker: ```./worker <address of master> <port>```
         - ```<address of master>``` is of the form ```ip.ip.ip.ip:port```
     - launch the sample code (user code): ```./sample <address of master> <mode> <class>```
         - ```<address of master>``` is of the form ```ip.ip.ip.ip:port```

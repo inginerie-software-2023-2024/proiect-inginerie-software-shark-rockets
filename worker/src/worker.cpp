@@ -12,10 +12,18 @@
 // Should parse arguments with boost...
 std::string parse_address(int argc, char **argv)
 {
-    if (argc < 2)
-        throw std::runtime_error("Invalid usage, expected 1 argument");
+    if (argc < 3)
+        throw std::runtime_error("Invalid usage, expected 2 arguments");
 
     return argv[1];
+}
+
+int parse_port(int argc, char **argv)
+{
+    if (argc < 3)
+        throw std::runtime_error("Invalid usage, expected 2 arguments");
+
+    return std::stoi(argv[2]);
 }
 
 // Should have some worker state, which should persist the channel to the master service
@@ -81,8 +89,8 @@ int main(int argc, char **argv)
     // Parse master's address
     std::string master_address = parse_address(argc, argv);
 
-    // We should get the port via a CLI argument
-    int port = 2023;
+    // Parse worker's gRPC port
+    int port = parse_port(argc, argv);
 
     // Signal to master that we're up
     notify_master(master_address, port);

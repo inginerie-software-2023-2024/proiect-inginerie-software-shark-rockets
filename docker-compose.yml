@@ -21,11 +21,11 @@ services:
         networks:
             cluster:
         expose:
-          - 2023
+          - 7777
         depends_on:
           - "master"
         tty: true
-        command: bash -c "./worker 172.7.0.10:50051"
+        command: bash -c "./worker 172.7.0.10:50051 7777"
         deploy:
             mode: replicated
             replicas: 5

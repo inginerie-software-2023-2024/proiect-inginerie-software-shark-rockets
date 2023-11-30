@@ -6,8 +6,7 @@ service MasterService {
 }
 
 message RegisterWorkerRequest {
-    string ip = 1;
-    int32 port = 2;
+    int32 worker_port = 2;
 }
 
 message RegisterWorkerReply {

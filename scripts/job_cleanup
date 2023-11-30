@@ -1,0 +1,18 @@
+#!/bin/bash
+# Cleans job artefacts from nfs, multiple job runs cand clog it so this script is provided
+
+NFS_ROOT=~/nfs
+
+usage() {
+    echo "Usage: $0 <user>"
+    echo "This script requires exactly one argument, the user for which it will purge the job artefacts"
+    echo "Example: $0 guest"
+}
+
+if [ "$#" -ne 1 ]; then
+    usage
+    exit 1
+fi
+
+user=$1
+find $NFS_ROOT/$user -name "job-*" -exec rm -rf {} \; &> /dev/null

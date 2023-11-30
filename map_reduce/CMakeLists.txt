@@ -3,7 +3,8 @@ set(TARGET koala)
 
 add_library(
     ${TARGET} SHARED
-    src/map_reduce.cpp 
+    src/map_reduce.cpp
+    src/utils.cpp
 )
 target_include_directories(
     ${TARGET} 

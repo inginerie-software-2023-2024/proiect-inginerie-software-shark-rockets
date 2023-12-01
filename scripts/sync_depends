@@ -20,7 +20,7 @@ fi
 
 set -e # fail if any command fails
 $apt_get_command update -y
-$apt_get_command install -y build-essential autoconf libtool pkg-config cmake git libboost-all-dev
+$apt_get_command install -y build-essential autoconf libtool pkg-config cmake git libboost-all-dev libgtest-dev
 
 # Check if gRPC is already installed
 if [ -d "$GRPC_INSTALL_DIR" ]; then

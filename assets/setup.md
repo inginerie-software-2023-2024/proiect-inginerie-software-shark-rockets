@@ -53,6 +53,15 @@ Points to remember:
 3. Enter the user container: ```docker exec -it <user_container_id> bash``` and launch the sample code, for example ```./sample 172.7.0.10:50051 user -```. You can add more user containers by configuring ```replicas``` to be >1 (similar to the workers)
 4. If you force kill docker compose (double CTRL+C), run ```docker compose down``` (I recommend force killing, it takes more time to wait for containers to end gracefully)
 
+#### Running unit tests
+0. Make sure you have Gtest installed by running the latest ```./scripts/sync_depends```
+1. Set the flag in cmake that builds the tests ```cmake .. -DBUILD_TESTS=ON``` and build as usual
+2. Run all tests: run ```ctest``` in the ```build``` directory, ```ctest --verbose``` if you want to see the status of each individual test
+3. If you want to test only one target: run the corresponding binary from ```package/test``` 
+4. If you want to test only certain tests from a target: when running the binary from the command line give the pattern that will match your test/suite ```--gtest_filter=pattern```
+5. If you want docker to build and run tests use ```--build-arg RUN_TESTS=true```, note that the image will fail if any test fails
+6. Ctest support test parelization, ```ctest -j <threads>``` however I did not write the tests with this in mind so you will have to redesign and rewrite some tests if you have this ambition
+
 #### How to build your changes?
 - If you just modified the source code: ```cd build && cmake --build .```
 - If you modified the source code and cmake configuration: ```cd build && cmake .. && cmake --build .```

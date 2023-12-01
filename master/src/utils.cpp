@@ -11,10 +11,12 @@ bool ensure_directory(const fs::path& path) {
 
 void sanity_check() {
   if (!fs::exists(NFS_ROOT)) {
-    throw std::runtime_error("NFS not found");
+    throw std::runtime_error(std::string("NFS not found ") +
+                             (NFS_ROOT).string());
   }
   if (!fs::is_directory(NFS_ROOT)) {
-    throw std::runtime_error("NFS is not directory");
+    throw std::runtime_error(std::string("NFS is not a directory ") +
+                             (NFS_ROOT).string());
   }
 }
 }  // namespace nfs

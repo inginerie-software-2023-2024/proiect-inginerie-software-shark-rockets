@@ -21,6 +21,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/package/lib")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(USER_CODE "Build user test code" ON)
+option(BUILD_TESTS "Build the tests" OFF)
 
 set(Boost_USE_STATIC_LIBS   ON)
 
@@ -31,6 +32,11 @@ add_subdirectory(map_reduce)
 
 if(USER_CODE)
     add_subdirectory(sandbox)
+endif()
+
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(test)
 endif()
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/install")

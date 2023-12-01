@@ -9,10 +9,12 @@ RUN cd build && cmake .. && make -j$(nproc)
 
 FROM ubuntu:23.10
 
-WORKDIR /nfs
+WORKDIR /build
 COPY --from=build_app /app/package .
 # move to /lib so that the dynamic loader can find the lib
 RUN cp ./lib/* /lib 
+
+WORKDIR /nfs
 
 # This is the default command - it allows us to debug the image
 # It will get overridden in docker compose

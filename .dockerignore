@@ -8,3 +8,4 @@ Dockerfile
 generate_proto.sh
 README.md
 eucalypt/
+docker-compose.yml

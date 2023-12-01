@@ -1,3 +1,5 @@
+# <u>User personas</u>
+
 ## Name: Bob
 
 <img align = 'right' src="Bob.png" width="200px"/>
@@ -41,3 +43,12 @@
 - Alice is challenged by the technical aspects of distributed computing, which can be a barrier to her productivity.
 - Her frustration lies in the time and effort required to set up and manage data processing tasks.
 - Any system outages or lack of user-friendly features would be a significant pain point for her.
+
+<br />
+<br />
+<br />
+
+# <u>User Jorney Map</u>
+
+<img src="UserJourneyMap.png"/>
+

@@ -12,16 +12,28 @@ class MasterServiceImpl final : public MasterService::Service
 private:
     MasterState master_state;
 
+    std::string extract_ip_from_context(grpc::ServerContext *context)
+    {
+        std::string peer = context->peer(); // is of the form ipv4:ip:port
+        int first_colon = peer.find(':');
+        int second_colon = peer.find(':', first_colon + 1);
+
+        return peer.substr(first_colon + 1, second_colon - first_colon - 1);
+    }
+
 public:
     grpc::Status RegisterWorker(grpc::ServerContext *context,
                                 const RegisterWorkerRequest *request,
                                 RegisterWorkerReply *response) override
     {
-        std::cout << "Master: received a register worker request:"
-                  << " ip: " << request->ip() << ','
-                  << " port: " << request->port() << '\n';
+        std::string worker_ip = extract_ip_from_context(context);
+        int worker_port = request->worker_port();
 
-        master_state.register_worker(request->ip(), request->port());
+        std::cout << "Master: received a register worker request:"
+                  << " ip: " << worker_ip << ','
+                  << " port: " << worker_port << '\n';
+
+        master_state.register_worker(worker_ip, worker_port);
         response->set_ok(true);
         return grpc::Status::OK;
     }

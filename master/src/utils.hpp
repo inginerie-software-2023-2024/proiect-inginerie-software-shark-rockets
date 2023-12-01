@@ -12,6 +12,7 @@ namespace nfs {
     #endif
 
     bool ensure_directory(const fs::path &path);
+    void sanity_check();
 }
 
 

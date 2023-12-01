@@ -95,6 +95,7 @@ public:
 
 int main()
 {
+    nfs::sanity_check();
     // This is hardcoded for now...
     std::string master_server_address = "0.0.0.0:50051";
 

@@ -8,4 +8,13 @@ namespace nfs {
             return fs::create_directory(path);
         }
     }
+
+    void sanity_check() {
+        if(!fs::exists(NFS_ROOT)) {
+            throw std::runtime_error("NFS not found");
+        }
+        if(!fs::is_directory(NFS_ROOT)) {
+            throw std::runtime_error("NFS is not directory");
+        }
+    }
 }

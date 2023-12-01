@@ -204,6 +204,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   Log Out
                 </MDButton>
               </MDBox>
+
               <MDBox>
                 <MDButton
                   variant="gradient"
@@ -215,6 +216,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   Check connection
                 </MDButton>
               </MDBox>
+
             </MDBox>
           </MDBox>
         )}

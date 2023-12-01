@@ -5,3 +5,4 @@ grpc/
 .generated/
 package/
 install/
+eucalypt/*/node_modules

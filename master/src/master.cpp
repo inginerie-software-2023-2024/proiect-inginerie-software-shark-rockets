@@ -78,6 +78,16 @@ public:
 
         return grpc::Status::OK;
     }
+
+    grpc::Status CheckConnection(grpc::ServerContext *context,
+                                const CheckConnectionRequest *request,
+                                CheckConnectionReply *response) override 
+    {
+        std::cout << "Master received grpc call from Eucalypt with message: " << 
+                    request->message() << '\n';
+        response->set_ok(true);
+        return grpc::Status::OK;
+    }
 };
 
 int main()

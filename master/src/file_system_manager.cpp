@@ -56,7 +56,7 @@ namespace nfs {
     }
 
 
-    std::vector<fs::path> sym_link_data(const std::vector<fs::path> &files,const fs::path &job_root,const std::string job_uuid) {
+    std::vector<fs::path> sym_link_data(const std::vector<fs::path> &files,const fs::path &job_root) {
         
         fs::path input_dir = job_root / "input";
 
@@ -115,7 +115,7 @@ namespace nfs {
         }
 
         try {
-            return sym_link_data(files,job_root,uuid);
+            return sym_link_data(files,job_root);
         } catch (const fs::filesystem_error& e) {
             std::cerr << "Creating symbolic links failed, defaulting to normal paths, error=" << e.what() << std::endl;
             return files;

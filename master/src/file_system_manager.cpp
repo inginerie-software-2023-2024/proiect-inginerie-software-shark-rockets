@@ -7,24 +7,13 @@
 
 namespace nfs {
 
-    static boost::regex convert_glob_to_regex(const std::string& glob_pattern) {
-        std::string regex_pattern = glob_pattern;
-
-        boost::replace_all(regex_pattern, "\\", "\\\\");  // Escape backslashes first
-        boost::replace_all(regex_pattern, ".", "\\.");    // Escape dots
-        boost::replace_all(regex_pattern, "*", ".*");     // Convert '*' to '.*'
-        boost::replace_all(regex_pattern, "?", ".");      // Convert '?' to '.'
-
-        return boost::regex("^" + regex_pattern + "$");
-    }
-
     std::vector<fs::path> list_files_matching_pattern(
         const fs::path& base_path,
-        const std::string& glob_pattern
+        const std::string& regex_pattern
     ) {
         std::vector<fs::path> matching_files;
 
-        boost::regex pattern = convert_glob_to_regex(glob_pattern);
+        boost::regex pattern = boost::regex(regex_pattern);
 
         fs::recursive_directory_iterator end_iter; // Default construction yields past-the-end
         for (fs::recursive_directory_iterator iter(base_path); iter != end_iter; ++iter) {
@@ -93,7 +82,7 @@ namespace nfs {
             return {};
         }
 
-        std::vector<fs::path> files = list_files_matching_pattern(user_data_dir,request->file_pattern());
+        std::vector<fs::path> files = list_files_matching_pattern(user_data_dir,request->file_regex());
         
         const auto &metadata = context->client_metadata();
         auto uuid_it = metadata.find("uuid");

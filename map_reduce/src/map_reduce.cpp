@@ -22,12 +22,6 @@ namespace map_reduce
         return executable_path;
     }
 
-    std::string &get_file_pattern()
-    {
-        static std::string file_path;
-        return file_path;
-    }
-
     std::unordered_map<std::string, Mapper *> &get_mappers()
     {
         static std::unordered_map<std::string, Mapper *> mappers;
@@ -62,8 +56,7 @@ void map_reduce::init(int argc, char **argv)
     // argv[0] (implicit) -> location of the binary
     // argv[1] -> master address as ip.ip.ip.ip:port
     // argv[2] -> mode: user, mapper, reducer
-    // argv[3] -> name of class to run, if mode is mapper or reducer, file pattern if mode is user
-
+    // argv[3] -> name of class to run, if mode is mapper or reducer
     if (argc < 4)
         throw std::runtime_error("Invalid usage, expected 3 arguments");
 
@@ -85,17 +78,13 @@ void map_reduce::init(int argc, char **argv)
         get_reducers()[argv[3]]->reduce();
         exit(0);
     }
-    else if (strcmp(argv[2], "user") == 0)
-    {
-        get_file_pattern() = argv[3];
-    }
 
     // start in user mode
     auto channel = grpc::CreateChannel(argv[1], grpc::InsecureChannelCredentials());
     master_service = MasterService::NewStub(channel);
 }
 
-void map_reduce::register_job(const std::string &mapper_name, const std::string &reducer_name)
+void map_reduce::register_job(const std::string &mapper_name, const std::string &reducer_name,const std::string &file_regex)
 {
     // check that the provided mapper and reducer are known ...
 
@@ -105,7 +94,7 @@ void map_reduce::register_job(const std::string &mapper_name, const std::string 
     request.set_path(get_executable_path());
     request.set_mapper(mapper_name);
     request.set_reducer(reducer_name);
-    request.set_file_pattern(get_file_pattern());
+    request.set_file_regex(file_regex);
     // request.set_user_name("gogu"); // send optional parameter
 
     RegisterJobReply reply;

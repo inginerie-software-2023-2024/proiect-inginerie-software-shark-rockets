@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     map_reduce::init(argc, argv);
 
     // We submit a job to be computed
-    map_reduce::register_job("MyMapper", "MyReducer");
+    map_reduce::register_job("MyMapper", "MyReducer","^job/.*\\.txt$");
 
     return 0;
 }

@@ -48,7 +48,7 @@ public:
         std::cout << "Master: received a register job request: path=" << request->path()
                   << ", mapper=" << request->mapper()
                   << ", reducer=" << request->reducer() 
-                  << ", file location=" << request->file_pattern()
+                  << ", file location=" << request->file_regex()
                   << '\n';
 
         std::vector<nfs::fs::path> job_files =  nfs::on_job_register_request(context,request);

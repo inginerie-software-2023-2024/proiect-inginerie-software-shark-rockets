@@ -11,6 +11,10 @@ std::vector<fs::path> list_files_matching_pattern(
     const fs::path& base_path, const std::string& regex_pattern) {
   std::vector<fs::path> matching_files;
 
+  if (!fs::exists(base_path)) {
+    return matching_files;
+  }
+
   boost::regex pattern = boost::regex(regex_pattern);
 
   fs::recursive_directory_iterator
@@ -30,6 +34,11 @@ std::vector<fs::path> list_files_matching_pattern(
 }
 
 bool create_job_structure(const fs::path& job_root) {
+
+  if (!fs::exists(job_root)) {
+    return false;
+  }
+
   if (!ensure_directory(job_root)) {
     std::cerr << "Failed to ensure job root " << job_root << std::endl;
     return false;
@@ -49,10 +58,24 @@ std::vector<fs::path> sym_link_data(const std::vector<fs::path>& files,
 
   fs::path input_dir = job_root / "input";
 
+  if (!fs::exists(input_dir)) {
+    boost::system::error_code ec(boost::system::errc::no_such_file_or_directory,
+                                 boost::system::generic_category());
+    throw fs::filesystem_error("Input dir not found", job_root.c_str(), ec);
+  }
+
   std::vector<fs::path> linked_files;
   linked_files.reserve(files.size());
 
   for (size_t i = 0; i < files.size(); ++i) {
+    if (!fs::exists(files[i])) {
+      boost::system::error_code ec(
+          boost::system::errc::no_such_file_or_directory,
+          boost::system::generic_category());
+      throw fs::filesystem_error("Can't symlink to nonexistent file",
+                                 files[i].c_str(), ec);
+    }
+
     fs::path input_link = input_dir / ("f-" + std::to_string(i));
     fs::path rel_path = fs::relative(files[i], input_dir);
 

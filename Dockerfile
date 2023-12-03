@@ -1,10 +1,22 @@
+# Base stage for building the app
 FROM aairinei/map-reduce-base:latest as build_app
 
+ARG RUN_TESTS=false
 WORKDIR /app
 RUN mkdir build
 
 COPY . .
-RUN cd build && cmake -DIN_DOCKER=ON .. && make -j$(nproc) 
+RUN cd build \
+    && cmake -DIN_DOCKER=ON -DBUILD_TESTS=$RUN_TESTS .. \
+    && make -j$(nproc)
+
+# Only execute this stage if RUN_TESTS is set to true
+RUN if [ "$RUN_TESTS" = "true" ] ; then \
+    set -e; \
+    for test in test_master test_worker test_koala; do \
+        /app/package/test/$test; \
+    done; \
+fi
 
 
 FROM ubuntu:23.10

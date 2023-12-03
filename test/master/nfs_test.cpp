@@ -107,11 +107,6 @@ TEST_F(JobStructureTest, ExistingJobStructure) {
   EXPECT_TRUE(create_job_structure(job_root));
 }
 
-TEST_F(JobStructureTest, InvalidRootDirectory) {
-  fs::path invalid_root = "/invalid_path";
-  EXPECT_FALSE(create_job_structure(invalid_root));
-}
-
 class SymLinkDataTest : public ::testing::Test {
  protected:
   fs::path temp_dir_path;

@@ -35,10 +35,6 @@ std::vector<fs::path> list_files_matching_pattern(
 
 bool create_job_structure(const fs::path& job_root) {
 
-  if (!fs::exists(job_root)) {
-    return false;
-  }
-
   if (!ensure_directory(job_root)) {
     std::cerr << "Failed to ensure job root " << job_root << std::endl;
     return false;

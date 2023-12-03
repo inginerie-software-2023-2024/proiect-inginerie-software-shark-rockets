@@ -25,7 +25,7 @@ services:
         depends_on:
           - "master"
         tty: true
-        command: bash -c "./worker 172.7.0.10:50051 7777"
+        command: bash -c "./worker --master-address 172.7.0.10:50051 --port 7777"
         deploy:
             mode: replicated
             replicas: 5

@@ -6,23 +6,9 @@
 #include <string>
 #include "master_service.grpc.pb.h"
 #include "master_service.pb.h"
+#include "utils.hpp"
 #include "worker_service.grpc.pb.h"
 #include "worker_service.pb.h"
-
-// Should parse arguments with boost...
-std::string parse_address(int argc, char** argv) {
-  if (argc < 3)
-    throw std::runtime_error("Invalid usage, expected 2 arguments");
-
-  return argv[1];
-}
-
-int parse_port(int argc, char** argv) {
-  if (argc < 3)
-    throw std::runtime_error("Invalid usage, expected 2 arguments");
-
-  return std::stoi(argv[2]);
-}
 
 // Should have some worker state, which should persist the channel to the master service
 void notify_master(const std::string& master_address, int port) {
@@ -67,10 +53,10 @@ class WorkerServiceImpl final : public WorkerService::Service {
       return grpc::Status::OK;
     } else {
       char *path = strdup("does_not_matter"),
-           *master_ip = strdup("does_not_matter"),
            *mode = strdup(request->mode().c_str()),
            *class_ = strdup(request->class_().c_str());
-      char* arguments[] = {path, master_ip, mode, class_, NULL};
+      char* arguments[] = {
+          path, strdup("--mode"), mode, strdup("--class"), class_, NULL};
       execve(request->path().c_str(), arguments, NULL);
     }
     return grpc::Status::CANCELLED;
@@ -78,11 +64,10 @@ class WorkerServiceImpl final : public WorkerService::Service {
 };
 
 int main(int argc, char** argv) {
-  // Parse master's address
-  std::string master_address = parse_address(argc, argv);
 
-  // Parse worker's gRPC port
-  int port = parse_port(argc, argv);
+  auto vm = parse_args(argc, argv);
+  std::string master_address = (*vm)["master-address"].as<std::string>();
+  int port = (*vm)["port"].as<int>();
 
   // Signal to master that we're up
   notify_master(master_address, port);

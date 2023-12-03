@@ -44,35 +44,35 @@ bool map_reduce::register_reducer(const std::string& name, Reducer* reducer) {
 }
 
 void map_reduce::init(int argc, char** argv) {
-  // this is quick and dirty - should probably parse args with boost::program_options
-
-  // argv[0] (implicit) -> location of the binary
-  // argv[1] -> master address as ip.ip.ip.ip:port
-  // argv[2] -> mode: user, mapper, reducer
-  // argv[3] -> name of class to run, if mode is mapper or reducer
-  if (argc < 4)
-    throw std::runtime_error("Invalid usage, expected 3 arguments");
+  auto vm = parse_args(argc, argv);
 
   get_executable_path() = argv[0];
 
-  if (strcmp(argv[2], "mapper") == 0) {
-    // start in mapper mode
-    // check if this mapper is in the set of known mappers...
-
-    get_mappers()[argv[3]]->map();
-    exit(0);
-  } else if (strcmp(argv[2], "reducer") == 0) {
-    // start in reducer mode
-    // check if this reducer is in the set of known reducers...
-
-    get_reducers()[argv[3]]->reduce();
-    exit(0);
+  auto mode = (*vm)["mode"].as<Mode>();
+  std::cout << mode;
+  switch (mode) {
+    case Mode::Mapper: {
+      const auto clss = (*vm)["class"].as<std::string>();
+      get_mappers()[clss]->map();
+      exit(0);
+      break;
+    }
+    case Mode::Reducer: {
+      auto clss = (*vm)["class"].as<std::string>();
+      get_reducers()[clss]->reduce();
+      exit(0);
+      break;
+    }
+    case Mode::User: {
+      const auto master_adress = (*vm)["master-address"].as<std::string>();
+      const auto channel = grpc::CreateChannel(
+          master_adress, grpc::InsecureChannelCredentials());
+      master_service = MasterService::NewStub(channel);
+      break;
+    }
+    default:
+      break;
   }
-
-  // start in user mode
-  auto channel =
-      grpc::CreateChannel(argv[1], grpc::InsecureChannelCredentials());
-  master_service = MasterService::NewStub(channel);
 }
 
 void map_reduce::register_job(const std::string& mapper_name,

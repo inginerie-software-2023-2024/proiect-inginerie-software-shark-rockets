@@ -2,6 +2,8 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include "eucalypt_service.grpc.pb.h"
+#include "eucalypt_service.pb.h"
 #include "file_system_manager.hpp"
 #include "master_service.grpc.pb.h"
 #include "master_service.pb.h"
@@ -93,6 +95,17 @@ class MasterServiceImpl final : public MasterService::Service {
   }
 };
 
+class EucalyptServiceImpl final : public EucalyptService::Service {
+  grpc::Status CheckConnection([[maybe_unused]] grpc::ServerContext* context,
+                               const CheckConnectionRequest* request,
+                               CheckConnectionReply* response) override {
+    std::cout << "Master received grpc call from Eucalypt with message: "
+              << request->message() << '\n';
+    response->set_ok(true);
+    return grpc::Status::OK;
+  }
+};
+
 int main() {
   nfs::sanity_check();
   // This is hardcoded for now...
@@ -100,11 +113,13 @@ int main() {
 
   // Start a grpc server, waiting for job requests and worker heartbeats
   MasterServiceImpl master_service;
+  EucalyptServiceImpl eucalypt_service;
   grpc::ServerBuilder builder;
 
   builder.AddListeningPort(master_server_address,
                            grpc::InsecureServerCredentials());
   builder.RegisterService(&master_service);
+  builder.RegisterService(&eucalypt_service);
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
 

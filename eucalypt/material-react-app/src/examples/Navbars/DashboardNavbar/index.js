@@ -37,6 +37,7 @@ import Breadcrumbs from "examples/Breadcrumbs";
 import NotificationItem from "examples/Items/NotificationItem";
 
 import AuthService from "services/auth-service";
+import ConnectionService from "services/connection-service"
 
 // Custom styles for DashboardNavbar
 import {
@@ -134,6 +135,10 @@ function DashboardNavbar({ absolute, light, isMini }) {
     authContext.logout();
   };
 
+  const handleConnection = async () => {
+    const response = await ConnectionService.checkConnection();
+  };
+
   return (
     <AppBar
       position={absolute ? "absolute" : navbarType}
@@ -199,6 +204,19 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   Log Out
                 </MDButton>
               </MDBox>
+
+              <MDBox>
+                <MDButton
+                  variant="gradient"
+                  color="info"
+                  fullWidth
+                  type="button"
+                  onClick={handleConnection}
+                >
+                  Check connection
+                </MDButton>
+              </MDBox>
+
             </MDBox>
           </MDBox>
         )}

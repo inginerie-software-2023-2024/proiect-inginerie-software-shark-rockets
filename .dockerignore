@@ -2,6 +2,7 @@
 assets/
 build/
 .generated/
+scripts/
 .gitignore
 Dockerfile
 .dockerignore

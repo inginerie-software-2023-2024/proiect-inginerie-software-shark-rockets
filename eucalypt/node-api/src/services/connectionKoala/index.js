@@ -34,4 +34,6 @@ export const checkConnectionHandler = async (req, res) => {
             console.log(ok);
           }
     });
+
+    res.status(204).send()
 };

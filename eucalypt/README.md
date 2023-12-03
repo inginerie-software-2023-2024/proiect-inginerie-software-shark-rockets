@@ -29,9 +29,11 @@ To install the project you need to have version 16 of Node.js and npm version 8.
 - APP_URL_CLIENT= http://localhost:3000
 - APP_URL_API= http://localhost:8080
 
+After that, run `npm start:dev`
+
 ## Material React Frontend Installation
 
-Go to the material-react-app folder `cd ../material-react-app`.
+Go to the material-react-app folder `cd material-react-app`.
 
 1. Run `yarn install` or `npm install` to install our local dependencies.
 2. Rename the `.env.example` to `.env`.

@@ -4,7 +4,7 @@ WORKDIR /app
 RUN mkdir build
 
 COPY . .
-RUN cd build && cmake .. && make -j$(nproc) 
+RUN cd build && cmake -DIN_DOCKER=ON .. && make -j$(nproc) 
 
 
 FROM ubuntu:23.10

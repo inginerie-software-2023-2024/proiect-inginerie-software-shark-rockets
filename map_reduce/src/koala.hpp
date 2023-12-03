@@ -36,5 +36,5 @@ namespace map_reduce
 
     void init(int argc, char **argv);
 
-    void register_job(const std::string &mapper_name, const std::string &reducer_name);
+    void register_job(const std::string &mapper_name, const std::string &reducer_name,const std::string &file_regex);
 };

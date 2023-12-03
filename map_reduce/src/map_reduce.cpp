@@ -2,6 +2,7 @@
 #include <grpcpp/grpcpp.h>
 #include "master_service.grpc.pb.h"
 #include "master_service.pb.h"
+#include "utils.hpp"
 #include <string>
 #include <stdexcept>
 #include <iostream>
@@ -56,7 +57,6 @@ void map_reduce::init(int argc, char **argv)
     // argv[1] -> master address as ip.ip.ip.ip:port
     // argv[2] -> mode: user, mapper, reducer
     // argv[3] -> name of class to run, if mode is mapper or reducer
-
     if (argc < 4)
         throw std::runtime_error("Invalid usage, expected 3 arguments");
 
@@ -84,7 +84,7 @@ void map_reduce::init(int argc, char **argv)
     master_service = MasterService::NewStub(channel);
 }
 
-void map_reduce::register_job(const std::string &mapper_name, const std::string &reducer_name)
+void map_reduce::register_job(const std::string &mapper_name, const std::string &reducer_name,const std::string &file_regex)
 {
     // check that the provided mapper and reducer are known ...
 
@@ -94,9 +94,13 @@ void map_reduce::register_job(const std::string &mapper_name, const std::string 
     request.set_path(get_executable_path());
     request.set_mapper(mapper_name);
     request.set_reducer(reducer_name);
+    request.set_file_regex(file_regex);
+    // request.set_user_name("gogu"); // send optional parameter
 
     RegisterJobReply reply;
     grpc::ClientContext context;
+    context.AddMetadata("uuid",generate_uuid());
+    
     auto status = master_service->RegisterJob(&context, request, &reply);
 
     if (status.ok())

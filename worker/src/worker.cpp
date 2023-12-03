@@ -50,7 +50,7 @@ void notify_master(const std::string &master_address, int port)
 class WorkerServiceImpl final : public WorkerService::Service
 {
 public:
-    grpc::Status AssignWork(grpc::ServerContext *context,
+    grpc::Status AssignWork([[maybe_unused]] grpc::ServerContext *context,
                             const AssignWorkRequest *request,
                             AssignWorkReply *response) override
     {

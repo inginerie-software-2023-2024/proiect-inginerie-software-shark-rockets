@@ -4,8 +4,11 @@
 #include "worker_service.pb.h"
 #include "worker_service.grpc.pb.h"
 #include "master_state.hpp"
+#include "file_system_manager.hpp"
+#include "utils.hpp"
 #include <string>
 #include <iostream>
+#include <memory>
 
 class MasterServiceImpl final : public MasterService::Service
 {
@@ -44,7 +47,17 @@ public:
     {
         std::cout << "Master: received a register job request: path=" << request->path()
                   << ", mapper=" << request->mapper()
-                  << ", reducer=" << request->reducer() << '\n';
+                  << ", reducer=" << request->reducer() 
+                  << ", file location=" << request->file_regex()
+                  << '\n';
+
+        std::vector<nfs::fs::path> job_files =  nfs::on_job_register_request(context,request);
+
+        // Just print them for now, use this vector to asssign input to workers
+        std :: cout << "Listing job files..." << std::endl;
+        for(const auto &it : job_files) {
+            std::cout << "Job file: " << it << std::endl;
+        }
 
         std::pair<std::string, int> worker = master_state.get_worker();
         std::cout << "Master: we will assign the tasks to " << worker.first << ':' << worker.second << '\n';
@@ -82,6 +95,7 @@ public:
 
 int main()
 {
+    nfs::sanity_check();
     // This is hardcoded for now...
     std::string master_server_address = "0.0.0.0:50051";
 

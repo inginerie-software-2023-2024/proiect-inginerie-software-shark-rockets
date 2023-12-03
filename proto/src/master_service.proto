@@ -17,6 +17,8 @@ message RegisterJobRequest {
     string path = 1;
     string mapper = 2;
     string reducer = 3;
+    optional string user_name = 4;
+    string file_regex = 5;
 }
 
 message RegisterJobReply {

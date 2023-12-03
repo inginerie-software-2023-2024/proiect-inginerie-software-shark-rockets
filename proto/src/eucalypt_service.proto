@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service EucalyptService {
+    rpc CheckConnection(CheckConnectionRequest) returns (CheckConnectionReply) {}
+}
+
+message CheckConnectionRequest {
+    string message = 1;
+}
+
+message CheckConnectionReply {
+    bool ok = 1;
+}

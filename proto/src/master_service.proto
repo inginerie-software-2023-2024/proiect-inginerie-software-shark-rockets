@@ -3,7 +3,6 @@ syntax = "proto3";
 service MasterService {
     rpc RegisterWorker(RegisterWorkerRequest) returns (RegisterWorkerReply) {}
     rpc RegisterJob(RegisterJobRequest) returns (RegisterJobReply) {}
-    rpc CheckConnection(CheckConnectionRequest) returns (CheckConnectionReply) {}
 }
 
 message RegisterWorkerRequest {
@@ -21,13 +20,5 @@ message RegisterJobRequest {
 }
 
 message RegisterJobReply {
-    bool ok = 1;
-}
-
-message CheckConnectionRequest {
-    string message = 1;
-}
-
-message CheckConnectionReply {
     bool ok = 1;
 }

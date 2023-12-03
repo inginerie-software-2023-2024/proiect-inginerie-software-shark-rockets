@@ -1,4 +1,4 @@
-import grpc from "grpc";
+import grpc from '@grpc/grpc-js';
 import protoLoader from '@grpc/proto-loader';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 console.log(__dirname)
 
-var PROTO_PATH = __dirname + '../../../../../../proto/src/master_service.proto'
+var PROTO_PATH = __dirname + '../../../../../../proto/src/eucalypt_service.proto'
 
 var packageDefinition = protoLoader.loadSync(
     PROTO_PATH,
@@ -18,12 +18,12 @@ var packageDefinition = protoLoader.loadSync(
         defaults: true,
         oneofs: true
     });
-var MasterService = grpc.loadPackageDefinition(packageDefinition).MasterService;
-var client = new MasterService('localhost:50051',
+var EucalyptService = grpc.loadPackageDefinition(packageDefinition).EucalyptService;
+var client = new EucalyptService('localhost:50051',
                                        grpc.credentials.createInsecure());
 
 var request = {
-    message: 'Un mesaj de test'
+    message: 'A test message'
 };
 
 export const checkConnectionHandler = async (req, res) => {
@@ -34,5 +34,4 @@ export const checkConnectionHandler = async (req, res) => {
             console.log(ok);
           }
     });
-    console.log('connection');
 };

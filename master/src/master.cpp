@@ -1,6 +1,8 @@
 #include <grpcpp/grpcpp.h>
 #include "master_service.pb.h"
 #include "master_service.grpc.pb.h"
+#include "eucalypt_service.pb.h"
+#include "eucalypt_service.grpc.pb.h"
 #include "worker_service.pb.h"
 #include "worker_service.grpc.pb.h"
 #include "master_state.hpp"
@@ -78,7 +80,10 @@ public:
 
         return grpc::Status::OK;
     }
+};
 
+class EucalyptServiceImpl final : public EucalyptService::Service 
+{
     grpc::Status CheckConnection(grpc::ServerContext *context,
                                 const CheckConnectionRequest *request,
                                 CheckConnectionReply *response) override 
@@ -97,10 +102,12 @@ int main()
 
     // Start a grpc server, waiting for job requests and worker heartbeats
     MasterServiceImpl master_service;
+    EucalyptServiceImpl eucalypt_service;
     grpc::ServerBuilder builder;
 
     builder.AddListeningPort(master_server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&master_service);
+    builder.RegisterService(&eucalypt_service);
 
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
 

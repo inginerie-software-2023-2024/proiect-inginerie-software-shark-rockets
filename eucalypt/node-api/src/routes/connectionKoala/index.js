@@ -6,7 +6,6 @@ import {
 const router = express.Router();
 
 router.post("/checkConnection", async (req, res, next) => {
-  console.log('connection');
   await checkConnectionHandler(req, res);
 });
 

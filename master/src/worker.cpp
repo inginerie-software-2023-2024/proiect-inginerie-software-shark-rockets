@@ -1,8 +1,8 @@
 #include "worker.hpp"
 
 Worker::Worker(std::string addr, int port)
-    : a(std::move(addr)), p(port), num_jobs(0) {
-  std::string target = a + ":" + std::to_string(p);
+    : addr_(std::move(addr)), port_(port), num_jobs(0) {
+  std::string target = addr_ + ":" + std::to_string(port_);
   channel = grpc::CreateChannel(target, grpc::InsecureChannelCredentials());
   stub = WorkerService::NewStub(channel);
 }
@@ -35,11 +35,11 @@ bool Worker::assign_work(const std::string& binary_path, WorkerType type,
 }
 
 const std::string& Worker::address() const {
-  return a;
+  return addr_;
 }
 
 int Worker::port() const {
-  return p;
+  return port_;
 }
 
 int Worker::load() const {

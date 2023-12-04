@@ -9,8 +9,8 @@ enum WorkerType { Mapper, Reducer };
 class Worker {
  private:
   // The address and port of the worker.
-  std::string a;
-  int p;
+  std::string addr_;
+  int port_;
 
   // TCP connection to the worker.
   std::shared_ptr<grpc::Channel> channel;

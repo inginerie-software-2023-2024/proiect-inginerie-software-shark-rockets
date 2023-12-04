@@ -1,14 +1,17 @@
 #pragma once
 #include <mutex>
-#include <string>
-#include <vector>
+#include <queue>
+#include "worker.hpp"
 
 class MasterState {
  private:
-  std::vector<std::pair<std::string, int>> workers;
+  std::vector<std::unique_ptr<Worker>> workers;
   std::mutex master_lock;
 
  public:
-  void register_worker(const std::string& ip, int port);
-  std::pair<std::string, int> get_worker();
+  // Moves a new worker into the data structure, transferring ownership.
+  void push_worker(std::unique_ptr<Worker> new_worker);
+
+  // Pops the worker with the smallest load and returns ownership to the caller.
+  std::unique_ptr<Worker> pop_worker();
 };

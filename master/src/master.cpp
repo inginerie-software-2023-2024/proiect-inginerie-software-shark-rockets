@@ -35,7 +35,8 @@ class MasterServiceImpl final : public MasterService::Service {
               << " ip: " << worker_ip << ',' << " port: " << worker_port
               << '\n';
 
-    master_state.register_worker(worker_ip, worker_port);
+    auto worker = std::make_unique<Worker>(worker_ip, worker_port);
+    master_state.push_worker(std::move(worker));
     response->set_ok(true);
     return grpc::Status::OK;
   }
@@ -51,46 +52,30 @@ class MasterServiceImpl final : public MasterService::Service {
     std::vector<nfs::fs::path> job_files =
         nfs::on_job_register_request(context, request);
 
+    // No files to process.
+    if (job_files.empty()) {
+      return grpc::Status::CANCELLED;
+    }
+
     // Just print them for now, use this vector to asssign input to workers
     std ::cout << "Listing job files..." << std::endl;
     for (const auto& it : job_files) {
       std::cout << "Job file: " << it << std::endl;
     }
 
-    std::pair<std::string, int> worker = master_state.get_worker();
-    std::cout << "Master: we will assign the tasks to " << worker.first << ':'
-              << worker.second << '\n';
+    bool all_ok = true;
+    // Assign files to map-workers.
+    for (const auto& it : job_files) {
+      auto worker = master_state.pop_worker();
+      std::cout << "Assign file: " << it << " to " << worker->address() << ":"
+                << worker->port() << " with load = " << worker->load()
+                << std::endl;
+      all_ok &= worker->assign_work(request->path(), WorkerType::Mapper,
+                                    request->mapper(), it.string());
+      master_state.push_worker(std::move(worker));
+    }
 
-    // should probably create these connections when we register a worker ...
-    auto channel =
-        grpc::CreateChannel(worker.first + ":" + std::to_string(worker.second),
-                            grpc::InsecureChannelCredentials());
-    auto worker_service = WorkerService::NewStub(channel);
-
-    // naive implementation :)
-    AssignWorkRequest mapper_work_request;
-    mapper_work_request.set_path(request->path());
-    mapper_work_request.set_mode("mapper");
-    mapper_work_request.set_class_(request->mapper());
-    AssignWorkReply mapper_work_reply;
-    grpc::ClientContext context_mapper;
-    auto status_mapper_worker = worker_service->AssignWork(
-        &context_mapper, mapper_work_request, &mapper_work_reply);
-
-    AssignWorkRequest reducer_work_request;
-    reducer_work_request.set_path(request->path());
-    reducer_work_request.set_mode("reducer");
-    reducer_work_request.set_class_(request->reducer());
-    AssignWorkReply reducer_work_reply;
-    grpc::ClientContext context_reducer;
-    auto status_reducer_worker = worker_service->AssignWork(
-        &context_reducer, reducer_work_request, &reducer_work_reply);
-
-    if (status_mapper_worker.ok() && status_reducer_worker.ok())
-      response->set_ok(true);
-    else
-      response->set_ok(false);
-
+    response->set_ok(all_ok);
     return grpc::Status::OK;
   }
 };

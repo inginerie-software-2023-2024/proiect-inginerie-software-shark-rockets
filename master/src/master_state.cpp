@@ -1,17 +1,26 @@
 #include "master_state.hpp"
 #include <stdexcept>
 
-// Obviously, this is a naive implementation of the master state :)
-void MasterState::register_worker(const std::string& ip, int port) {
+void MasterState::push_worker(std::unique_ptr<Worker> new_worker) {
   std::lock_guard<std::mutex> lock(master_lock);
-  workers.emplace_back(ip, port);
+  workers.push_back(std::move(new_worker));
 }
 
-std::pair<std::string, int> MasterState::get_worker() {
+std::unique_ptr<Worker> MasterState::pop_worker() {
   std::lock_guard<std::mutex> lock(master_lock);
 
   if (workers.empty())
     throw std::runtime_error("No registered workers!");
 
-  return workers[0];
+  // Find the worker with the lowest load.
+  auto best = workers.begin();
+  for (auto iter = workers.begin() + 1; iter != workers.end(); iter++) {
+    if ((*iter)->load() < (*best)->load()) {
+      best = iter;
+    }
+  }
+
+  std::unique_ptr to_return = std::move(*best);
+  workers.erase(best);
+  return to_return;
 }

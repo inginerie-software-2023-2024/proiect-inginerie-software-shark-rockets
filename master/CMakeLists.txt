@@ -10,7 +10,9 @@ add_executable(
     src/file_system_manager.cpp
     src/utils.cpp
     src/user.cpp
+    src/worker.cpp
 )
+
 target_include_directories(
     ${TARGET} 
     PRIVATE 

@@ -54,7 +54,8 @@ class WorkerServiceImpl final : public WorkerService::Service {
     std::cout << "Worker: received an assign work request:"
               << " path: " << request->path() << ','
               << " mode: " << request->mode() << ','
-              << " class: " << request->class_() << '\n';
+              << " class: " << request->class_() << ','
+              << " file : " << request->file() << '\n';
 
     // Fork a new process and run the job!
     pid_t child_pid = fork();

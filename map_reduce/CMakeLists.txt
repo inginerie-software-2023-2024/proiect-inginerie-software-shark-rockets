@@ -1,7 +1,7 @@
 # Build libkoala to be linked against by user code
 set(TARGET koala)
 
-set(Boost_USE_STATIC_LIBS   Off) # static boost libs installed via apt-get are not compile with position independent code, XXX
+set(Boost_USE_STATIC_LIBS   Off) # static boost libs installed via apt-get are not compiled with position independent code, XXX
 find_package(Boost REQUIRED COMPONENTS program_options)
 
 add_library(

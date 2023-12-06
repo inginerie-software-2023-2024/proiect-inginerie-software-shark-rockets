@@ -44,16 +44,32 @@ class MasterServiceImpl final : public MasterService::Service {
   grpc::Status RegisterJob(grpc::ServerContext* context,
                            const RegisterJobRequest* request,
                            RegisterJobReply* response) override {
+
+    // Retrieve the uuid from the request context.
+    const auto& metadata = context->client_metadata();
+    auto uuid_it = metadata.find("uuid");
+    std::string uuid;
+
+    // No uuid.
+    if (uuid_it == metadata.end()) {
+      std::cerr << "Request doesn't have a uuid!" << std::endl;
+      return grpc::Status::CANCELLED;
+    }
+
+    uuid = std::string(uuid_it->second.data(), uuid_it->second.size());
+
     std::cout << "Master: received a register job request: path="
               << request->path() << ", mapper=" << request->mapper()
               << ", reducer=" << request->reducer()
-              << ", file location=" << request->file_regex() << '\n';
+              << ", file location=" << request->file_regex()
+              << ", job uuid=" << uuid << std::endl;
 
     std::vector<nfs::fs::path> job_files =
-        nfs::on_job_register_request(context, request);
+        nfs::on_job_register_request(uuid, request);
 
     // No files to process.
     if (job_files.empty()) {
+      std::cerr << "No files to process!" << std::endl;
       return grpc::Status::CANCELLED;
     }
 

@@ -84,7 +84,7 @@ std::vector<fs::path> sym_link_data(const std::vector<fs::path>& files,
 }
 
 std::vector<fs::path> on_job_register_request(
-    const grpc::ServerContext* context, const RegisterJobRequest* request) {
+    const std::string& uuid, const RegisterJobRequest* request) {
 
   std::unique_ptr<User> user;
   if (request->has_user_name()) {
@@ -103,19 +103,6 @@ std::vector<fs::path> on_job_register_request(
 
   std::vector<fs::path> files =
       list_files_matching_pattern(user_data_dir, request->file_regex());
-
-  const auto& metadata = context->client_metadata();
-  auto uuid_it = metadata.find("uuid");
-  std::string uuid;
-
-  if (uuid_it != metadata.end()) {
-    uuid = std::string(uuid_it->second.data(), uuid_it->second.size());
-    std::cout << "Request UUID: " << uuid << std::endl;
-  } else {
-    std::cerr << "Request doesnt have uuid " << std::endl;
-    return {};
-  }
-
   fs::path job_root = user_dir / ("job-" + uuid);
 
   if (!create_job_structure(job_root)) {

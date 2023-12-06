@@ -28,7 +28,6 @@ message RegisterJobReply {
 
 message AckWorkerFinishRequest{
     // TBD what to put here (ex: uuid, duration, file etc.)
-    bool ok = 1;
 }
 
 message AckWorkerFinishReply{

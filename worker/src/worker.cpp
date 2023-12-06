@@ -5,22 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include "utils.hpp"
-#include "worker_impl.h"
-
-// Should parse arguments with boost...
-std::string parse_address(int argc, char** argv) {
-  if (argc < 3)
-    throw std::runtime_error("Invalid usage, expected 2 arguments");
-
-  return argv[1];
-}
-
-int parse_port(int argc, char** argv) {
-  if (argc < 3)
-    throw std::runtime_error("Invalid usage, expected 2 arguments");
-
-  return std::stoi(argv[2]);
-}
+#include "worker_impl.hpp"
 
 int main(int argc, char** argv) {
 

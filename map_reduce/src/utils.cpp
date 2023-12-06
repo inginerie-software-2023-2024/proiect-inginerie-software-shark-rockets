@@ -66,16 +66,16 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       throw po::error("Mode not specified");
     }
 
-    auto mode = (*vm)["mode"].as<Mode>();
+    auto mode = get_arg<Mode>(vm,"mode");
 
     switch (mode) {
       case Mode::Mapper: {
         if (!vm->count("class")) {
           throw po::error("Mapper class not specified");
         }
-        auto clss = (*vm)["class"].as<std::string>();
+        auto clss = get_arg<std::string>(vm,"class");
         if (!map_reduce::get_mappers().count(clss)) {
-          throw po::error(clss + "not loaded in context");
+          throw po::error(clss + " not loaded in context");
         }
         break;
       }
@@ -83,9 +83,9 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
         if (!vm->count("class")) {
           throw po::error("Reducer class not specified");
         }
-        auto clss = (*vm)["class"].as<std::string>();
+        auto clss = get_arg<std::string>(vm,"class");
         if (!map_reduce::get_reducers().count(clss)) {
-          throw po::error(clss + "not loaded in context");
+          throw po::error(clss + " not loaded in context");
         }
         break;
       }

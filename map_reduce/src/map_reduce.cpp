@@ -48,23 +48,23 @@ void map_reduce::init(int argc, char** argv) {
 
   get_executable_path() = argv[0];
 
-  auto mode = (*vm)["mode"].as<Mode>();
+  auto mode = get_arg<Mode>(vm, "mode");
   std::cout << mode;
   switch (mode) {
     case Mode::Mapper: {
-      const auto clss = (*vm)["class"].as<std::string>();
+      const auto clss = get_arg<std::string>(vm, "class");
       get_mappers()[clss]->map();
       exit(0);
       break;
     }
     case Mode::Reducer: {
-      auto clss = (*vm)["class"].as<std::string>();
+      auto clss = get_arg<std::string>(vm, "class");
       get_reducers()[clss]->reduce();
       exit(0);
       break;
     }
     case Mode::User: {
-      const auto master_adress = (*vm)["master-address"].as<std::string>();
+      const auto master_adress = get_arg<std::string>(vm, "master-address");
       const auto channel = grpc::CreateChannel(
           master_adress, grpc::InsecureChannelCredentials());
       master_service = MasterService::NewStub(channel);

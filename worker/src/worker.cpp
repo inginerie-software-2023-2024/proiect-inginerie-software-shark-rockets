@@ -66,8 +66,8 @@ class WorkerServiceImpl final : public WorkerService::Service {
 int main(int argc, char** argv) {
 
   auto vm = parse_args(argc, argv);
-  std::string master_address = (*vm)["master-address"].as<std::string>();
-  int port = (*vm)["port"].as<int>();
+  std::string master_address = get_arg<std::string>(vm, "master-address");
+  int port = get_arg<int>(vm, "port");
 
   // Signal to master that we're up
   notify_master(master_address, port);

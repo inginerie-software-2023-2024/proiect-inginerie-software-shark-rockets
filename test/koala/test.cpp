@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include "map_reduce/src/utils.cpp"
 
 TEST(SmokeTest, DoesNothing) {}
 

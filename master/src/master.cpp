@@ -55,8 +55,15 @@ class MasterServiceImpl final : public MasterService::Service {
       std::cerr << "Request doesn't have a uuid!" << std::endl;
       return grpc::Status::CANCELLED;
     }
-
     uuid = std::string(uuid_it->second.data(), uuid_it->second.size());
+
+    // Get the user who initiated the request.
+    std::unique_ptr<User> user;
+    if (request->has_user_name()) {
+      user = std::make_unique<User>(request->user_name());
+    } else {
+      user = std::make_unique<User>();  // Guest
+    }
 
     std::cout << "Master: received a register job request: path="
               << request->path() << ", mapper=" << request->mapper()
@@ -65,7 +72,7 @@ class MasterServiceImpl final : public MasterService::Service {
               << ", job uuid=" << uuid << std::endl;
 
     std::vector<nfs::fs::path> job_files =
-        nfs::on_job_register_request(uuid, request);
+        nfs::on_job_register_request(uuid, user, request->file_regex());
 
     // No files to process.
     if (job_files.empty()) {

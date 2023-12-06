@@ -83,15 +83,9 @@ std::vector<fs::path> sym_link_data(const std::vector<fs::path>& files,
   return linked_files;
 }
 
-std::vector<fs::path> on_job_register_request(
-    const std::string& uuid, const RegisterJobRequest* request) {
-
-  std::unique_ptr<User> user;
-  if (request->has_user_name()) {
-    user = std::make_unique<User>(request->user_name());
-  } else {
-    user = std::make_unique<User>();  // Guest
-  }
+std::vector<fs::path> on_job_register_request(const std::string& uuid,
+                                              const std::unique_ptr<User>& user,
+                                              const std::string& file_regex) {
 
   fs::path user_dir = NFS_ROOT / user->get_name();
   fs::path user_data_dir = user_dir / "data";
@@ -102,7 +96,7 @@ std::vector<fs::path> on_job_register_request(
   }
 
   std::vector<fs::path> files =
-      list_files_matching_pattern(user_data_dir, request->file_regex());
+      list_files_matching_pattern(user_data_dir, file_regex);
   fs::path job_root = user_dir / ("job-" + uuid);
 
   if (!create_job_structure(job_root)) {

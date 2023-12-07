@@ -39,6 +39,18 @@ services:
           - "master"
         tty: true
         command: bash -c "mv -f /build/sample /nfs/sample && sleep 3000"
+    eucalypt-backend:
+        image: eucalypt_backend:{{ EUCALYPT_BACKEND_IMG_TAG }}
+        volumes:
+            - ~nfs:/nfs
+        networks:
+            cluster:
+                ipv4_address: {{ EUCALYPT_BACKEND_ADDRESS }}
+    eucalypt-frontend:
+        image: eucalypt_frontend:{{ EUCALYPT_FRONTEND_IMG_TAG }}
+        networks:
+            cluster:
+                ipv4_address: {{ EUCALYPT_FRONTEND_ADDRESS }}
 
 networks:
     cluster:

@@ -19,6 +19,8 @@ COMPOSE_CONFIG = dict([
     ['EUCALYPT_FRONTEND_PORT', "3000"],
     ['PROTO_PATH', '/app/eucalypt_service.proto'],
     ['MAP_REDUCE_IMG_TAG', "0.0.1"],
+    ['EUCALYPT_BACKEND_IMG_TAG', "0.0.1"],
+    ['EUCALYPT_FRONTEND_IMG_TAG', "0.0.1"],
     ['WORKER_REPLICAS', 5]
 ])
 

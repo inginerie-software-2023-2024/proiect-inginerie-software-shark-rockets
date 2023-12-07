@@ -21,14 +21,8 @@ After that open a terminal in the eucalypt folder.
 
 Go to the node-api folder `cd node-api`.
 
-To install the project you need to have version 16 of Node.js and npm version 8. The first step is to run `npm install` command. Next you need to rename the `.env.example` to `.env`. There are the variables for the database and the URLs:
-- DB_LINK="mongodb-link-to-connect"
-
-- JWT_SECRET="token"
-
-- APP_URL_CLIENT= http://localhost:3000
-- APP_URL_API= http://localhost:8080
-
+To install the project you need to have version 16 of Node.js and npm version 8. The first step is to run `npm install` command.
+Next, make sure that the project's templates (containing the .env for the node-api) are populated. Follow the instructions from the setup page.
 After that, run `npm start:dev`
 
 ## Material React Frontend Installation
@@ -36,11 +30,7 @@ After that, run `npm start:dev`
 Go to the material-react-app folder `cd material-react-app`.
 
 1. Run `yarn install` or `npm install` to install our local dependencies.
-2. Rename the `.env.example` to `.env`.
- - `REACT_APP_API_URL=http://localhost:8080`
- - `REACT_APP_URL=http://localhost:3000`
- - `REACT_APP_IS_DEMO=false` if you don't want any restrictions and true if you want
-3. In `package.json` set the `proxy` variable to `"http://localhost:8080"`
+2. Make sure that the project's templates (containing the .env for the material-react-app) are populated. Follow the instructions from the setup page.
 4. Run `yarn start` or `npm start`
 
 ## Documentation

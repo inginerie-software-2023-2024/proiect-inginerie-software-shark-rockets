@@ -28,6 +28,7 @@ Points to remember:
     - ```docker pull aairinei/map-reduce-base:<tag>``` if you want to manually pull it 
 
 #### Running locally
+##### Koala
 1. Make sure you have a successful local build (with all your modifications)
 2. In the ```package/``` directory:
     - launch the master: ```./master```
@@ -37,6 +38,10 @@ Points to remember:
         - ```<address of master>``` is of the form ```ip.ip.ip.ip:port```
         - ```<mode>``` is one of ```user, mapper, reducer```
         - ```<class>``` is the name of the mapper/reducer you want to run if starting in mapper/reducer mode
+##### Eucalypt backend
+1. Instructions in eucalypt/node-api
+##### Eucalypt frontend
+1. Instructions in eucalypt/material-react-app
 
 #### Running in docker
 1. Make sure you have a successful image build (with all your modifications)
@@ -48,10 +53,15 @@ Points to remember:
 
 #### Running in docker-compose
 0. One-time only: ```mkdir nfs``` in the home directory of your machine (this will be the shared volume between the containers)
-1. Make sure you have a successful image build (with all your modifications), or, alternatively, run ```docker compose build```
-2. ```docker compose up``` - this will bring up the master and worker nodes (by default 5)
-3. Enter the user container: ```docker exec -it <user_container_id> bash``` and launch the sample code, for example ```./sample 172.7.0.10:50051 user -```. You can add more user containers by configuring ```replicas``` to be >1 (similar to the workers)
-4. If you force kill docker compose (double CTRL+C), run ```docker compose down``` (I recommend force killing, it takes more time to wait for containers to end gracefully)
+1. Make sure that the project's templates (containing the docker-compose configuration) are populated. Follow the instructions below.
+2. Make sure you have a successful image build (with all your modifications), or, alternatively, run ```docker compose build```
+3. ```docker compose up``` - this will bring up the master and worker nodes (by default 5)
+4. Enter the user container: ```docker exec -it <user_container_id> bash``` and launch the sample code, for example ```./sample 172.7.0.10:50051 user -```. You can add more user containers by configuring ```replicas``` to be >1 (similar to the workers)
+5. If you force kill docker compose (double CTRL+C), run ```docker compose down``` (I recommend force killing, it takes more time to wait for containers to end gracefully)
+
+#### Populating templates
+1. Install Jinja2 if you don't have it already: ```pip install Jinja2```
+2. Populate the templates: ```cd templates && python3 populate_templates.py```
 
 #### Running unit tests
 0. Make sure you have Gtest installed by running the latest ```./scripts/sync_depends```

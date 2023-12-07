@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+    master:
+        image: map_reduce:{{ MAP_REDUCE_IMG_TAG }}
+        build:
+            context: .
+        volumes:
+            - ~nfs:/nfs
+        networks:
+            cluster:
+              ipv4_address: {{ MASTER_ADDRESS }}
+        expose:
+          - 50051
+        tty: true
+        command: bash -c "mv -f /build/master /nfs/master && mv -f /build/worker /nfs/worker && ./master"
+    worker:
+        image: map_reduce:{{ MAP_REDUCE_IMG_TAG }}
+        volumes:
+            - ~nfs:/nfs
+        networks:
+            cluster:
+        expose:
+          - {{ WORKER_PORT }}
+        depends_on:
+          - "master"
+        tty: true
+        command: bash -c "./worker --master-address {{ MASTER_ADDRESS }}:{{ MASTER_PORT }} --port {{ WORKER_PORT }}"
+        deploy:
+            mode: replicated
+            replicas: {{ WORKER_REPLICAS }}
+    user:
+        image: map_reduce:{{ MAP_REDUCE_IMG_TAG }}
+        volumes:
+            - ~nfs:/nfs
+        networks:
+            cluster:
+        depends_on:
+          - "master"
+        tty: true
+        command: bash -c "mv -f /build/sample /nfs/sample && sleep 3000"
+
+networks:
+    cluster:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+              - subnet: {{ CLUSTER_SUBNET }}
+

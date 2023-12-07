@@ -53,6 +53,7 @@ Points to remember:
 
 #### Eucalypt docker images
 1. Backend: ```cd eucalypt/node-api && ./build_docker_image```
+2. Frontend: ```cd eucalypt/material-react-app && docker build . -t eucalypt_frontend:0.0.1```
 
 #### Running in docker-compose
 0. One-time only: ```mkdir nfs``` in the home directory of your machine (this will be the shared volume between the containers)

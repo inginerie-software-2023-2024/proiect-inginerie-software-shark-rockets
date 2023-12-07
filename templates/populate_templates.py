@@ -1,9 +1,10 @@
+import os
 from jinja2 import Environment, FileSystemLoader
 
 
-# Credentials setup - these are not valid defaults, they are meant to be changed
+# Credentials setup
 CREDENTIALS = dict([
-    ['DB_LINK', "db_link"],
+    ['DB_LINK', os.environ.get('PROIECT_IS_DB_LINK')],
     ['JWT_SECRET', "token"]
 ])
 
@@ -68,6 +69,6 @@ def populate_templates():
 
 
 if __name__ == "__main__":
-    if CREDENTIALS['DB_LINK'] == 'db_link':
-        raise ValueError("Please populate credentials!")
+    if os.environ.get('PROIECT_IS_DB_LINK') == None:
+        raise ValueError("Please populate credentials! The Mongo DB link should be exported as an environment variable.")
     populate_templates()

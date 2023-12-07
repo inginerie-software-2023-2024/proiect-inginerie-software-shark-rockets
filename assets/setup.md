@@ -51,6 +51,9 @@ Points to remember:
     - ```docker exec -it <id_container> bash``` (opens a terminal inside the container - it should already be located in nfs/)
     - Use the same commands as above to launch the master, worker or sample code
 
+#### Eucalypt docker images
+1. Backend: ```cd eucalypt/node-api && ./build_docker_image```
+
 #### Running in docker-compose
 0. One-time only: ```mkdir nfs``` in the home directory of your machine (this will be the shared volume between the containers)
 1. Make sure that the project's templates (containing the docker-compose configuration) are populated. Follow the instructions below.

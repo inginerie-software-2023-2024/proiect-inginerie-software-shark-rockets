@@ -3,6 +3,7 @@ version: '3.8'
 services:
     master:
         image: map_reduce:{{ MAP_REDUCE_IMG_TAG }}
+        container_name: master
         build:
             context: .
         volumes:
@@ -14,8 +15,10 @@ services:
           - 50051
         tty: true
         command: bash -c "mv -f /build/master /nfs/master && mv -f /build/worker /nfs/worker && ./master"
-    worker:
+    {% for i in range(1, WORKER_REPLICAS+1) %}
+    worker-{{ i }}:
         image: map_reduce:{{ MAP_REDUCE_IMG_TAG }}
+        container_name: worker-{{ i }}
         volumes:
             - ~nfs:/nfs
         networks:
@@ -26,11 +29,10 @@ services:
           - "master"
         tty: true
         command: bash -c "./worker --master-address {{ MASTER_ADDRESS }}:{{ MASTER_PORT }} --port {{ WORKER_PORT }}"
-        deploy:
-            mode: replicated
-            replicas: {{ WORKER_REPLICAS }}
+    {% endfor %}
     user:
         image: map_reduce:{{ MAP_REDUCE_IMG_TAG }}
+        container_name: user
         volumes:
             - ~nfs:/nfs
         networks:
@@ -39,15 +41,19 @@ services:
           - "master"
         tty: true
         command: bash -c "mv -f /build/sample /nfs/sample && sleep 3000"
-    eucalypt-backend:
+
+    eucalypt_backend:
         image: eucalypt_backend:{{ EUCALYPT_BACKEND_IMG_TAG }}
+        container_name: eucalypt_backend
         volumes:
             - ~nfs:/nfs
         networks:
             cluster:
                 ipv4_address: {{ EUCALYPT_BACKEND_ADDRESS }}
-    eucalypt-frontend:
+    eucalypt_frontend:
+
         image: eucalypt_frontend:{{ EUCALYPT_FRONTEND_IMG_TAG }}
+        container_name: eucalypt_frontend
         networks:
             cluster:
                 ipv4_address: {{ EUCALYPT_FRONTEND_ADDRESS }}

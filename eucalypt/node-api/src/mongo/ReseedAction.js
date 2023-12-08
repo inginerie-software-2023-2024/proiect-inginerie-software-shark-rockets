@@ -21,7 +21,6 @@ const ReseedAction = () => {
       email: "admin@jsonapi.com",
       password: hashPassword,
       created_at: new Date(),
-      profile_image: "../../images/admin.jpg",
     };
 
     const admin = new userModel(user);

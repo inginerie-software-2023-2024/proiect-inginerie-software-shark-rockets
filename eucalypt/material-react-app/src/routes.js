@@ -38,7 +38,6 @@ Coded by www.creative-tim.com
 // Material Dashboard 2 React layouts
 import Dashboard from "layouts/dashboard";
 import Tables from "layouts/tables";
-import Billing from "layouts/billing";
 import Notifications from "layouts/notifications";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
@@ -46,6 +45,7 @@ import SignUp from "layouts/authentication/sign-up";
 
 import UserProfile from "layouts/user-profile";
 import UserManagement from "layouts/user-management";
+import UserRequests from "layouts/user-requests";
 
 import Login from "auth/login";
 import Register from "auth/register";
@@ -71,14 +71,6 @@ const routes = [
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/tables",
     component: <Tables />,
-  },
-  {
-    type: "collapse",
-    name: "Billing",
-    key: "billing",
-    icon: <Icon fontSize="small">receipt_long</Icon>,
-    route: "/billing",
-    component: <Billing />,
   },
   {
     type: "collapse",
@@ -121,6 +113,14 @@ const routes = [
     component: <UserManagement />,
   },
   {
+    type: "examples",
+    name: "User Requests",
+    key: "user-requests",
+    icon: <Icon fontSize="small">list</Icon>,
+    route: "/user-requests",
+    component: <UserRequests />,
+  },
+  {
     type: "collapse",
     name: "Sign Up",
     key: "sign-up",
@@ -140,7 +140,7 @@ const routes = [
     type: "auth",
     name: "Register",
     key: "register",
-    icon: <Icon fontSize="small">reigster</Icon>,
+    icon: <Icon fontSize="small">register</Icon>,
     route: "/auth/register",
     component: <Register />,
   },

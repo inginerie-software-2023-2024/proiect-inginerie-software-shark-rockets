@@ -15,26 +15,28 @@ import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 // Data
-import tableData from "layouts/user-management/data";
+import tableData from "layouts/user-requests/data";
+import { useEffect, useState } from "react";
 import UserManagementService from "services/user-management-service";
 
-const UserManagement = () => {
+const UserRequests = () => {
   const { columns, rows } = tableData();
 
-  const handleEdit = async (id, data) => {
+  
+  const handleAccept = async (id, data) => {
     try {
-      const response = await UserManagementService.editUser(id, data);
-      console.log(response);
+      const acceptedUser = await UserManagementService.acceptUser(id, userData);
+      setUsers(users.map(user => user.id === id ? acceptedUser : user)); 
     }
     catch (error) {
       console.log(error);
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleRefuse = async (id) => {
     try {
-      const response = await UserManagementService.deleteUser(id);
-      console.log(response);
+      const acceptedUser = await UserManagementService.refuseUser(id);
+      setUsers(users.filter((user) => user.id !== id));
     }
     catch (error) {
       console.log(error);
@@ -48,9 +50,9 @@ const UserManagement = () => {
           variant="button"
           fontWeight="bold"
           textColor="info"
-          onClick={() => handleEdit(id)}
+          onClick={() => acceptUser(id)}
         >
-          Edit
+          Accept
         </MDTypography>
       </MDBox>
       <MDBox ml={1}>
@@ -58,17 +60,14 @@ const UserManagement = () => {
           variant="button"
           fontWeight="bold"
           textColor="error"
-          onClick={() => handleDelete(id)}
+          onClick={() => refuseUser(id)}
         >
-          Delete
+          Refuse
         </MDTypography>
 
       </MDBox>
     </MDBox>
   );
-
-  
-
 
   return (
     <DashboardLayout>
@@ -109,4 +108,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default UserRequests;

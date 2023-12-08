@@ -44,6 +44,7 @@ import { AuthContext } from "context";
 import UserProfile from "layouts/user-profile";
 import UserManagement from "layouts/user-management";
 import { Helmet } from "react-helmet";
+import UserRequests from "layouts/user-requests";
 
 export default function App() {
   const authContext = useContext(AuthContext);
@@ -253,6 +254,16 @@ export default function App() {
                 </ProtectedRoute>
               }
               key="user-management"
+            />
+            <Route
+              exact
+              path="user-requests"
+              element={
+                <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
+                  <UserRequests />
+                </ProtectedRoute>
+              }
+              key="user-requests"
             />
             {getRoutes(routes)}
             <Route path="*" element={<Navigate to="/dashboard" />} />

@@ -80,25 +80,14 @@ class MasterServiceImpl final : public MasterService::Service {
       return grpc::Status::CANCELLED;
     }
 
-    // Just print them for now, use this vector to asssign input to workers
-    std ::cout << "Listing job files..." << std::endl;
-    for (const auto& it : job_files) {
-      std::cout << "Job file: " << it << std::endl;
-    }
+    // Store metadata about a job.
+    master_state.setup_job(uuid, request->user_name(), request->path(),
+                           request->mapper(), request->reducer());
 
-    bool all_ok = true;
-    // Assign files to map-workers.
-    for (const auto& it : job_files) {
-      auto worker = master_state.pop_worker();
-      std::cout << "Assign file: " << it << " to " << worker->address() << ":"
-                << worker->port() << " with load = " << worker->load()
-                << std::endl;
-      all_ok &= worker->assign_work(request->path(), WorkerType::Mapper,
-                                    request->mapper(), it.string());
-      master_state.push_worker(std::move(worker));
-    }
+    // Kicks off the map leg for this job.
+    master_state.start_map_leg(uuid, job_files);
 
-    response->set_ok(all_ok);
+    response->set_ok(true);
     return grpc::Status::OK;
   }
 

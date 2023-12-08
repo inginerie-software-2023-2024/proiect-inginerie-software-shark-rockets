@@ -101,6 +101,15 @@ class MasterServiceImpl final : public MasterService::Service {
     response->set_ok(all_ok);
     return grpc::Status::OK;
   }
+
+  grpc::Status AckWorkerFinish(
+      [[maybe_unused]] grpc::ServerContext* context,
+      [[maybe_unused]] const AckWorkerFinishRequest* request,
+      [[maybe_unused]] AckWorkerFinishReply* response) override {
+    std::cout << "Worker finished!" << std::endl;
+    response->set_ok(true);
+    return grpc::Status::OK;
+  }
 };
 
 class EucalyptServiceImpl final : public EucalyptService::Service {

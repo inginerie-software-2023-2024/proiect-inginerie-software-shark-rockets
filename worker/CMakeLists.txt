@@ -5,8 +5,9 @@ find_package(Boost REQUIRED COMPONENTS program_options)
 
 add_executable(
     ${TARGET}  
-    src/worker.cpp
+    src/worker.cpp 
     src/utils.cpp
+    src/worker_impl.cpp
 )
 target_include_directories(
     ${TARGET}  

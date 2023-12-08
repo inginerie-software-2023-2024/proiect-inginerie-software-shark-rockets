@@ -3,6 +3,7 @@ syntax = "proto3";
 service MasterService {
     rpc RegisterWorker(RegisterWorkerRequest) returns (RegisterWorkerReply) {}
     rpc RegisterJob(RegisterJobRequest) returns (RegisterJobReply) {}
+    rpc AckWorkerFinish(AckWorkerFinishRequest) returns (AckWorkerFinishReply) {}
 }
 
 message RegisterWorkerRequest {
@@ -22,5 +23,13 @@ message RegisterJobRequest {
 }
 
 message RegisterJobReply {
+    bool ok = 1;
+}
+
+message AckWorkerFinishRequest{
+    // TBD what to put here (ex: uuid, duration, file etc.)
+}
+
+message AckWorkerFinishReply{
     bool ok = 1;
 }

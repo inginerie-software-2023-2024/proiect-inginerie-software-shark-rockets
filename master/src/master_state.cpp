@@ -10,25 +10,26 @@ MasterState::MasterState()
 
 void MasterState::push_worker(std::unique_ptr<Worker> new_worker) {
   std::lock_guard<std::mutex> lock(master_lock);
-  workers.push_back(std::move(new_worker));
+  worker_dict.insert({new_worker->get_emit_socket(), std::move(new_worker)});
 }
 
 std::unique_ptr<Worker> MasterState::pop_worker() {
   std::lock_guard<std::mutex> lock(master_lock);
 
-  if (workers.empty())
+  if (worker_dict.empty())
     throw std::runtime_error("No registered workers!");
 
   // Find the worker with the lowest load.
-  auto best = workers.begin();
-  for (auto iter = workers.begin() + 1; iter != workers.end(); iter++) {
-    if ((*iter)->load() < (*best)->load()) {
+  auto best = worker_dict.begin();
+  for (auto iter = std::next(worker_dict.begin()); iter != worker_dict.end();
+       iter++) {
+    if (iter->second->load() < best->second->load()) {
       best = iter;
     }
   }
 
-  std::unique_ptr to_return = std::move(*best);
-  workers.erase(best);
+  std::unique_ptr to_return = std::move((*best).second);
+  worker_dict.erase(best);
   return to_return;
 }
 
@@ -85,7 +86,8 @@ void MasterState::assign_tasks() {
       auto worker = pop_worker();
 
       std::cout << "Assign task " << task_uuid << " to " << worker->address()
-                << ":" << worker->port() << " with load = " << worker->load()
+                << ":" << worker->listen_port()
+                << " with load = " << worker->load()
                 << ", input file: " << task.get_job_input_files()[0].string()
                 << std::endl;
 
@@ -93,10 +95,36 @@ void MasterState::assign_tasks() {
                           (job_leg == JobLeg::MapLeg) ? WorkerType::Mapper
                                                       : WorkerType::Reducer,
                           job.get_exec_class(job_leg),
-                          task.get_job_input_files()[0].string());
+                          task.get_job_input_files()[0].string(), task_uuid);
 
       push_worker(std::move(worker));
     }
+  }
+}
+
+void MasterState::mark_task_as_finished(
+    const std::pair<std::string, int>& worker_socket,
+    const std::string& task_uuid) {
+  std::lock_guard<std::mutex> lock(master_lock);
+
+  // decrease worker load
+  worker_dict.at(worker_socket)->finish_task(task_uuid);
+
+  // removes this task from the set of expected tasks for the current leg of the corresponding job
+  auto task = task_metadata.at(task_uuid);
+  auto job = job_metadata.at(task.get_job_uuid());
+  auto job_uuid = job.get_job_uuid();
+  expected_tasks[job_uuid].erase(task_uuid);
+
+  // check if the current leg has finished
+  if (expected_tasks[job_uuid].empty()) {
+    auto job_leg = current_job_leg[job_uuid];
+    std::cout << "The "
+              << ((job_leg == JobLeg::MapLeg) ? "map leg" : "reduce leg")
+              << " of the job " << job_uuid << " has finished!\n";
+
+    // if map leg finished, start_reduce_leg()
+    // if reducer leg finished, notify user code that the job has finished & remove job metadata
   }
 }
 

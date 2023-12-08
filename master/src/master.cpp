@@ -16,26 +16,33 @@ class MasterServiceImpl final : public MasterService::Service {
  private:
   MasterState master_state;
 
-  std::string extract_ip_from_context(grpc::ServerContext* context) {
+  std::pair<std::string, int> extract_socket_from_context(
+      grpc::ServerContext* context) {
     std::string peer = context->peer();  // is of the form ipv4:ip:port
     int first_colon = peer.find(':');
     int second_colon = peer.find(':', first_colon + 1);
 
-    return peer.substr(first_colon + 1, second_colon - first_colon - 1);
+    std::string ip =
+        peer.substr(first_colon + 1, second_colon - first_colon - 1);
+    int port = std::stoi(
+        peer.substr(second_colon + 1, peer.size() - second_colon - 1));
+
+    return {ip, port};
   }
 
  public:
   grpc::Status RegisterWorker(grpc::ServerContext* context,
                               const RegisterWorkerRequest* request,
                               RegisterWorkerReply* response) override {
-    std::string worker_ip = extract_ip_from_context(context);
-    int worker_port = request->worker_port();
+    auto [worker_ip, worker_emit_port] = extract_socket_from_context(context);
+    int worker_listen_port = request->worker_port();
 
     std::cout << "Master: received a register worker request:"
-              << " ip: " << worker_ip << ',' << " port: " << worker_port
+              << " ip: " << worker_ip << ',' << " port: " << worker_listen_port
               << '\n';
 
-    auto worker = std::make_unique<Worker>(worker_ip, worker_port);
+    auto worker = std::make_unique<Worker>(worker_ip, worker_listen_port,
+                                           worker_emit_port);
     master_state.push_worker(std::move(worker));
     response->set_ok(true);
     return grpc::Status::OK;
@@ -95,7 +102,9 @@ class MasterServiceImpl final : public MasterService::Service {
       [[maybe_unused]] grpc::ServerContext* context,
       [[maybe_unused]] const AckWorkerFinishRequest* request,
       [[maybe_unused]] AckWorkerFinishReply* response) override {
-    std::cout << "Worker finished!" << std::endl;
+    std::cout << "Worker finished task " << request->task_uuid() << std::endl;
+    master_state.mark_task_as_finished(extract_socket_from_context(context),
+                                       request->task_uuid());
     response->set_ok(true);
     return grpc::Status::OK;
   }

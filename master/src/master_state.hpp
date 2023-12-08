@@ -12,7 +12,11 @@
 class MasterState {
  private:
   // Worker info
-  std::vector<std::unique_ptr<Worker>> workers;
+  // The key is the socket from which a worker initiates all comunication with the master
+  // The value is a unique_ptr to worker wrapper
+  // This representation is useful for worker acks and heartbeats
+  WorkerDict worker_dict;
+  // std::vector<std::unique_ptr<Worker>> workers;
 
   // Job info
   std::unordered_map<std::string, Job> job_metadata;  // metadata of a job
@@ -42,14 +46,20 @@ class MasterState {
   // Pops the worker with the smallest load and returns ownership to the caller.
   std::unique_ptr<Worker> pop_worker();
 
-  // Stores the necessary job, map-leg and reduce-leg metadata
+  // Stores the necessary job, map-leg and reduce-leg metadata.
   void setup_job(const std::string& job_uuid, const std::string& job_user,
                  const std::string& binary_path, const std::string& mapper_name,
                  const std::string& reducer_name);
 
-  // Starts the map leg for a given job
+  // Starts the map leg for a given job.
   void start_map_leg(const std::string& job_uuid,
                      const std::vector<nfs::fs::path>& input_files);
+
+  // Decreases the load of the worker.
+  // Deletes this task from the set of expected tasks for the current leg of the corresponding job.
+  // Checks if the current leg of the corresponding job has finished.
+  void mark_task_as_finished(const std::pair<std::string, int>& worker_socket,
+                             const std::string& task_uuid);
 
   // Periodically assign pending tasks to workers
   void assign_tasks();

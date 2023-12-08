@@ -27,7 +27,7 @@ message RegisterJobReply {
 }
 
 message AckWorkerFinishRequest{
-    // TBD what to put here (ex: uuid, duration, file etc.)
+    string task_uuid = 1;
 }
 
 message AckWorkerFinishReply{

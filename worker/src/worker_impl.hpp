@@ -18,9 +18,7 @@ class WorkerServiceImpl final : public WorkerService::Service {
   std::vector<std::thread> notify_threads;
 
   // Waits for the process to terminate and then notifies the master.
-  // TBD: We might pass more args to this method, like the uuid of the job, file etc.
-  // These args will be used to provide more info to the master.
-  void wait_then_notify_master(pid_t pid);
+  void wait_then_notify_master(pid_t pid, std::string task_uuid);
 
  public:
   // Constructs the channel to the master and the master stub.

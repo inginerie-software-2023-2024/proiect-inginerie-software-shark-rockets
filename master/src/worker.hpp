@@ -4,6 +4,7 @@
 #include <boost/functional/hash.hpp>
 #include <string>
 #include <unordered_set>
+#include "job_leg.hpp"
 
 enum WorkerType { Mapper, Reducer };
 
@@ -32,7 +33,7 @@ class Worker {
   // Make a grpc call to assign work to this worker.
   // Return the worker's reply to the work request.
   // If the grpc call fails, throw an exception.
-  bool assign_work(const std::string& binary_path, WorkerType type,
+  bool assign_work(const std::string& binary_path, JobLeg job_leg,
                    const std::string& exec_class, const std::string& input_file,
                    const std::string& task_uuid);
 

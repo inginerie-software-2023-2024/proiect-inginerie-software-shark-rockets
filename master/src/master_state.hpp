@@ -20,8 +20,6 @@ class MasterState {
 
   // Job info
   std::unordered_map<std::string, Job> job_metadata;  // metadata of a job
-  std::unordered_map<std::string, JobLeg>
-      current_job_leg;  // current leg of a job
   std::unordered_map<std::string, std::unordered_set<std::string>>
       expected_tasks;  // unfinished tasks for the current leg of a job
 

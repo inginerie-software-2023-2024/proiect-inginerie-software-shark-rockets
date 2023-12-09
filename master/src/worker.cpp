@@ -7,12 +7,12 @@ Worker::Worker(std::string addr, int listen_port, int emit_port)
   stub = WorkerService::NewStub(channel);
 }
 
-bool Worker::assign_work(const std::string& binary_path, WorkerType type,
+bool Worker::assign_work(const std::string& binary_path, JobLeg job_leg,
                          const std::string& exec_class,
                          const std::string& input_file,
                          const std::string& task_uuid) {
 
-  std::string mode = (type == WorkerType::Mapper) ? "mapper" : "reducer";
+  std::string mode = (job_leg == JobLeg::Map) ? "mapper" : "reducer";
 
   grpc::ClientContext context;
   AssignWorkRequest request;

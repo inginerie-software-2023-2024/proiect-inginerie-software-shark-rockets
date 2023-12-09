@@ -9,13 +9,10 @@ MasterState::MasterState()
 }
 
 void MasterState::push_worker(std::unique_ptr<Worker> new_worker) {
-  std::lock_guard<std::mutex> lock(master_lock);
   worker_dict.insert({new_worker->get_emit_socket(), std::move(new_worker)});
 }
 
 std::unique_ptr<Worker> MasterState::pop_worker() {
-  std::lock_guard<std::mutex> lock(master_lock);
-
   if (worker_dict.empty())
     throw std::runtime_error("No registered workers!");
 
@@ -50,7 +47,7 @@ void MasterState::start_map_leg(const std::string& job_uuid,
   std::lock_guard<std::mutex> lock(master_lock);
 
   // set the current leg of the job as the map leg
-  current_job_leg.insert({job_uuid, JobLeg::MapLeg});
+  job_metadata.at(job_uuid).set_job_leg(JobLeg::Map);
   expected_tasks[job_uuid] = {};
 
   // init tasks belonging to this job_leg
@@ -81,8 +78,9 @@ void MasterState::assign_tasks() {
     for (const auto& task_uuid : tasks_to_assign) {
       auto task = task_metadata.at(task_uuid);
       auto job = job_metadata.at(task.get_job_uuid());
-      auto job_leg = current_job_leg[job.get_job_uuid()];
 
+      master_lock
+          .lock();  // this portion needs to be atomic - otherwise acks and heartbeats will fails
       auto worker = pop_worker();
 
       std::cout << "Assign task " << task_uuid << " to " << worker->address()
@@ -91,13 +89,12 @@ void MasterState::assign_tasks() {
                 << ", input file: " << task.get_job_input_files()[0].string()
                 << std::endl;
 
-      worker->assign_work(job.get_binary_path(),
-                          (job_leg == JobLeg::MapLeg) ? WorkerType::Mapper
-                                                      : WorkerType::Reducer,
-                          job.get_exec_class(job_leg),
+      worker->assign_work(job.get_binary_path(), job.get_current_leg(),
+                          job.get_exec_class(),
                           task.get_job_input_files()[0].string(), task_uuid);
 
       push_worker(std::move(worker));
+      master_lock.unlock();
     }
   }
 }
@@ -109,6 +106,9 @@ void MasterState::mark_task_as_finished(
 
   // decrease worker load
   worker_dict.at(worker_socket)->finish_task(task_uuid);
+  std::cout << "Worker " << worker_dict.at(worker_socket)->address() << ':'
+            << worker_dict.at(worker_socket)->listen_port() << " has "
+            << worker_dict.at(worker_socket)->load() << " remaining load\n";
 
   // removes this task from the set of expected tasks for the current leg of the corresponding job
   auto task = task_metadata.at(task_uuid);
@@ -118,9 +118,9 @@ void MasterState::mark_task_as_finished(
 
   // check if the current leg has finished
   if (expected_tasks[job_uuid].empty()) {
-    auto job_leg = current_job_leg[job_uuid];
     std::cout << "The "
-              << ((job_leg == JobLeg::MapLeg) ? "map leg" : "reduce leg")
+              << ((job.get_current_leg() == JobLeg::Map) ? "map leg"
+                                                         : "reduce leg")
               << " of the job " << job_uuid << " has finished!\n";
 
     // if map leg finished, start_reduce_leg()

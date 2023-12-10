@@ -37,7 +37,6 @@ export const AuthContext = createContext({
 
 const AuthContextProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -58,7 +57,6 @@ const AuthContextProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   const login = (token) => {
-    localStorage.setItem("token", token);
     setIsAuthenticated(true);
     navigate("/dashboard");
   };

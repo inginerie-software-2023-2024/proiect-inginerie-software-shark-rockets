@@ -22,15 +22,15 @@ import UserManagementService from "services/user-management-service";
 const UserManagement = () => {
   const { columns, rows } = authorsTableData();
 
-  const handleEdit = async (id, data) => {
-    try {
-      const response = await UserManagementService.editUser(id, data);
-      console.log(response);
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
+  // const handleEdit = async (id, data) => {
+  //   try {
+  //     const response = await UserManagementService.editUser(id, data);
+  //     console.log(response);
+  //   }
+  //   catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   const handleDelete = async (id) => {
     try {
@@ -45,14 +45,16 @@ const UserManagement = () => {
   const Action = ({ id }) => (
     <MDBox display="flex" justifyContent="center">
       <MDBox mr={1}>
-        <MDTypography
-          variant="button"
-          fontWeight="bold"
-          textColor="info"
-          onClick={() => handleEdit(id)}
-        >
-          Edit
-        </MDTypography>
+        <Link to={`/user-management/edit/${id}`}>
+          <MDTypography
+            variant="button"
+            fontWeight="bold"
+            textColor="info"
+            // onClick={() => handleEdit(id)}
+          >
+            Edit
+          </MDTypography>
+        </Link>
       </MDBox>
       <MDBox ml={1}>
         <MDTypography

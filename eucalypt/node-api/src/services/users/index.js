@@ -36,14 +36,15 @@ export const createUserRouteHandler = async (req, res) => {
 export const editUserRouteHandler = async (req, res) => {
     try {
         const user = await userModel.findOne({ _id: req.params.id });
-        const { name, email, password } = req.body.data.attributes;
+        console.log(req.body);
+        const { name, email, role } = req.body;
         await userModel.updateOne(
             { email: user.email },
-            { $set: { name: "update", email: email, password: password } }
+            { $set: { name: name, email: email, role: role } }
         );
         res.send({ data: user });
     } catch (error) {
-        res.status(500).send({ message: "Could not update user." });
+        res.status(500).send({ message: "Could not update user." + error });
     }
 };
 

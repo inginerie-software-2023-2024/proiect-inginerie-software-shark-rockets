@@ -99,9 +99,8 @@ void MasterState::assign_tasks() {
   }
 }
 
-void MasterState::mark_task_as_finished(
-    const std::pair<std::string, int>& worker_socket,
-    const std::string& task_uuid) {
+void MasterState::mark_task_as_finished(const Socket& worker_socket,
+                                        const std::string& task_uuid) {
   std::lock_guard<std::mutex> lock(master_lock);
 
   // decrease worker load

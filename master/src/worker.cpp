@@ -40,7 +40,7 @@ const std::string& Worker::address() const {
   return addr_;
 }
 
-std::pair<std::string, int> Worker::get_emit_socket() const {
+Socket Worker::get_emit_socket() const {
   return {addr_, emit_port_};
 }
 

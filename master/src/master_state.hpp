@@ -56,7 +56,7 @@ class MasterState {
   // Decreases the load of the worker.
   // Deletes this task from the set of expected tasks for the current leg of the corresponding job.
   // Checks if the current leg of the corresponding job has finished.
-  void mark_task_as_finished(const std::pair<std::string, int>& worker_socket,
+  void mark_task_as_finished(const Socket& worker_socket,
                              const std::string& task_uuid);
 
   // Periodically assign pending tasks to workers

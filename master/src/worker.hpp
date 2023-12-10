@@ -8,6 +8,8 @@
 
 enum WorkerType { Mapper, Reducer };
 
+using Socket = std::pair<std::string, int>;
+
 // A worker seen through the master's point of view.
 class Worker {
  private:
@@ -39,7 +41,7 @@ class Worker {
 
   const std::string& address() const;
 
-  std::pair<std::string, int> get_emit_socket() const;
+  Socket get_emit_socket() const;
 
   int listen_port() const;
 
@@ -50,8 +52,7 @@ class Worker {
 };
 
 struct SocketHash {
-  std::size_t operator()(
-      const std::pair<std::string, int>& socket) const noexcept {
+  std::size_t operator()(const Socket& socket) const noexcept {
     std::size_t seed = 0;
     boost::hash_combine(seed, std::hash<std::string>{}(socket.first));
     boost::hash_combine(seed, std::hash<int>{}(socket.second));
@@ -59,5 +60,5 @@ struct SocketHash {
   }
 };
 
-using WorkerDict = std::unordered_map<std::pair<std::string, int>,
-                                      std::unique_ptr<Worker>, SocketHash>;
+using WorkerDict =
+    std::unordered_map<Socket, std::unique_ptr<Worker>, SocketHash>;

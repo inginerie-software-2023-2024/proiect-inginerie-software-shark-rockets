@@ -16,8 +16,7 @@ class MasterServiceImpl final : public MasterService::Service {
  private:
   MasterState master_state;
 
-  std::pair<std::string, int> extract_socket_from_context(
-      grpc::ServerContext* context) {
+  Socket extract_socket_from_context(grpc::ServerContext* context) {
     std::string peer = context->peer();  // is of the form ipv4:ip:port
     int first_colon = peer.find(':');
     int second_colon = peer.find(':', first_colon + 1);

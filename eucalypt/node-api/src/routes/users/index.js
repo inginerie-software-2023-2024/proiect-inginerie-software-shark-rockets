@@ -7,7 +7,8 @@ import {  getUserRouteHandler,
           getUsersRouteHandler,
           createUserRouteHandler,
           editUserRouteHandler,
-          deleteUserRouteHandler
+          deleteUserRouteHandler,
+          acceptUserRouteHandler
 } from "../../services/users";
 
 // get all users
@@ -37,6 +38,12 @@ router.patch("/editUser/:id", passport.authenticate('jwt',{session: false}), (re
 // delete user
 router.delete("/deleteUser/:id", passport.authenticate('jwt',{session: false}), (req, res) => {
   deleteUserRouteHandler(req, res);
+}
+);
+
+//accept user
+router.patch("/acceptUser/:id", passport.authenticate('jwt',{session: false}), (req, res) => {
+  acceptUserRouteHandler(req, res);
 }
 );
 

@@ -16,58 +16,9 @@ import DataTable from "examples/Tables/DataTable";
 
 // Data
 import tableData from "layouts/user-requests/data";
-import { useEffect, useState } from "react";
-import UserManagementService from "services/user-management-service";
 
 const UserRequests = () => {
   const { columns, rows } = tableData();
-
-  
-  const handleAccept = async (id, data) => {
-    try {
-      const acceptedUser = await UserManagementService.acceptUser(id, userData);
-      setUsers(users.map(user => user.id === id ? acceptedUser : user)); 
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
-
-  const handleRefuse = async (id) => {
-    try {
-      const acceptedUser = await UserManagementService.refuseUser(id);
-      setUsers(users.filter((user) => user.id !== id));
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
-
-  const Action = ({ id }) => (
-    <MDBox display="flex" justifyContent="center">
-      <MDBox mr={1}>
-        <MDTypography
-          variant="button"
-          fontWeight="bold"
-          textColor="info"
-          onClick={() => acceptUser(id)}
-        >
-          Accept
-        </MDTypography>
-      </MDBox>
-      <MDBox ml={1}>
-        <MDTypography
-          variant="button"
-          fontWeight="bold"
-          textColor="error"
-          onClick={() => refuseUser(id)}
-        >
-          Refuse
-        </MDTypography>
-
-      </MDBox>
-    </MDBox>
-  );
 
   return (
     <DashboardLayout>

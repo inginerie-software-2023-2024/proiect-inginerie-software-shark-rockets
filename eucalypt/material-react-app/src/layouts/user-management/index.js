@@ -6,7 +6,6 @@ import Card from "@mui/material/Card";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDAlert from "components/MDAlert";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -16,59 +15,9 @@ import DataTable from "examples/Tables/DataTable";
 
 // Data
 import tableData from "layouts/user-management/data";
-import UserManagementService from "services/user-management-service";
 
 const UserManagement = () => {
   const { columns, rows } = tableData();
-
-  const handleEdit = async (id, data) => {
-    try {
-      const response = await UserManagementService.editUser(id, data);
-      console.log(response);
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
-
-  const handleDelete = async (id) => {
-    try {
-      const response = await UserManagementService.deleteUser(id);
-      console.log(response);
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
-
-  const Action = ({ id }) => (
-    <MDBox display="flex" justifyContent="center">
-      <MDBox mr={1}>
-        <MDTypography
-          variant="button"
-          fontWeight="bold"
-          textColor="info"
-          onClick={() => handleEdit(id)}
-        >
-          Edit
-        </MDTypography>
-      </MDBox>
-      <MDBox ml={1}>
-        <MDTypography
-          variant="button"
-          fontWeight="bold"
-          textColor="error"
-          onClick={() => handleDelete(id)}
-        >
-          Delete
-        </MDTypography>
-
-      </MDBox>
-    </MDBox>
-  );
-
-  
-
 
   return (
     <DashboardLayout>

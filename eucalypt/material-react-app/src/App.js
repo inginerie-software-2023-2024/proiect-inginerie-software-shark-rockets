@@ -11,7 +11,7 @@ import Icon from "@mui/material/Icon";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 
-// Material Dashboard 2 React example components
+// Material Dashboard 2 React example components 
 import Sidenav from "examples/Sidenav";
 import Configurator from "examples/Configurator";
 
@@ -36,6 +36,7 @@ import brandDark from "assets/images/logo-ct-dark.png";
 
 import { setupAxiosInterceptors } from "./services/interceptor";
 import ProtectedRoute from "examples/ProtectedRoute";
+import AdminRoute from "examples/AdminRoute";
 import ForgotPassword from "auth/forgot-password";
 import ResetPassword from "auth/reset-password";
 import Login from "auth/login";
@@ -249,9 +250,9 @@ export default function App() {
               exact
               path="user-management"
               element={
-                <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
+                <AdminRoute isAdmin={authContext.isAdmin}>
                   <UserManagement />
-                </ProtectedRoute>
+                </AdminRoute>
               }
               key="user-management"
             />
@@ -259,9 +260,9 @@ export default function App() {
               exact
               path="user-requests"
               element={
-                <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
+                <AdminRoute isAdmin={authContext.isAdmin}>
                   <UserRequests />
-                </ProtectedRoute>
+                </AdminRoute>
               }
               key="user-requests"
             />

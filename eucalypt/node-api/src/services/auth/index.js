@@ -26,20 +26,27 @@ export const loginRouteHandler = async (req, res, email, password) => {
   } else {
     const validPassword = await bcrypt.compare(password, foundUser.password);
     if (validPassword) {
-      // Generate JWT token
-      const token = jwt.sign(
-        { id: foundUser.id, email: foundUser.email },
-        "token",
-        {
-          expiresIn: "24h",
-        }
-      );
-      return res.json({
-        token_type: "Bearer",
-        expires_in: "24h",
-        access_token: token,
-        refresh_token: token,
-      });
+      if(foundUser.role != "pending_approval") {
+        // Generate JWT token
+        const token = jwt.sign(
+          { id: foundUser.id, email: foundUser.email },
+          "token",
+          {
+            expiresIn: "24h",
+          }
+        );
+        return res.json({
+          token_type: "Bearer",
+          expires_in: "24h",
+          access_token: token,
+          refresh_token: token,
+        });
+      } else {
+        return res.status(400).json({
+          errors: [{ detail: "Account was not accepted by an admin." }],
+        });
+      }
+      
     } else {
       return res.status(400).json({
         errors: [{ detail: "Invalid password" }],
@@ -71,7 +78,7 @@ export const registerRouteHandler = async (req, res, name, email, password) => {
     name: name,
     email: email,
     password: hashPassword,
-    role: 'Request'
+    role: 'pending_approval'
   });
   await newUser.save();
 

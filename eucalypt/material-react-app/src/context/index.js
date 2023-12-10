@@ -23,6 +23,7 @@ import { createContext, useContext, useReducer, useMemo, useState, useEffect } f
 // prop-types is a library for typechecking of props
 import PropTypes from "prop-types";
 import { useLocation, useNavigate } from "react-router-dom";
+import AuthService from "../services/auth-service";
 
 // Material Dashboard 2 React main context
 const MaterialUI = createContext();
@@ -30,6 +31,7 @@ const MaterialUI = createContext();
 // authentication context
 export const AuthContext = createContext({
   isAuthenticated: false,
+  isAdmin: false,
   login: () => {},
   register: () => {},
   logout: () => {},
@@ -37,6 +39,7 @@ export const AuthContext = createContext({
 
 const AuthContextProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,17 +47,33 @@ const AuthContextProvider = ({ children }) => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (!token) return;
+    async function fetchData() {
+      if (!token) return;
 
-    setIsAuthenticated(true);
-    navigate(location.pathname);
+      const user = await AuthService.getProfile();
+  
+      if(user.data.attributes.role == 'admin')
+        setIsAdmin(true);
+  
+      setIsAuthenticated(isAuthenticated);
+      navigate(location.pathname);
+    }
+    fetchData();
   }, []);
 
   useEffect(() => {
-    if (!token) return;
+    async function fetchData() {
+      if (!token) return;
 
-    setIsAuthenticated(isAuthenticated);
-    navigate(location.pathname);
+      const user = await AuthService.getProfile();
+  
+      if(user.data.attributes.role == 'admin')
+        setIsAdmin(true);
+  
+      setIsAuthenticated(isAuthenticated);
+      navigate(location.pathname);
+    }
+    fetchData();
   }, [isAuthenticated]);
 
   const login = (token) => {
@@ -66,11 +85,16 @@ const AuthContextProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
+    setIsAdmin(false);
     navigate("/auth/login");
   };
 
+  const register = () => {
+    navigate("/auth/login");
+  }
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, login, register, logout,}}>
       {children}
     </AuthContext.Provider>
   );

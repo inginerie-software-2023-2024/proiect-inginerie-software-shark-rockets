@@ -41,10 +41,10 @@ export default function data() {
     fetchUsers();
   }, []);
 
-  const handleAccept = async (id, data) => {
+  const handleAccept = async (id) => {
     try {
-      const acceptedUser = await UserManagementService.acceptUser(id, userData);
-      setUsers(users.map(user => user.id === id ? acceptedUser : user)); 
+      await UserManagementService.acceptUser(id);
+      setUsers(users.filter((user) => user.id !== id));
     }
     catch (error) {
       console.log(error);
@@ -53,7 +53,7 @@ export default function data() {
 
   const handleRefuse = async (id) => {
     try {
-      const acceptedUser = await UserManagementService.refuseUser(id);
+      await UserManagementService.deleteUser(id);
       setUsers(users.filter((user) => user.id !== id));
     }
     catch (error) {
@@ -111,7 +111,8 @@ export default function data() {
     rows: users.map((user) => ({
       user: <User image={team2} name={user.name} email={user.email} />,
       email: user.email,
+      role: user.role,
       action: <Action id={user.id} />,
-    })),
+    })).filter((user) => {return user.role == 'pending_approval'}),
   };
 }

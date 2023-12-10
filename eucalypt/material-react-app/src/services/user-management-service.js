@@ -56,6 +56,17 @@ class UserManagementService {
     }
   }
 
+  // accept user
+  acceptUser = async (id) => {
+    try {
+      const response = await HttpService.patch(`/users/acceptUser/${id}`);
+      return response;
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
 }
 
 export default new UserManagementService();

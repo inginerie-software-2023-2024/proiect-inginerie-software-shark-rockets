@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 // react-router-dom components
-import { Link } from "react-router-dom";
+import { Link, redirect } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -95,7 +95,7 @@ function Register() {
 
     try {
       const response = await AuthService.register(myData);
-      authContext.login(response.access_token, response.refresh_token);
+      authContext.register();
 
       setInputs({
         name: "",

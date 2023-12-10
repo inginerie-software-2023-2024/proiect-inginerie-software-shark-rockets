@@ -19,6 +19,7 @@ export const getProfileRouteHandler = (req, res) => {
       attributes: {
         name: meUser.name,
         email: meUser.email,
+        role: meUser.role,
         createdAt: meUser.createdAt,
         updateAt: meUser.updateAt
       },

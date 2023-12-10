@@ -156,16 +156,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
               >
                 <Icon sx={iconsStyle}>settings</Icon>
               </IconButton>
-
-              <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                // onClick={handleAccountRequests}
-              >
-                <Icon sx={iconsStyle}>check</Icon>
-              </IconButton>
               <MDBox>
                 <MDButton
                   variant="gradient"

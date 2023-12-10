@@ -34,12 +34,12 @@ void MasterState::setup_job(const std::string& job_uuid,
                             const std::string& job_user,
                             const std::string& binary_path,
                             const std::string& mapper_name,
-                            const std::string& reducer_name, int R) {
+                            const std::string& reducer_name, int M, int R) {
   std::lock_guard<std::mutex> lock(master_lock);
 
   // store job metadata
   job_metadata.insert({job_uuid, Job(job_uuid, job_user, binary_path,
-                                     mapper_name, reducer_name, R)});
+                                     mapper_name, reducer_name, M, R)});
 }
 
 void MasterState::start_map_leg(const std::string& job_uuid,
@@ -119,7 +119,7 @@ void MasterState::assign_tasks() {
             job.get_binary_path(),
             nfs::get_job_root_dir(job.get_job_uuid(), job.get_job_user()),
             job.get_current_leg(), job.get_exec_class(), input_file_str,
-            task_uuid, task.get_idx(), job.get_R());
+            task_uuid, task.get_idx(), job.get_M(), job.get_R());
 
         push_worker(std::move(worker));
       } catch (std::exception& e) {

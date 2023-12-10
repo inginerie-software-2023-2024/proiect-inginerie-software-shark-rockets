@@ -88,7 +88,8 @@ class MasterServiceImpl final : public MasterService::Service {
 
     // Store metadata about a job.
     master_state.setup_job(uuid, user->get_name(), request->path(),
-                           request->mapper(), request->reducer(), request->r());
+                           request->mapper(), request->reducer(),
+                           (int)job_files.size(), request->r());
 
     // Kicks off the map leg for this job.
     master_state.start_map_leg(uuid, job_files);

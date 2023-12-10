@@ -86,6 +86,7 @@ grpc::Status WorkerServiceImpl::AssignWork(
          *file = strdup(request->file().c_str()),
          *job_root_dir = strdup(request->job_root_dir().c_str()),
          *idx = strdup(std::to_string(request->idx()).c_str()),
+         *m = strdup(std::to_string(request->m()).c_str()),
          *r = strdup(std::to_string(request->r()).c_str());
 
     char* arguments[] = {path,
@@ -99,6 +100,8 @@ grpc::Status WorkerServiceImpl::AssignWork(
                          job_root_dir,
                          strdup("--idx"),
                          idx,
+                         strdup("--m"),
+                         m,
                          strdup("--r"),
                          r,
                          NULL};

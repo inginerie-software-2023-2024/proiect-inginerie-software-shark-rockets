@@ -49,8 +49,8 @@ std::vector<fs::path> get_reducer_input_files(const std::string& job_root_dir,
 
   fs::recursive_directory_iterator
       end_iter;  // Default construction yields past-the-end
-  for (fs::recursive_directory_iterator iter(job_root_dir); iter != end_iter;
-       ++iter) {
+  for (fs::recursive_directory_iterator iter(intermediary_dir);
+       iter != end_iter; ++iter) {
     fs::path intermediary_file = iter->path();
     std::string intermediary_file_name = intermediary_file.filename().string();
 
@@ -109,23 +109,20 @@ void map_reduce::init(int argc, char** argv) {
     }
     case Mode::Reducer: {
       auto clss = get_arg<std::string>(vm, "class");
-      auto idx = get_arg<int>(vm, "idx"), r = get_arg<int>(vm, "r");
+      auto idx = get_arg<int>(vm, "idx"), m = get_arg<int>(vm, "m");
 
       // Find reducer input files
       std::vector<fs::path> input_files = get_reducer_input_files(
           get_arg<std::string>(vm, "job-root-dir"), idx);
-      if ((int)input_files.size() != r) {
-        std::cout << "Warning: expected " << r
+
+      if ((int)input_files.size() != m) {
+        std::cout << "Warning: expected " << m
                   << " intermediary files for index " << idx << ", found "
                   << input_files.size() << '\n';
-      }
 
-      // Log reducer input files
-      std::string reducer_input_files = "";
-      for (const auto& input_file : input_files)
-        reducer_input_files += input_file.string() + ",";
-      std::cout << "Reduce task with index " << idx
-                << " has input files: " << reducer_input_files << '\n';
+      } else {
+        std::cout << "Found all intermediary files for index " << idx << '\n';
+      }
 
       get_reducers()[clss]->reduce();
 

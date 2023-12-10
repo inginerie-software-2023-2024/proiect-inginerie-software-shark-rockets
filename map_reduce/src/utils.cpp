@@ -57,7 +57,8 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       "job-root-dir,d", po::value<std::string>(),
       "absolute path to the root directory of the job")(
       "idx,x", po::value<int>(), "index of the task to run")(
-      "r", po::value<int>(), "number of ouput files");
+      "m", po::value<int>(), "number of input files")("r", po::value<int>(),
+                                                      "number of ouput files");
   try {
     auto vm = std::make_unique<po::variables_map>();
     po::store(po::parse_command_line(argc, argv, desc), *vm);

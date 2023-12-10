@@ -6,18 +6,19 @@
 class Job {
  private:
   std::string job_uuid, job_user, binary_path, mapper_name, reducer_name;
-  int R_;
+  int M_, R_;
   JobLeg current_leg;
 
  public:
   Job(const std::string& job_uuid, const std::string& job_user,
       const std::string& binary_path, const std::string& mapper_name,
-      const std::string& reducer_name, int R)
+      const std::string& reducer_name, int M, int R)
       : job_uuid(job_uuid),
         job_user(job_user),
         binary_path(binary_path),
         mapper_name(mapper_name),
         reducer_name(reducer_name),
+        M_(M),
         R_(R),
         current_leg(JobLeg::Init){};
 
@@ -35,6 +36,8 @@ class Job {
       return mapper_name;
     return reducer_name;
   }
+
+  int get_M() const { return M_; }
 
   int get_R() const { return R_; }
 

@@ -133,7 +133,7 @@ void MasterState::assign_tasks() {
 
 void MasterState::mark_task_as_finished(const Socket& worker_socket,
                                         const std::string& task_uuid) {
-  std::lock_guard<std::mutex> loc(master_lock);
+  std::lock_guard<std::mutex> lock(master_lock);
 
   // decrease worker load
   worker_dict.at(worker_socket)->finish_task(task_uuid);

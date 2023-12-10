@@ -52,7 +52,7 @@ void MasterState::start_map_leg(const std::string& job_uuid,
 
   // init tasks belonging to this job_leg
   for (std::size_t i = 0; i < job_files.size(); i++) {
-    Task task(job_uuid, {job_files[i]}, i);
+    Task task(job_uuid, job_files[i], i);
     std::string task_uuid = task.get_task_uuid();
     task_metadata.insert({task_uuid, task});
     expected_tasks[job_uuid].insert(task_uuid);
@@ -73,7 +73,7 @@ void MasterState::start_reduce_leg(const std::string& job_uuid) {
   // init tasks belonging to this job_leg
   int r = job_metadata.at(job_uuid).get_R();
   for (int i = 0; i < r; i++) {
-    Task task(job_uuid, {"does_not_matter"}, i);
+    Task task(job_uuid, std::optional<nfs::fs::path>(), i);
     std::string task_uuid = task.get_task_uuid();
     task_metadata.insert({task_uuid, task});
     expected_tasks[job_uuid].insert(task_uuid);
@@ -105,18 +105,21 @@ void MasterState::assign_tasks() {
             master_lock);  // this portion needs to be atomic - otherwise acks and heartbeats will fail
         auto worker = pop_worker();
 
+        std::optional<nfs::fs::path> input_file = task.get_job_input_file();
+        std::string input_file_str = input_file.has_value()
+                                         ? input_file.value().string()
+                                         : "does_not_matter";
+
         std::cout << "Assign task " << task_uuid << ", index " << task.get_idx()
                   << " to " << worker->address() << ":" << worker->listen_port()
                   << " with load = " << worker->load()
-                  << ", input file: " << task.get_job_input_files()[0].string()
-                  << std::endl;
+                  << ", input file: " << input_file_str << std::endl;
 
         worker->assign_work(
             job.get_binary_path(),
             nfs::get_job_root_dir(job.get_job_uuid(), job.get_job_user()),
-            job.get_current_leg(), job.get_exec_class(),
-            task.get_job_input_files()[0].string(), task_uuid, task.get_idx(),
-            job.get_R());
+            job.get_current_leg(), job.get_exec_class(), input_file_str,
+            task_uuid, task.get_idx(), job.get_R());
 
         push_worker(std::move(worker));
       } catch (std::exception& e) {

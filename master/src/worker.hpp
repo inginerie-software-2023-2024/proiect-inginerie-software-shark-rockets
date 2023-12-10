@@ -39,7 +39,7 @@ class Worker {
   bool assign_work(const std::string& binary_path,
                    const boost::filesystem::path& job_root_dir, JobLeg job_leg,
                    const std::string& exec_class, const std::string& input_file,
-                   const std::string& task_uuid, int R);
+                   const std::string& task_uuid, int idx, int R);
 
   const std::string& address() const;
 

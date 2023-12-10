@@ -52,8 +52,9 @@ grpc::Status WorkerServiceImpl::AssignWork(
 
   std::string task_uuid = request->task_uuid();
   std::cout << "Worker: received an assign work request:"
-            << "task: " << task_uuid << ',' << " path: " << request->path()
-            << ',' << " job root dir: " << request->job_root_dir() << ','
+            << " task: " << task_uuid << ',' << " idx: " << request->idx()
+            << ',' << " path: " << request->path() << ','
+            << " job root dir: " << request->job_root_dir() << ','
             << " mode: " << request->mode() << ','
             << " class: " << request->class_() << ','
             << " file: " << request->file() << '\n';

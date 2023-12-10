@@ -6,12 +6,13 @@ service WorkerService {
 
 message AssignWorkRequest {
     string path = 1;
-    string mode = 2;
-    string class = 3;
-    string file = 4;
-    string task_uuid = 5;
-    string job_root_dir = 6;
-    int32 R = 7;
+    string job_root_dir = 2;
+    string task_uuid = 3;
+    string mode = 4;
+    string class = 5;
+    string file = 6;
+    int32 idx = 7;
+    int32 R = 8;
 }
 
 message AssignWorkReply {

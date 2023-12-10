@@ -26,7 +26,8 @@ bool WorkerServiceImpl::notify_master(int port) {
   return reply.ok();
 }
 
-void WorkerServiceImpl::wait_then_notify_master(pid_t pid) {
+void WorkerServiceImpl::wait_then_notify_master(pid_t pid,
+                                                std::string task_uuid) {
   int pstatus;
   int pid_ret = waitpid(pid, &pstatus, 0);
   if (pid_ret == -1) {
@@ -37,6 +38,7 @@ void WorkerServiceImpl::wait_then_notify_master(pid_t pid) {
   AckWorkerFinishReply reply;
   grpc::ClientContext context;
 
+  request.set_task_uuid(task_uuid);
   auto status = master_stub->AckWorkerFinish(&context, request, &reply);
 
   if (!status.ok()) {
@@ -48,9 +50,10 @@ grpc::Status WorkerServiceImpl::AssignWork(
     [[maybe_unused]] grpc::ServerContext* context,
     const AssignWorkRequest* request, AssignWorkReply* response) {
 
+  std::string task_uuid = request->task_uuid();
   std::cout << "Worker: received an assign work request:"
-            << " path: " << request->path() << ','
-            << " mode: " << request->mode() << ','
+            << "task: " << task_uuid << ',' << " path: " << request->path()
+            << ',' << " mode: " << request->mode() << ','
             << " class: " << request->class_() << ','
             << " file : " << request->file() << '\n';
 
@@ -63,8 +66,8 @@ grpc::Status WorkerServiceImpl::AssignWork(
     // Capture "this" and child_pid.
     // Note: "this" will always be a valid pointer, because
     // we join() the threads in the destructor: the threads cannot outlive "this".
-    auto f = [this, child_pid] {
-      this->wait_then_notify_master(child_pid);
+    auto f = [this, child_pid, task_uuid] {
+      this->wait_then_notify_master(child_pid, std::move(task_uuid));
     };
 
     // Create a new thread that will wait until the process stops and

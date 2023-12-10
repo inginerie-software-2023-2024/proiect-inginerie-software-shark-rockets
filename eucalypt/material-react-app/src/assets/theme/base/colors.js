@@ -21,12 +21,12 @@ Coded by www.creative-tim.com
 
 const colors = {
   background: {
-    default: "#f0f2f5",
+    default: "rgba(189,214,211,0.75)",
   },
 
   text: {
     main: "#262628",
-    focus: "#7b809a",
+    focus: "#4b4b4b",
   },
 
   transparent: {
@@ -112,9 +112,9 @@ const colors = {
       state: "#11363c",
     },
 
-    bgcolor:{
-      main:"#364c57",
-      state:"#cedbd2",
+    bgcolor: {
+      main: "#364c57",
+      state: "#cedbd2",
     },
 
     success: {

@@ -13,6 +13,8 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  */
 
+import linearGradient from "../functions/linearGradient";
+
 /**
  * The base colors for the Material Dashboard 2 PRO React.
  * You can add new color using this file.
@@ -21,9 +23,9 @@
 
 const colors = {
     background: {
-        default: "#1a2035",
-        sidenav: "#1f283e",
-        card: "#202940",
+        default: "#27272f",
+        sidenav: "#1f3e41",
+        card: "#18171d",
     },
     text: {
         main: "#ffffffcc",
@@ -50,13 +52,13 @@ const colors = {
     },
 
     secondary: {
-        main: "#7b809a",
-        focus: "#8f93a9",
+        main: "#dbdce0",
+        focus: "#dadbdf",
     },
 
     info: {
-        main: "#1A73E8",
-        focus: "#1662C4",
+        main: "#c69e85",
+        focus: "#be8476",
     },
 
     success: {
@@ -80,8 +82,8 @@ const colors = {
     },
 
     dark: {
-        main: "#344767",
-        focus: "#2c3c58",
+        main: "#050f18",
+        focus: "#050f18",
     },
 
     grey: {
@@ -107,13 +109,15 @@ const colors = {
             state: "#495361",
         },
 
+
         bgcolor: {
-            main: "#1a3a47",
-            state: "#020b10",
+            main: "#364c57",
+            state: "#cedbd2",
         },
+
         info: {
-            main: "#49a3f1",
-            state: "#1A73E8",
+            main: "#56887d",
+            state: "#11363c",
         },
 
         success: {
@@ -260,7 +264,7 @@ const colors = {
     inputBorderColor: "#d2d6da",
 
     tabs: {
-        indicator: {boxShadow: "#ddd"},
+        indicator: { boxShadow: "#ddd" },
     },
 };
 

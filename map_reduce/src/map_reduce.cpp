@@ -50,10 +50,18 @@ void map_reduce::init(int argc, char** argv) {
 
   auto mode = get_arg<Mode>(vm, "mode");
   std::cout << mode;
+
   switch (mode) {
     case Mode::Mapper: {
       const auto clss = get_arg<std::string>(vm, "class");
+      auto idx = get_arg<int>(vm, "idx");
+
+      // Log mapper input file
+      std::cout << "Map task with index " << idx << " has input file "
+                << get_arg<std::string>(vm, "file") << '\n';
+
       get_mappers()[clss]->map();
+
       exit(0);
       break;
     }

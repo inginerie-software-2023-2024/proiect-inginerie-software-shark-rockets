@@ -80,7 +80,7 @@ void MasterState::assign_tasks() {
       auto job = job_metadata.at(task.get_job_uuid());
 
       master_lock
-          .lock();  // this portion needs to be atomic - otherwise acks and heartbeats will fails
+          .lock();  // this portion needs to be atomic - otherwise acks and heartbeats will fail
       auto worker = pop_worker();
 
       std::cout << "Assign task " << task_uuid << " to " << worker->address()
@@ -117,10 +117,8 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
 
   // check if the current leg has finished
   if (expected_tasks[job_uuid].empty()) {
-    std::cout << "The "
-              << ((job.get_current_leg() == JobLeg::Map) ? "map leg"
-                                                         : "reduce leg")
-              << " of the job " << job_uuid << " has finished!\n";
+    std::cout << "The " << job.get_current_leg() << " of the job " << job_uuid
+              << " has finished!\n";
 
     // if map leg finished, start_reduce_leg()
     // if reducer leg finished, notify user code that the job has finished & remove job metadata

@@ -20,7 +20,6 @@ import { useLocation } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
-import colors from "assets/theme/base/colors";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 // Material Dashboard 2 React context
@@ -41,7 +40,7 @@ function PageLayout({ background, children }) {
       position="absolute"
       variant="gradient"
       bgColor="bgcolor"
-      sx={{ overflowX: "hidden", overflowY:"hidden" }}
+      sx={{ overflowX: "hidden", overflowY: "hidden" }}
     >
       {children}
     </MDBox>

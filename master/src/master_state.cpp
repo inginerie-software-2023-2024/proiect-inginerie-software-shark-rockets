@@ -156,8 +156,11 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
     if (job.get_current_leg() == JobLeg::Map) {
       start_reduce_leg(job_uuid);
     } else {
-      std::cout << "Job " << job_uuid << " has finished!\n";
-      // remove job metadata
+      job_metadata.erase(job_uuid);
+      expected_tasks.erase(job_uuid);
+      std::cout << "Job " << job_uuid << " has finished. There are "
+                << job_metadata.size() << " ongoing jobs\n";
+
       // notify user code
     }
   }

@@ -75,7 +75,6 @@ export default function data() {
             variant="button"
             fontWeight="bold"
             textColor="info"
-            // onClick={() => handleEdit(id)}
           >
             Edit
           </MDTypography>
@@ -108,7 +107,6 @@ export default function data() {
     </MDBox>
   );
 
-  // const currentUser = Parse.User.current();
   const isAdmin = true;
 
   const columns = [
@@ -119,7 +117,9 @@ export default function data() {
     { Header: "action", accessor: "action", align: "center" },
   ];
 
-  const rows = users.map((user) => ({
+  const rows = users
+    .filter((user) => user.role !== "pending_approval")
+    .map((user) => ({
       user: <Author image={team2} name={user.name} email={user.email} />,
       email: user.email,
       role: user.role,
@@ -127,24 +127,8 @@ export default function data() {
       action: <Action id={user.id} />,
     }));
 
-
   return {
     columns,
     rows,
-    // columns: [
-    //   { Header: "user", accessor: "user", width: "45%", align: "left" },
-    //   { Header: "email", accessor: "email", align: "left" },
-    //   { Header: "role", accessor: "role", align: "center"},
-    //   { Header: "creation date", accessor: "creationdate", align: "center" },
-    //   { Header: "action", accessor: "action", align: "center" },
-    // ],
-    // rows: users.map((user) => ({
-    //   user: <Author image={team2} name={user.name} email={user.email} />,
-    //   email: user.email,
-    //   role: user.role === "admin" ? <MDBadge color="error">{user.role}</MDBadge> : null,
-    //   creationdate: user.created_at,
-    //   action: <Action id={user.id} />,
-    // })),
-
   };
 }

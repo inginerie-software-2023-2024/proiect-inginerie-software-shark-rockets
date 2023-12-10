@@ -22,15 +22,6 @@ import UserManagementService from "services/user-management-service";
 const UserManagement = () => {
   const { columns, rows } = authorsTableData();
 
-  // const handleEdit = async (id, data) => {
-  //   try {
-  //     const response = await UserManagementService.editUser(id, data);
-  //     console.log(response);
-  //   }
-  //   catch (error) {
-  //     console.log(error);
-  //   }
-  // }
 
   const handleDelete = async (id) => {
     try {
@@ -50,7 +41,6 @@ const UserManagement = () => {
             variant="button"
             fontWeight="bold"
             textColor="info"
-            // onClick={() => handleEdit(id)}
           >
             Edit
           </MDTypography>

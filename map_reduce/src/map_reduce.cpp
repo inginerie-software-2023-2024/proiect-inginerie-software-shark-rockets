@@ -29,6 +29,44 @@ std::unordered_map<std::string, Reducer*>& get_reducers() {
   static std::unordered_map<std::string, Reducer*> reducers;
   return reducers;
 }
+
+void ensure_intermediary_files(const std::string& job_root_dir, int idx,
+                               int R) {
+  fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
+
+  for (int i = 0; i < R; i++) {
+    // opening and closing a file - a.k.a touch
+    std::string file_name = std::to_string(idx) + "-" + std::to_string(i);
+    auto f = fs::ofstream(intermediary_dir / file_name);
+    f.close();
+  }
+}
+
+std::vector<fs::path> get_reducer_input_files(const std::string& job_root_dir,
+                                              int idx) {
+  fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
+  std::vector<fs::path> reducer_input_files;
+
+  fs::recursive_directory_iterator
+      end_iter;  // Default construction yields past-the-end
+  for (fs::recursive_directory_iterator iter(job_root_dir); iter != end_iter;
+       ++iter) {
+    fs::path intermediary_file = iter->path();
+    std::string intermediary_file_name = intermediary_file.filename().string();
+
+    std::size_t dash = intermediary_file_name.find('-');
+    if (dash == std::string::npos)
+      continue;
+    int file_idx = std::stoi(intermediary_file_name.substr(
+        dash + 1, (int)intermediary_file_name.size() - dash));
+
+    if (idx == file_idx)
+      reducer_input_files.push_back(intermediary_file);
+  }
+
+  return reducer_input_files;
+}
+
 }  // namespace map_reduce
 
 bool map_reduce::register_mapper(const std::string& name, Mapper* mapper) {
@@ -41,17 +79,6 @@ bool map_reduce::register_reducer(const std::string& name, Reducer* reducer) {
   // check reducers are not registered after map_reduce::init() is called
   get_reducers()[name] = reducer;
   return true;
-}
-
-void map_reduce::ensure_intermediary_files(const std::string& job_root_dir,
-                                           int idx, int R) {
-  fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
-
-  for (int i = 0; i < R; i++) {
-    std::string file_name = std::to_string(idx) + "-" + std::to_string(i);
-    auto f = fs::ofstream(intermediary_dir / file_name);
-    f.close();
-  }
 }
 
 void map_reduce::init(int argc, char** argv) {
@@ -82,7 +109,26 @@ void map_reduce::init(int argc, char** argv) {
     }
     case Mode::Reducer: {
       auto clss = get_arg<std::string>(vm, "class");
+      auto idx = get_arg<int>(vm, "idx"), r = get_arg<int>(vm, "r");
+
+      // Find reducer input files
+      std::vector<fs::path> input_files = get_reducer_input_files(
+          get_arg<std::string>(vm, "job-root-dir"), idx);
+      if ((int)input_files.size() != r) {
+        std::cout << "Warning: expected " << r
+                  << " intermediary files for index " << idx << ", found "
+                  << input_files.size() << '\n';
+      }
+
+      // Log reducer input files
+      std::string reducer_input_files = "";
+      for (const auto& input_file : input_files)
+        reducer_input_files += input_file.string() + ",";
+      std::cout << "Reduce task with index " << idx
+                << " has input files: " << reducer_input_files << '\n';
+
       get_reducers()[clss]->reduce();
+
       exit(0);
       break;
     }

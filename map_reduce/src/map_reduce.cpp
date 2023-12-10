@@ -43,6 +43,17 @@ bool map_reduce::register_reducer(const std::string& name, Reducer* reducer) {
   return true;
 }
 
+void map_reduce::ensure_intermediary_files(const std::string& job_root_dir,
+                                           int idx, int R) {
+  fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
+
+  for (int i = 0; i < R; i++) {
+    std::string file_name = std::to_string(idx) + "-" + std::to_string(i);
+    auto f = fs::ofstream(intermediary_dir / file_name);
+    f.close();
+  }
+}
+
 void map_reduce::init(int argc, char** argv) {
   auto vm = parse_args(argc, argv);
 
@@ -59,6 +70,10 @@ void map_reduce::init(int argc, char** argv) {
       // Log mapper input file
       std::cout << "Map task with index " << idx << " has input file "
                 << get_arg<std::string>(vm, "file") << '\n';
+
+      // Create r intermediary files
+      ensure_intermediary_files(get_arg<std::string>(vm, "job-root-dir"), idx,
+                                get_arg<int>(vm, "r"));
 
       get_mappers()[clss]->map();
 

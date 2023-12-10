@@ -2,7 +2,7 @@
 set(TARGET koala)
 
 set(Boost_USE_STATIC_LIBS   Off) # static boost libs installed via apt-get are not compiled with position independent code, XXX
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Boost REQUIRED COMPONENTS program_options filesystem)
 
 add_library(
     ${TARGET} SHARED

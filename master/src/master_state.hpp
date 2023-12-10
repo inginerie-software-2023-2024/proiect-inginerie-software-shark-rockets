@@ -53,6 +53,9 @@ class MasterState {
   void start_map_leg(const std::string& job_uuid,
                      const std::vector<nfs::fs::path>& input_files);
 
+  // Starts the reduce leg for a given job.
+  void start_reduce_leg(const std::string& job_uuid);
+
   // Decreases the load of the worker.
   // Deletes this task from the set of expected tasks for the current leg of the corresponding job.
   // Checks if the current leg of the corresponding job has finished.

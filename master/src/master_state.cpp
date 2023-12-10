@@ -63,6 +63,27 @@ void MasterState::start_map_leg(const std::string& job_uuid,
   pending_tasks_semaphore.release();
 }
 
+void MasterState::start_reduce_leg(const std::string& job_uuid) {
+  // the calling function holds the lock
+
+  // set the current leg of the job as the map leg
+  job_metadata.at(job_uuid).set_job_leg(JobLeg::Reduce);
+  expected_tasks[job_uuid] = {};
+
+  // init tasks belonging to this job_leg
+  int r = job_metadata.at(job_uuid).get_R();
+  for (int i = 0; i < r; i++) {
+    Task task(job_uuid, {"does_not_matter"}, i);
+    std::string task_uuid = task.get_task_uuid();
+    task_metadata.insert({task_uuid, task});
+    expected_tasks[job_uuid].insert(task_uuid);
+    pending_tasks.push_back(task_uuid);
+  }
+
+  // wake up the assign_tasks thread
+  pending_tasks_semaphore.release();
+}
+
 void MasterState::assign_tasks() {
   while (run_assign_tasks_thread) {
     // wait for pending tasks
@@ -109,7 +130,7 @@ void MasterState::assign_tasks() {
 
 void MasterState::mark_task_as_finished(const Socket& worker_socket,
                                         const std::string& task_uuid) {
-  std::lock_guard<std::mutex> lock(master_lock);
+  std::lock_guard<std::mutex> loc(master_lock);
 
   // decrease worker load
   worker_dict.at(worker_socket)->finish_task(task_uuid);
@@ -129,8 +150,13 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
     std::cout << "The " << job.get_current_leg() << " of the job " << job_uuid
               << " has finished!\n";
 
-    // if map leg finished, start_reduce_leg()
-    // if reducer leg finished, notify user code that the job has finished & remove job metadata
+    if (job.get_current_leg() == JobLeg::Map) {
+      start_reduce_leg(job_uuid);
+    } else {
+      std::cout << "Job " << job_uuid << " has finished!\n";
+      // remove job metadata
+      // notify user code
+    }
   }
 }
 

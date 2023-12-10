@@ -79,22 +79,27 @@ void MasterState::assign_tasks() {
       auto task = task_metadata.at(task_uuid);
       auto job = job_metadata.at(task.get_job_uuid());
 
-      master_lock
-          .lock();  // this portion needs to be atomic - otherwise acks and heartbeats will fail
-      auto worker = pop_worker();
+      try {
+        std::lock_guard<std::mutex> lock(
+            master_lock);  // this portion needs to be atomic - otherwise acks and heartbeats will fail
+        auto worker = pop_worker();
 
-      std::cout << "Assign task " << task_uuid << " to " << worker->address()
-                << ":" << worker->listen_port()
-                << " with load = " << worker->load()
-                << ", input file: " << task.get_job_input_files()[0].string()
-                << std::endl;
+        std::cout << "Assign task " << task_uuid << " to " << worker->address()
+                  << ":" << worker->listen_port()
+                  << " with load = " << worker->load()
+                  << ", input file: " << task.get_job_input_files()[0].string()
+                  << std::endl;
 
-      worker->assign_work(job.get_binary_path(), job.get_current_leg(),
-                          job.get_exec_class(),
-                          task.get_job_input_files()[0].string(), task_uuid);
+        worker->assign_work(job.get_binary_path(), job.get_current_leg(),
+                            job.get_exec_class(),
+                            task.get_job_input_files()[0].string(), task_uuid);
 
-      push_worker(std::move(worker));
-      master_lock.unlock();
+        push_worker(std::move(worker));
+      } catch (std::exception& e) {
+        std::cout << "An exception occurred while assigning task: " << e.what()
+                  << '\n';
+        // should probably re-insert the task in the pending list
+      }
     }
   }
 }

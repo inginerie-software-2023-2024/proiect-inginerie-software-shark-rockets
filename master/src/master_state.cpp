@@ -114,6 +114,7 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
   auto job = job_metadata.at(task.get_job_uuid());
   auto job_uuid = job.get_job_uuid();
   expected_tasks[job_uuid].erase(task_uuid);
+  task_metadata.erase(task_uuid);
 
   // check if the current leg has finished
   if (expected_tasks[job_uuid].empty()) {

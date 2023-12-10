@@ -75,7 +75,7 @@ class MasterServiceImpl final : public MasterService::Service {
               << request->path() << ", mapper=" << request->mapper()
               << ", reducer=" << request->reducer()
               << ", file location=" << request->file_regex()
-              << ", job uuid=" << uuid << std::endl;
+              << ", job uuid=" << uuid << ", R=" << request->r() << std::endl;
 
     std::vector<nfs::fs::path> job_files =
         nfs::on_job_register_request(uuid, user, request->file_regex());
@@ -88,7 +88,7 @@ class MasterServiceImpl final : public MasterService::Service {
 
     // Store metadata about a job.
     master_state.setup_job(uuid, user->get_name(), request->path(),
-                           request->mapper(), request->reducer());
+                           request->mapper(), request->reducer(), request->r());
 
     // Kicks off the map leg for this job.
     master_state.start_map_leg(uuid, job_files);

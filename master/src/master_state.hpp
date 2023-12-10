@@ -47,7 +47,7 @@ class MasterState {
   // Stores the necessary job, map-leg and reduce-leg metadata.
   void setup_job(const std::string& job_uuid, const std::string& job_user,
                  const std::string& binary_path, const std::string& mapper_name,
-                 const std::string& reducer_name);
+                 const std::string& reducer_name, int R);
 
   // Starts the map leg for a given job.
   void start_map_leg(const std::string& job_uuid,

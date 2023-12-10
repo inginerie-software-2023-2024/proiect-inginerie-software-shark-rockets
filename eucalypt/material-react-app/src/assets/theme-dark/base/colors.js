@@ -112,7 +112,7 @@ const colors = {
 
         bgcolor: {
             main: "#364c57",
-            state: "#cedbd2",
+            state: "#214249",
         },
 
         info: {

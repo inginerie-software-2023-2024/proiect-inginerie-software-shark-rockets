@@ -1,6 +1,7 @@
 #pragma once
 #include <grpcpp/grpcpp.h>
 #include <worker_service.grpc.pb.h>
+#include <boost/filesystem.hpp>
 #include <boost/functional/hash.hpp>
 #include <string>
 #include <unordered_set>
@@ -35,9 +36,10 @@ class Worker {
   // Make a grpc call to assign work to this worker.
   // Return the worker's reply to the work request.
   // If the grpc call fails, throw an exception.
-  bool assign_work(const std::string& binary_path, JobLeg job_leg,
+  bool assign_work(const std::string& binary_path,
+                   const boost::filesystem::path& job_root_dir, JobLeg job_leg,
                    const std::string& exec_class, const std::string& input_file,
-                   const std::string& task_uuid);
+                   const std::string& task_uuid, int R);
 
   const std::string& address() const;
 

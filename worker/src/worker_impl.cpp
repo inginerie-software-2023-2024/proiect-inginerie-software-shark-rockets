@@ -53,9 +53,10 @@ grpc::Status WorkerServiceImpl::AssignWork(
   std::string task_uuid = request->task_uuid();
   std::cout << "Worker: received an assign work request:"
             << "task: " << task_uuid << ',' << " path: " << request->path()
-            << ',' << " mode: " << request->mode() << ','
+            << ',' << " job root dir: " << request->job_root_dir() << ','
+            << " mode: " << request->mode() << ','
             << " class: " << request->class_() << ','
-            << " file : " << request->file() << '\n';
+            << " file: " << request->file() << '\n';
 
   // Fork a new process and run the job!
   pid_t child_pid = fork();

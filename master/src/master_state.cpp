@@ -90,9 +90,11 @@ void MasterState::assign_tasks() {
                   << ", input file: " << task.get_job_input_files()[0].string()
                   << std::endl;
 
-        worker->assign_work(job.get_binary_path(), job.get_current_leg(),
-                            job.get_exec_class(),
-                            task.get_job_input_files()[0].string(), task_uuid);
+        worker->assign_work(
+            job.get_binary_path(),
+            nfs::get_job_root_dir(job.get_job_uuid(), job.get_job_user()),
+            job.get_current_leg(), job.get_exec_class(),
+            task.get_job_input_files()[0].string(), task_uuid, job.get_R());
 
         push_worker(std::move(worker));
       } catch (std::exception& e) {

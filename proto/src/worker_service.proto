@@ -10,6 +10,8 @@ message AssignWorkRequest {
     string class = 3;
     string file = 4;
     string task_uuid = 5;
+    string job_root_dir = 6;
+    int32 R = 7;
 }
 
 message AssignWorkReply {

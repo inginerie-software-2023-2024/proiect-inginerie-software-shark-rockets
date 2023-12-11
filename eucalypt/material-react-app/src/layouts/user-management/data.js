@@ -28,6 +28,9 @@ import team4 from "assets/images/team-4.jpg";
 
 import UserManagementService from "services/user-management-service";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { UserContext } from "context";
+
 
 export default function data() {
   const [users, setUsers] = useState([]);
@@ -64,12 +67,10 @@ export default function data() {
     }
   }
 
-  console.log(users);
-
   const Action = ({ id }) => (
     <MDBox display="flex" justifyContent="center">
       <MDBox mr={1}>
-        <button onClick={() => handleEdit(id)}>
+        <Link to={`/user-management/edit/${id}`}>
           <MDTypography
             variant="button"
             fontWeight="bold"
@@ -77,7 +78,7 @@ export default function data() {
           >
             Edit
           </MDTypography>
-        </button>
+        </Link>
       </MDBox>
       <MDBox ml={1}>
         <button onClick={() => handleDelete(id)}>
@@ -93,7 +94,6 @@ export default function data() {
     </MDBox>
   );
 
-  console.log(users);
 
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -107,20 +107,28 @@ export default function data() {
     </MDBox>
   );
 
+  const isAdmin = true;
 
-  return {
-    columns: [
-      { Header: "user", accessor: "user", width: "45%", align: "left" },
-      { Header: "email", accessor: "email", align: "left" },
-      { Header: "creation date", accessor: "creationdate", align: "center" },
-      { Header: "action", accessor: "action", align: "center" },
-    ],
+  const columns = [
+    { Header: "user", accessor: "user", width: "45%", align: "left" },
+    { Header: "email", accessor: "email", align: "left" },
+    ...(isAdmin ? [{ Header: "role", accessor: "role", align: "center" }] : []),
+    { Header: "creation date", accessor: "creationdate", align: "center" },
+    { Header: "action", accessor: "action", align: "center" },
+  ];
 
-    rows: users.map((user) => ({
+  const rows = users
+    .filter((user) => user.role !== "pending_approval")
+    .map((user) => ({
       user: <Author image={team2} name={user.name} email={user.email} />,
       email: user.email,
+      role: user.role,
       creationdate: user.created_at,
       action: <Action id={user.id} />,
-    })),
+    }));
+
+  return {
+    columns,
+    rows,
   };
 }

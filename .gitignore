@@ -6,3 +6,4 @@ grpc/
 package/
 install/
 eucalypt/*/node_modules
+eucalypt/node-api/.env

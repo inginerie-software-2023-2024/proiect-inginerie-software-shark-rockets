@@ -39,9 +39,11 @@ Points to remember:
         - ```<mode>``` is one of ```user, mapper, reducer```
         - ```<class>``` is the name of the mapper/reducer you want to run if starting in mapper/reducer mode
 ##### Eucalypt backend
-1. Instructions in eucalypt/node-api
+1. Make sure templates are populated. Follow the instructions below.
+2. Instructions in [Eucalypt readme](../eucalypt/README.md)
 ##### Eucalypt frontend
-1. Instructions in eucalypt/material-react-app
+1. Make sure templates are populated. Follow the instructions below.
+2. Instructions in [Eucalypt readme](../eucalypt/README.md)
 
 #### Running in docker
 1. Make sure you have a successful image build (with all your modifications)

@@ -5,5 +5,4 @@ grpc/
 .generated/
 package/
 install/
-eucalypt/
-docker_compose.yml
+docker-compose.yml

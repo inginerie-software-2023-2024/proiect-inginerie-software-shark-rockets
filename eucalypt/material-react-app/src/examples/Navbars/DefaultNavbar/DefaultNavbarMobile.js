@@ -46,6 +46,7 @@ function DefaultNavbarMobile({ open, close }) {
       open={Boolean(open)}
       onClose={close}
       MenuListProps={{ style: { width: `calc(${width}px - 4rem)` } }}
+
     >
       {!authContext.isAuthenticated && (
         <MDBox px={0.5}>

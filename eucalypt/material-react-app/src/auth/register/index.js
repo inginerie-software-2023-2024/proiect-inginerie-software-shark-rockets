@@ -16,11 +16,12 @@ import MDButton from "components/MDButton";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Images
-import bgImage from "assets/images/bg-sign-up-cover.jpeg";
+import bgImage from "assets/images/eucalypt.jpg";
 
 import AuthService from "services/auth-service";
 import { AuthContext } from "context";
 import { InputLabel } from "@mui/material";
+import DefaultNavbar from "../../examples/Navbars/DefaultNavbar";
 
 function Register() {
   const authContext = useContext(AuthContext);
@@ -133,7 +134,7 @@ function Register() {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Join us today
+            Join us
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
             Enter your email and password to register
@@ -213,7 +214,7 @@ function Register() {
                 sx={{ lineHeight: "1.5", cursor: "pointer" }}
                 htmlFor="agree"
               >
-                &nbsp;&nbsp;I agree to the&nbsp;
+                &nbsp;I agree to the&nbsp;
               </InputLabel>
               <MDTypography
                 component={Link}

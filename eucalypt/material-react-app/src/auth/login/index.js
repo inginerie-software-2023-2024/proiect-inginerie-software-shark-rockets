@@ -24,7 +24,7 @@ import MDButton from "components/MDButton";
 import BasicLayoutLanding from "layouts/authentication/components/BasicLayoutLanding";
 
 // Images
-import bgImage from "assets/images/bg-sign-in-basic.jpeg";
+import bgImage from "assets/images/eucalypt.jpg";
 
 import AuthService from "services/auth-service";
 import { AuthContext } from "context";
@@ -37,8 +37,8 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const [inputs, setInputs] = useState({
-    email: "admin@jsonapi.com",
-    password: "secret",
+    email: "",
+    password: "",
   });
 
   const [errors, setErrors] = useState({
@@ -142,9 +142,9 @@ function Login() {
             </Grid>
           </Grid>
         </MDBox>
-        <MDBox pt={4} pb={3} px={3}>
+        <MDBox  pt={4} pb={3} px={3}>
           <MDBox component="form" role="form" method="POST" onSubmit={submitHandler}>
-            <MDBox mb={2}>
+            <MDBox  mb={2}>
               <MDInput
                 type="email"
                 label="Email"

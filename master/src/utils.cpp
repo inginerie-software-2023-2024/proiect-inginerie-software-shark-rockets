@@ -1,4 +1,5 @@
 #include "utils.hpp"
+
 namespace nfs {
 
 bool ensure_directory(const fs::path& path) {
@@ -20,3 +21,11 @@ void sanity_check() {
   }
 }
 }  // namespace nfs
+
+namespace uuid {
+
+std::string generate_uuid() {
+  boost::uuids::uuid uuid = boost::uuids::random_generator()();
+  return boost::uuids::to_string(uuid);
+}
+}  // namespace uuid

@@ -16,26 +16,33 @@ class MasterServiceImpl final : public MasterService::Service {
  private:
   MasterState master_state;
 
-  std::string extract_ip_from_context(grpc::ServerContext* context) {
+  Socket extract_socket_from_context(grpc::ServerContext* context) {
     std::string peer = context->peer();  // is of the form ipv4:ip:port
     int first_colon = peer.find(':');
     int second_colon = peer.find(':', first_colon + 1);
 
-    return peer.substr(first_colon + 1, second_colon - first_colon - 1);
+    std::string ip =
+        peer.substr(first_colon + 1, second_colon - first_colon - 1);
+    int port = std::stoi(
+        peer.substr(second_colon + 1, peer.size() - second_colon - 1));
+
+    return {ip, port};
   }
 
  public:
   grpc::Status RegisterWorker(grpc::ServerContext* context,
                               const RegisterWorkerRequest* request,
                               RegisterWorkerReply* response) override {
-    std::string worker_ip = extract_ip_from_context(context);
-    int worker_port = request->worker_port();
+    auto [worker_ip, worker_emit_port] = extract_socket_from_context(context);
+    int worker_listen_port = request->worker_port();
 
     std::cout << "Master: received a register worker request:"
-              << " ip: " << worker_ip << ',' << " port: " << worker_port
+              << " ip: " << worker_ip << ',' << " port: " << worker_listen_port
               << '\n';
 
-    master_state.register_worker(worker_ip, worker_port);
+    auto worker = std::make_unique<Worker>(worker_ip, worker_listen_port,
+                                           worker_emit_port);
+    master_state.push_worker(std::move(worker));
     response->set_ok(true);
     return grpc::Status::OK;
   }
@@ -43,54 +50,61 @@ class MasterServiceImpl final : public MasterService::Service {
   grpc::Status RegisterJob(grpc::ServerContext* context,
                            const RegisterJobRequest* request,
                            RegisterJobReply* response) override {
+
+    // Retrieve the uuid from the request context.
+    const auto& metadata = context->client_metadata();
+    auto uuid_it = metadata.find("uuid");
+    std::string uuid;
+
+    // No uuid.
+    if (uuid_it == metadata.end()) {
+      std::cerr << "Request doesn't have a uuid!" << std::endl;
+      return grpc::Status::CANCELLED;
+    }
+    uuid = std::string(uuid_it->second.data(), uuid_it->second.size());
+
+    // Get the user who initiated the request.
+    std::unique_ptr<User> user;
+    if (request->has_user_name()) {
+      user = std::make_unique<User>(request->user_name());
+    } else {
+      user = std::make_unique<User>();  // Guest
+    }
+
     std::cout << "Master: received a register job request: path="
               << request->path() << ", mapper=" << request->mapper()
               << ", reducer=" << request->reducer()
-              << ", file location=" << request->file_regex() << '\n';
+              << ", file location=" << request->file_regex()
+              << ", job uuid=" << uuid << std::endl;
 
     std::vector<nfs::fs::path> job_files =
-        nfs::on_job_register_request(context, request);
+        nfs::on_job_register_request(uuid, user, request->file_regex());
 
-    // Just print them for now, use this vector to asssign input to workers
-    std ::cout << "Listing job files..." << std::endl;
-    for (const auto& it : job_files) {
-      std::cout << "Job file: " << it << std::endl;
+    // No files to process.
+    if (job_files.empty()) {
+      std::cerr << "No files to process!" << std::endl;
+      return grpc::Status::CANCELLED;
     }
 
-    std::pair<std::string, int> worker = master_state.get_worker();
-    std::cout << "Master: we will assign the tasks to " << worker.first << ':'
-              << worker.second << '\n';
+    // Store metadata about a job.
+    master_state.setup_job(uuid, user->get_name(), request->path(),
+                           request->mapper(), request->reducer());
 
-    // should probably create these connections when we register a worker ...
-    auto channel =
-        grpc::CreateChannel(worker.first + ":" + std::to_string(worker.second),
-                            grpc::InsecureChannelCredentials());
-    auto worker_service = WorkerService::NewStub(channel);
+    // Kicks off the map leg for this job.
+    master_state.start_map_leg(uuid, job_files);
 
-    // naive implementation :)
-    AssignWorkRequest mapper_work_request;
-    mapper_work_request.set_path(request->path());
-    mapper_work_request.set_mode("mapper");
-    mapper_work_request.set_class_(request->mapper());
-    AssignWorkReply mapper_work_reply;
-    grpc::ClientContext context_mapper;
-    auto status_mapper_worker = worker_service->AssignWork(
-        &context_mapper, mapper_work_request, &mapper_work_reply);
+    response->set_ok(true);
+    return grpc::Status::OK;
+  }
 
-    AssignWorkRequest reducer_work_request;
-    reducer_work_request.set_path(request->path());
-    reducer_work_request.set_mode("reducer");
-    reducer_work_request.set_class_(request->reducer());
-    AssignWorkReply reducer_work_reply;
-    grpc::ClientContext context_reducer;
-    auto status_reducer_worker = worker_service->AssignWork(
-        &context_reducer, reducer_work_request, &reducer_work_reply);
-
-    if (status_mapper_worker.ok() && status_reducer_worker.ok())
-      response->set_ok(true);
-    else
-      response->set_ok(false);
-
+  grpc::Status AckWorkerFinish(
+      [[maybe_unused]] grpc::ServerContext* context,
+      [[maybe_unused]] const AckWorkerFinishRequest* request,
+      [[maybe_unused]] AckWorkerFinishReply* response) override {
+    std::cout << "Worker finished task " << request->task_uuid() << std::endl;
+    master_state.mark_task_as_finished(extract_socket_from_context(context),
+                                       request->task_uuid());
+    response->set_ok(true);
     return grpc::Status::OK;
   }
 };

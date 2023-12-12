@@ -16,26 +16,32 @@ class MasterServiceImpl final : public MasterService::Service {
  private:
   MasterState master_state;
 
-  std::string extract_ip_from_context(grpc::ServerContext* context) {
+  Socket extract_socket_from_context(grpc::ServerContext* context) {
     std::string peer = context->peer();  // is of the form ipv4:ip:port
     int first_colon = peer.find(':');
     int second_colon = peer.find(':', first_colon + 1);
 
-    return peer.substr(first_colon + 1, second_colon - first_colon - 1);
+    std::string ip =
+        peer.substr(first_colon + 1, second_colon - first_colon - 1);
+    int port = std::stoi(
+        peer.substr(second_colon + 1, peer.size() - second_colon - 1));
+
+    return {ip, port};
   }
 
  public:
   grpc::Status RegisterWorker(grpc::ServerContext* context,
                               const RegisterWorkerRequest* request,
                               RegisterWorkerReply* response) override {
-    std::string worker_ip = extract_ip_from_context(context);
-    int worker_port = request->worker_port();
+    auto [worker_ip, worker_emit_port] = extract_socket_from_context(context);
+    int worker_listen_port = request->worker_port();
 
     std::cout << "Master: received a register worker request:"
-              << " ip: " << worker_ip << ',' << " port: " << worker_port
+              << " ip: " << worker_ip << ',' << " port: " << worker_listen_port
               << '\n';
 
-    auto worker = std::make_unique<Worker>(worker_ip, worker_port);
+    auto worker = std::make_unique<Worker>(worker_ip, worker_listen_port,
+                                           worker_emit_port);
     master_state.push_worker(std::move(worker));
     response->set_ok(true);
     return grpc::Status::OK;
@@ -80,25 +86,25 @@ class MasterServiceImpl final : public MasterService::Service {
       return grpc::Status::CANCELLED;
     }
 
-    // Just print them for now, use this vector to asssign input to workers
-    std ::cout << "Listing job files..." << std::endl;
-    for (const auto& it : job_files) {
-      std::cout << "Job file: " << it << std::endl;
-    }
+    // Store metadata about a job.
+    master_state.setup_job(uuid, user->get_name(), request->path(),
+                           request->mapper(), request->reducer());
 
-    bool all_ok = true;
-    // Assign files to map-workers.
-    for (const auto& it : job_files) {
-      auto worker = master_state.pop_worker();
-      std::cout << "Assign file: " << it << " to " << worker->address() << ":"
-                << worker->port() << " with load = " << worker->load()
-                << std::endl;
-      all_ok &= worker->assign_work(request->path(), WorkerType::Mapper,
-                                    request->mapper(), it.string());
-      master_state.push_worker(std::move(worker));
-    }
+    // Kicks off the map leg for this job.
+    master_state.start_map_leg(uuid, job_files);
 
-    response->set_ok(all_ok);
+    response->set_ok(true);
+    return grpc::Status::OK;
+  }
+
+  grpc::Status AckWorkerFinish(
+      [[maybe_unused]] grpc::ServerContext* context,
+      [[maybe_unused]] const AckWorkerFinishRequest* request,
+      [[maybe_unused]] AckWorkerFinishReply* response) override {
+    std::cout << "Worker finished task " << request->task_uuid() << std::endl;
+    master_state.mark_task_as_finished(extract_socket_from_context(context),
+                                       request->task_uuid());
+    response->set_ok(true);
     return grpc::Status::OK;
   }
 };

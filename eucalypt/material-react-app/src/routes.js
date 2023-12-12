@@ -46,6 +46,7 @@ import SignUp from "layouts/authentication/sign-up";
 import UserProfile from "layouts/user-profile";
 import UserManagement from "layouts/user-management";
 import UserRequests from "layouts/user-requests";
+import EditUser from "layouts/user-management/edit";
 
 import Login from "auth/login";
 import Register from "auth/register";
@@ -159,6 +160,15 @@ const routes = [
     icon: <Icon fontSize="small">assignment</Icon>,
     route: "/auth/reset-password",
     component: <ResetPassword />,
+  },
+  // edit user
+  {
+    type: "collapse",
+    name: "Edit User",
+    key: "edit-user",
+    icon: <Icon fontSize="small">person</Icon>,
+    route: "/user-management/edit/:id",
+    component: <EditUser />,
   },
 ];
 

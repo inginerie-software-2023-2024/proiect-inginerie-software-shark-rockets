@@ -40,7 +40,6 @@ export const AuthContext = createContext({
 const AuthContextProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-
   const navigate = useNavigate();
   const location = useLocation();
 

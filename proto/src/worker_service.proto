@@ -9,6 +9,7 @@ message AssignWorkRequest {
     string mode = 2;
     string class = 3;
     string file = 4;
+    string task_uuid = 5;
 }
 
 message AssignWorkReply {

@@ -46,7 +46,7 @@ export default styled(Box)(({ theme, ownerState }) => {
     "warning",
     "error",
     "dark",
-    "light",
+    "light","bgcolor",
   ];
 
   const validColors = [

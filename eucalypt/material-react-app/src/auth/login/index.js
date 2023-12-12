@@ -24,7 +24,7 @@ import MDButton from "components/MDButton";
 import BasicLayoutLanding from "layouts/authentication/components/BasicLayoutLanding";
 
 // Images
-import bgImage from "assets/images/bg-sign-in-basic.jpeg";
+import bgImage from "assets/images/eucalypt.jpg";
 
 import AuthService from "services/auth-service";
 import { AuthContext } from "context";
@@ -37,8 +37,8 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const [inputs, setInputs] = useState({
-    email: "admin@jsonapi.com",
-    password: "secret",
+    email: "",
+    password: "",
   });
 
   const [errors, setErrors] = useState({
@@ -124,7 +124,7 @@ function Login() {
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
             Sign in
           </MDTypography>
-          <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}>
+          {/* <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}>
             <Grid item xs={2}>
               <MDTypography component={MuiLink} href="#" variant="body1" color="white">
                 <FacebookIcon color="inherit" />
@@ -140,11 +140,11 @@ function Login() {
                 <GoogleIcon color="inherit" />
               </MDTypography>
             </Grid>
-          </Grid>
+          </Grid> */}
         </MDBox>
-        <MDBox pt={4} pb={3} px={3}>
+        <MDBox  pt={4} pb={3} px={3}>
           <MDBox component="form" role="form" method="POST" onSubmit={submitHandler}>
-            <MDBox mb={2}>
+            <MDBox  mb={2}>
               <MDInput
                 type="email"
                 label="Email"

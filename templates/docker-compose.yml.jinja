@@ -51,7 +51,6 @@ services:
             cluster:
                 ipv4_address: {{ EUCALYPT_BACKEND_ADDRESS }}
     eucalypt_frontend:
-
         image: eucalypt_frontend:{{ EUCALYPT_FRONTEND_IMG_TAG }}
         container_name: eucalypt_frontend
         networks:

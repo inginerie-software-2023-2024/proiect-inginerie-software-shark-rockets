@@ -67,7 +67,13 @@ Points to remember:
 
 #### Populating templates
 1. Install Jinja2 if you don't have it already: ```pip install Jinja2```
-2. Populate the templates: ```cd templates && python3 populate_templates.py```
+2. Create a .env that contains the credentials: ```cd templates && touch .env```
+3. Fill in the credentials in the .env:
+```
+DB_LINK=<db_link without quotes>
+JWT_SECRET=<jwt_secret without quotes>
+```
+4. Populate the templates: ```python3 populate_templates.py```
 
 #### Running unit tests
 0. Make sure you have Gtest installed by running the latest ```./scripts/sync_depends```

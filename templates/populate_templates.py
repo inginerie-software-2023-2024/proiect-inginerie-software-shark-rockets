@@ -4,8 +4,8 @@ from jinja2 import Environment, FileSystemLoader
 
 # Credentials setup
 CREDENTIALS = dict([
-    ['DB_LINK', os.environ.get('PROIECT_IS_DB_LINK')],
-    ['JWT_SECRET', "token"]
+    ['DB_LINK', "placeholder"],
+    ['JWT_SECRET', "placeholder"]
 ])
 
 # Compose config
@@ -69,6 +69,14 @@ def populate_templates():
 
 
 if __name__ == "__main__":
-    if os.environ.get('PROIECT_IS_DB_LINK') == None:
-        raise ValueError("Please populate credentials! The Mongo DB link should be exported as an environment variable.")
+    if not os.path.isfile(".env"):
+        raise ValueError("Please create a .env with credentials!")
+
+    with open(".env") as f:
+        db_link = f.readline().strip().split("=")[1]
+        CREDENTIALS["DB_LINK"] = db_link
+
+        jwt_secret = f.readline().strip().split("=")[1]
+        CREDENTIALS["JWT_SECRET"] = jwt_secret
+
     populate_templates()

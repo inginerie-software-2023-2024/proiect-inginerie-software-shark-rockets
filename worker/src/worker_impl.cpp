@@ -52,10 +52,13 @@ grpc::Status WorkerServiceImpl::AssignWork(
 
   std::string task_uuid = request->task_uuid();
   std::cout << "Worker: received an assign work request:"
-            << "task: " << task_uuid << ',' << " path: " << request->path()
-            << ',' << " mode: " << request->mode() << ','
+            << " task: " << task_uuid << ',' << " idx: " << request->idx()
+            << ',' << " path: " << request->path() << ','
+            << " job root dir: " << request->job_root_dir() << ','
+            << " mode: " << request->mode() << ','
             << " class: " << request->class_() << ','
-            << " file : " << request->file() << '\n';
+            << " file: " << request->file() << ',' << " R: " << request->r()
+            << std::endl;
 
   // Fork a new process and run the job!
   pid_t child_pid = fork();
@@ -79,9 +82,29 @@ grpc::Status WorkerServiceImpl::AssignWork(
   } else {
     char *path = strdup("does_not_matter"),
          *mode = strdup(request->mode().c_str()),
-         *class_ = strdup(request->class_().c_str());
-    char* arguments[] = {
-        path, strdup("--mode"), mode, strdup("--class"), class_, NULL};
+         *class_ = strdup(request->class_().c_str()),
+         *file = strdup(request->file().c_str()),
+         *job_root_dir = strdup(request->job_root_dir().c_str()),
+         *idx = strdup(std::to_string(request->idx()).c_str()),
+         *m = strdup(std::to_string(request->m()).c_str()),
+         *r = strdup(std::to_string(request->r()).c_str());
+
+    char* arguments[] = {path,
+                         strdup("--mode"),
+                         mode,
+                         strdup("--class"),
+                         class_,
+                         strdup("--file"),
+                         file,
+                         strdup("--job-root-dir"),
+                         job_root_dir,
+                         strdup("--idx"),
+                         idx,
+                         strdup("--m"),
+                         m,
+                         strdup("--r"),
+                         r,
+                         NULL};
     execve(request->path().c_str(), arguments, NULL);
   }
   return grpc::Status::CANCELLED;

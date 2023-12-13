@@ -29,6 +29,44 @@ std::unordered_map<std::string, Reducer*>& get_reducers() {
   static std::unordered_map<std::string, Reducer*> reducers;
   return reducers;
 }
+
+void ensure_intermediary_files(const std::string& job_root_dir, int idx,
+                               int R) {
+  fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
+
+  for (int i = 0; i < R; i++) {
+    // opening and closing a file - a.k.a touch
+    std::string file_name = std::to_string(idx) + "-" + std::to_string(i);
+    auto f = fs::ofstream(intermediary_dir / file_name);
+    f.close();
+  }
+}
+
+std::vector<fs::path> get_reducer_input_files(const std::string& job_root_dir,
+                                              int idx) {
+  fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
+  std::vector<fs::path> reducer_input_files;
+
+  fs::recursive_directory_iterator
+      end_iter;  // Default construction yields past-the-end
+  for (fs::recursive_directory_iterator iter(intermediary_dir);
+       iter != end_iter; ++iter) {
+    fs::path intermediary_file = iter->path();
+    std::string intermediary_file_name = intermediary_file.filename().string();
+
+    std::size_t dash = intermediary_file_name.find('-');
+    if (dash == std::string::npos)
+      continue;
+    int file_idx = std::stoi(intermediary_file_name.substr(
+        dash + 1, (int)intermediary_file_name.size() - dash));
+
+    if (idx == file_idx)
+      reducer_input_files.push_back(intermediary_file);
+  }
+
+  return reducer_input_files;
+}
+
 }  // namespace map_reduce
 
 bool map_reduce::register_mapper(const std::string& name, Mapper* mapper) {
@@ -50,16 +88,44 @@ void map_reduce::init(int argc, char** argv) {
 
   auto mode = get_arg<Mode>(vm, "mode");
   std::cout << mode;
+
   switch (mode) {
     case Mode::Mapper: {
       const auto clss = get_arg<std::string>(vm, "class");
+      auto idx = get_arg<int>(vm, "idx");
+
+      // Log mapper input file
+      std::cout << "Map task with index " << idx << " has input file "
+                << get_arg<std::string>(vm, "file") << '\n';
+
+      // Create r intermediary files
+      ensure_intermediary_files(get_arg<std::string>(vm, "job-root-dir"), idx,
+                                get_arg<int>(vm, "r"));
+
       get_mappers()[clss]->map();
+
       exit(0);
       break;
     }
     case Mode::Reducer: {
       auto clss = get_arg<std::string>(vm, "class");
+      auto idx = get_arg<int>(vm, "idx"), m = get_arg<int>(vm, "m");
+
+      // Find reducer input files
+      std::vector<fs::path> input_files = get_reducer_input_files(
+          get_arg<std::string>(vm, "job-root-dir"), idx);
+
+      if ((int)input_files.size() != m) {
+        std::cout << "Warning: expected " << m
+                  << " intermediary files for index " << idx << ", found "
+                  << input_files.size() << '\n';
+
+      } else {
+        std::cout << "Found all intermediary files for index " << idx << '\n';
+      }
+
       get_reducers()[clss]->reduce();
+
       exit(0);
       break;
     }
@@ -77,7 +143,8 @@ void map_reduce::init(int argc, char** argv) {
 
 void map_reduce::register_job(const std::string& mapper_name,
                               const std::string& reducer_name,
-                              const std::string& file_regex) {
+                              const std::string& file_regex, int R,
+                              const std::string& user_name) {
   // check that the provided mapper and reducer are known ...
 
   std::cout << "User: sending a register job request with mapper "
@@ -88,7 +155,10 @@ void map_reduce::register_job(const std::string& mapper_name,
   request.set_mapper(mapper_name);
   request.set_reducer(reducer_name);
   request.set_file_regex(file_regex);
-  // request.set_user_name("gogu"); // send optional parameter
+  request.set_r(R);
+
+  if (user_name != "")
+    request.set_user_name(user_name);  // send optional parameter
 
   RegisterJobReply reply;
   grpc::ClientContext context;

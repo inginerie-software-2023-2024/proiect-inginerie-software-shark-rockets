@@ -5,5 +5,4 @@ grpc/
 .generated/
 package/
 install/
-eucalypt/*/node_modules
-eucalypt/node-api/.env
+docker-compose.yml

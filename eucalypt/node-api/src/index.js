@@ -48,4 +48,11 @@ if (process.env.SCHEDULE_HOUR) {
   });
 }
 
-app.listen(PORT, () => console.log(`Server listening to port ${PORT}`));
+app.listen(PORT, () => {
+  const green_color = "\x1b[32m";
+  const reset = "\x1b[0m";
+  console.log(green_color, `Eucalypt backend URL: ${process.env.APP_URL_API}`);
+  console.log(green_color, `Eucalypt frontend URL: ${process.env.APP_URL_CLIENT}`);
+  console.log(green_color, `Master URL: ${process.env.MASTER_URL}`);
+  console.log(reset);
+});

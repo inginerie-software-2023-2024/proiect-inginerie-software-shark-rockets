@@ -1,0 +1,14 @@
+#/bin/bash
+
+# Builds the docker image for eucalypt backend.
+# It temporarily copies the proto that the backend needs in order to talk to the master.
+# Ugly as it might look, I've chosen this for three reasons:
+#   - Docker does not do symbolic links
+#   - Docker can only operate with files in its build context (which is the current folder)
+#   - If I were to place this Dockerfile in the root of the project, the .dockerignore gets in the way, as it ignores eucalypt/
+
+cp ../../proto/src/eucalypt_service.proto eucalypt_service.proto
+
+docker build . -t eucalypt_backend:0.0.1
+
+rm eucalypt_service.proto

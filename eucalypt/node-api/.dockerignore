@@ -1,0 +1,4 @@
+node_modules/
+.env
+Dockerfile
+build_docker_image

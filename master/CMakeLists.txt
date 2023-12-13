@@ -11,6 +11,8 @@ add_executable(
     src/utils.cpp
     src/user.cpp
     src/worker.cpp
+    src/persistor.cpp
+    src/event.cpp
 )
 
 target_include_directories(

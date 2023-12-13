@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+service PersistorService {
+    rpc StartJobUpdate(StartJobUpdateRequest) returns (PersistorReply) {}
+    rpc StartTaskUpdate(StartTaskUpdateRequest) returns (PersistorReply) {}
+    rpc CompleteEventUpdate(CompleteEventUpdateRequest) returns (PersistorReply) {}
+}
+
+message StartJobUpdateRequest {
+    string job_uuid = 1;
+    string job_user = 2;
+    string binary_path = 3;
+    string mapper_name = 4;
+    string reducer_name = 5;
+    int32 M = 6;
+    int32 R = 7;
+    int64 ms = 8;
+}
+
+message StartTaskUpdateRequest {
+    string task_uuid = 1;
+    string job_uuid = 2;
+    string task_type = 3;
+    string input_file = 4;
+    string worker_socket = 5;
+    int32 idx = 6;
+    int64 ms = 7;
+}
+
+message CompleteEventUpdateRequest {
+    int32 complete_event_type = 1;
+    string uuid = 2;
+    int64 ms = 3;
+}
+
+message PersistorReply {
+    bool ok = 1;
+}

@@ -30,6 +30,9 @@ class MasterServiceImpl final : public MasterService::Service {
   }
 
  public:
+  MasterServiceImpl(const std::string& eucalypt_grpc_address)
+      : master_state(eucalypt_grpc_address) {}
+
   grpc::Status RegisterWorker(grpc::ServerContext* context,
                               const RegisterWorkerRequest* request,
                               RegisterWorkerReply* response) override {
@@ -121,13 +124,19 @@ class EucalyptServiceImpl final : public EucalyptService::Service {
   }
 };
 
-int main() {
+int main(int argc, char** argv) {
   nfs::sanity_check();
+
   // This is hardcoded for now...
   std::string master_server_address = "0.0.0.0:50051";
 
+  // Parse with program options ...
+  if (argc < 2) {
+    throw std::runtime_error("Expected eucalypt address: ip.ip.ip.ip:port");
+  }
+
   // Start a grpc server, waiting for job requests and worker heartbeats
-  MasterServiceImpl master_service;
+  MasterServiceImpl master_service(argv[1]);
   EucalyptServiceImpl eucalypt_service;
   grpc::ServerBuilder builder;
 

@@ -3,6 +3,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <chrono>
 #include <string>
 
 namespace nfs {
@@ -21,3 +22,8 @@ void sanity_check();
 namespace uuid {
 std::string generate_uuid();
 }  // namespace uuid
+
+namespace time_utils {
+using namespace std::chrono;
+long long get_time();
+}  // namespace time_utils

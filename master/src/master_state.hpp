@@ -1,4 +1,5 @@
 #pragma once
+#include <grpcpp/grpcpp.h>
 #include <atomic>
 #include <mutex>
 #include <queue>
@@ -6,6 +7,7 @@
 #include <thread>
 #include "file_system_manager.hpp"
 #include "job.hpp"
+#include "persistor.hpp"
 #include "task.hpp"
 #include "worker.hpp"
 
@@ -16,7 +18,6 @@ class MasterState {
   // The value is a unique_ptr to worker wrapper
   // This representation is useful for worker acks and heartbeats
   WorkerDict worker_dict;
-  // std::vector<std::unique_ptr<Worker>> workers;
 
   // Job info
   std::unordered_map<std::string, Job> job_metadata;  // metadata of a job
@@ -35,8 +36,11 @@ class MasterState {
   std::counting_semaphore<> pending_tasks_semaphore;
   std::atomic_bool run_assign_tasks_thread;
 
+  // Auxiliary object used to persist updates to DB (via Eucalypt)
+  Persistor persistor;
+
  public:
-  MasterState();
+  MasterState(const std::string& eucalypt_grpc_address);
 
   // Moves a new worker into the data structure, transferring ownership.
   void push_worker(std::unique_ptr<Worker> new_worker);

@@ -41,6 +41,8 @@ class Worker {
 
   Socket get_emit_socket() const;
 
+  Socket get_listen_socket() const;
+
   int listen_port() const;
 
   // Return an integer: the load of this worker.

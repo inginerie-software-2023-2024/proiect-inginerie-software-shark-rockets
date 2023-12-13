@@ -15,6 +15,7 @@ set(PROTO_FILES
     src/master_service.proto
     src/worker_service.proto
     src/eucalypt_service.proto
+    src/persistor_service.proto
 )
 # Add Library target with protobuf sources
 add_library(proto ${PROTO_FILES})

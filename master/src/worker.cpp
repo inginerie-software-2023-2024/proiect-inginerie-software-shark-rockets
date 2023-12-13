@@ -8,7 +8,7 @@ Worker::Worker(std::string addr, int listen_port, int emit_port)
 }
 
 bool Worker::assign_work(const Job& job, const Task& task) {
-  std::optional<nfs::fs::path> input_file = task.get_job_input_file();
+  std::optional<nfs::fs::path> input_file = task.get_task_input_file();
   std::string input_file_str =
       input_file.has_value() ? input_file.value().string() : "does_not_matter";
 
@@ -53,6 +53,10 @@ const std::string& Worker::address() const {
 
 Socket Worker::get_emit_socket() const {
   return {addr_, emit_port_};
+}
+
+Socket Worker::get_listen_socket() const {
+  return {addr_, listen_port_};
 }
 
 int Worker::listen_port() const {

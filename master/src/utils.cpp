@@ -29,3 +29,12 @@ std::string generate_uuid() {
   return boost::uuids::to_string(uuid);
 }
 }  // namespace uuid
+
+namespace time_utils {
+
+long long get_time() {
+  milliseconds ms =
+      duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+  return ms.count();
+}
+}  // namespace time_utils

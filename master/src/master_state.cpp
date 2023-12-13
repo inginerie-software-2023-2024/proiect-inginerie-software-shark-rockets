@@ -1,9 +1,10 @@
 #include "master_state.hpp"
 #include <stdexcept>
 
-MasterState::MasterState()
+MasterState::MasterState(const std::string& eucalypt_grpc_address)
     : pending_tasks_semaphore(std::counting_semaphore(0)),
-      run_assign_tasks_thread(true) {
+      run_assign_tasks_thread(true),
+      persistor(eucalypt_grpc_address) {
   // start the thread that assigns pending tasks to workers
   assign_tasks_thread = std::thread(&MasterState::assign_tasks, this);
 }
@@ -38,8 +39,11 @@ void MasterState::setup_job(const std::string& job_uuid,
   std::lock_guard<std::mutex> lock(master_lock);
 
   // store job metadata
-  job_metadata.insert({job_uuid, Job(job_uuid, job_user, binary_path,
-                                     mapper_name, reducer_name, M, R)});
+  Job job(job_uuid, job_user, binary_path, mapper_name, reducer_name, M, R);
+  job_metadata.insert({job_uuid, job});
+
+  // push start job update to Eucalypt
+  persistor.start_job(StartJobEvent(job, time_utils::get_time()));
 }
 
 void MasterState::start_map_leg(const std::string& job_uuid,
@@ -107,6 +111,10 @@ void MasterState::assign_tasks() {
 
         worker->assign_work(job, task);
 
+        // push start task update to Eucalypt
+        persistor.start_task(StartTaskEvent(task, time_utils::get_time(),
+                                            worker->get_listen_socket()));
+
         push_worker(std::move(worker));
       } catch (std::exception& e) {
         std::cout << "An exception occurred while assigning task: " << e.what()
@@ -134,6 +142,11 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
   expected_tasks[job_uuid].erase(task_uuid);
   task_metadata.erase(task_uuid);
 
+  // push complete task update to Eucalypt
+  long long ms = time_utils::get_time();
+  persistor.complete_event(
+      CompleteEvent(CompleteEventType::TaskComplete, task_uuid, ms));
+
   // check if the current leg has finished
   if (expected_tasks[job_uuid].empty()) {
     std::cout << "The " << job.get_current_leg() << " of the job " << job_uuid
@@ -142,10 +155,15 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
     if (job.get_current_leg() == JobLeg::Map) {
       start_reduce_leg(job_uuid);
     } else {
+      // clean up job metadata
       job_metadata.erase(job_uuid);
       expected_tasks.erase(job_uuid);
       std::cout << "Job " << job_uuid << " has finished. There are "
                 << job_metadata.size() << " ongoing jobs\n";
+
+      // push complete job update to Eucalypt
+      persistor.complete_event(
+          CompleteEvent(CompleteEventType::JobComplete, job_uuid, ms));
 
       // notify user code
     }

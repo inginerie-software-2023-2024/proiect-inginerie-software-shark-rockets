@@ -28,6 +28,10 @@ class Job {
 
   std::string get_binary_path() const { return binary_path; }
 
+  std::string get_mapper_name() const { return mapper_name; }
+
+  std::string get_reducer_name() const { return reducer_name; }
+
   std::string get_exec_class() const {
     if (current_leg == JobLeg::Init) {
       throw std::runtime_error("Job did not initialize any leg!");

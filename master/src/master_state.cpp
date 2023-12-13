@@ -105,21 +105,7 @@ void MasterState::assign_tasks() {
             master_lock);  // this portion needs to be atomic - otherwise acks and heartbeats will fail
         auto worker = pop_worker();
 
-        std::optional<nfs::fs::path> input_file = task.get_job_input_file();
-        std::string input_file_str = input_file.has_value()
-                                         ? input_file.value().string()
-                                         : "does_not_matter";
-
-        std::cout << "Assign task " << task_uuid << ", index " << task.get_idx()
-                  << " to " << worker->address() << ":" << worker->listen_port()
-                  << " with load = " << worker->load()
-                  << ", input file: " << input_file_str << std::endl;
-
-        worker->assign_work(
-            job.get_binary_path(),
-            nfs::get_job_root_dir(job.get_job_uuid(), job.get_job_user()),
-            job.get_current_leg(), job.get_exec_class(), input_file_str,
-            task_uuid, task.get_idx(), job.get_M(), job.get_R());
+        worker->assign_work(job, task);
 
         push_worker(std::move(worker));
       } catch (std::exception& e) {

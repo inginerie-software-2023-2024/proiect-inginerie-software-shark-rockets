@@ -28,7 +28,7 @@ class Job {
 
   std::string get_binary_path() const { return binary_path; }
 
-  std::string get_exec_class() {
+  std::string get_exec_class() const {
     if (current_leg == JobLeg::Init) {
       throw std::runtime_error("Job did not initialize any leg!");
     }

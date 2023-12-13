@@ -5,7 +5,9 @@
 #include <boost/functional/hash.hpp>
 #include <string>
 #include <unordered_set>
+#include "job.hpp"
 #include "job_leg.hpp"
+#include "task.hpp"
 
 enum WorkerType { Mapper, Reducer };
 
@@ -33,13 +35,7 @@ class Worker {
   // Constructs a new worker by creating a new grpc channel to the specified address.
   Worker(std::string addr, int listen_port, int emit_port);
 
-  // Make a grpc call to assign work to this worker.
-  // Return the worker's reply to the work request.
-  // If the grpc call fails, throw an exception.
-  bool assign_work(const std::string& binary_path,
-                   const boost::filesystem::path& job_root_dir, JobLeg job_leg,
-                   const std::string& exec_class, const std::string& input_file,
-                   const std::string& task_uuid, int idx, int M, int R);
+  bool assign_work(const Job& job, const Task& task);
 
   const std::string& address() const;
 

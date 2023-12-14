@@ -32,7 +32,7 @@ void StartTaskEvent::send_update(
 
   auto task_input_file = task.get_task_input_file();
 
-  request.set_task_type(task.get_job_uuid());
+  request.set_task_uuid(task.get_task_uuid());
   request.set_job_uuid(task.get_job_uuid());
   request.set_task_type(task_input_file.has_value() ? "Map" : "Reduce");
   request.set_input_file(

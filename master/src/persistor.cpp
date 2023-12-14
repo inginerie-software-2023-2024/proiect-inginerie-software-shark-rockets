@@ -3,9 +3,9 @@
 Persistor::Persistor(const std::string& eucalypt_grpc_address)
     : run_persistor_thread(true) {
   // set up connection to eucalypt
-  auto chan_to_eucalypt = grpc::CreateChannel(
-      eucalypt_grpc_address, grpc::InsecureChannelCredentials());
-  auto eucalypt_stub = PersistorService::NewStub(chan_to_eucalypt);
+  chan_to_eucalypt = grpc::CreateChannel(eucalypt_grpc_address,
+                                         grpc::InsecureChannelCredentials());
+  eucalypt_stub = PersistorService::NewStub(chan_to_eucalypt);
 
   // start the thread that sends updates to Eucalypt
   persistor_thread = std::thread(&Persistor::send_events, this);

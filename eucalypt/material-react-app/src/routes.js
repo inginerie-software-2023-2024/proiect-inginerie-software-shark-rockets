@@ -163,7 +163,7 @@ const routes = [
   },
   // edit user
   {
-    type: "collapse",
+    type: "hidden",
     name: "Edit User",
     key: "edit-user",
     icon: <Icon fontSize="small">person</Icon>,

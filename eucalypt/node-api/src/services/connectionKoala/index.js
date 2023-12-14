@@ -9,6 +9,8 @@ const __dirname = path.dirname(__filename);
 console.log(__dirname)
 
 var PROTO_PATH = __dirname + '../../../../../../proto/src/eucalypt_service.proto'
+if (process.env.PROTO_PATH)
+    PROTO_PATH = process.env.PROTO_PATH
 
 var packageDefinition = protoLoader.loadSync(
     PROTO_PATH,
@@ -19,7 +21,7 @@ var packageDefinition = protoLoader.loadSync(
         oneofs: true
     });
 var EucalyptService = grpc.loadPackageDefinition(packageDefinition).EucalyptService;
-var client = new EucalyptService('localhost:50051',
+var client = new EucalyptService(process.env.MASTER_URL,
                                        grpc.credentials.createInsecure());
 
 var request = {

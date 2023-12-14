@@ -7,20 +7,31 @@ Worker::Worker(std::string addr, int listen_port, int emit_port)
   stub = WorkerService::NewStub(channel);
 }
 
-bool Worker::assign_work(const std::string& binary_path, JobLeg job_leg,
-                         const std::string& exec_class,
-                         const std::string& input_file,
-                         const std::string& task_uuid) {
+bool Worker::assign_work(const Job& job, const Task& task) {
+  std::optional<nfs::fs::path> input_file = task.get_job_input_file();
+  std::string input_file_str =
+      input_file.has_value() ? input_file.value().string() : "does_not_matter";
 
-  std::string mode = (job_leg == JobLeg::Map) ? "mapper" : "reducer";
+  std::cout << "Assign task " << task.get_task_uuid() << ", index "
+            << task.get_idx() << " to " << address() << ":" << listen_port()
+            << " with load = " << load() << ", input file: " << input_file_str
+            << std::endl;
+
+  std::string mode =
+      (job.get_current_leg() == JobLeg::Map) ? "mapper" : "reducer";
 
   grpc::ClientContext context;
   AssignWorkRequest request;
-  request.set_path(binary_path);
+  request.set_path(job.get_binary_path());
+  request.set_job_root_dir(
+      nfs::get_job_root_dir(job.get_job_uuid(), job.get_job_user()).string());
   request.set_mode(mode);
-  request.set_class_(exec_class);
-  request.set_file(input_file);
-  request.set_task_uuid(task_uuid);
+  request.set_class_(job.get_exec_class());
+  request.set_file(input_file_str);
+  request.set_task_uuid(task.get_task_uuid());
+  request.set_idx(task.get_idx());
+  request.set_m(job.get_M());
+  request.set_r(job.get_R());
 
   AssignWorkReply reply;
   auto status = stub->AssignWork(&context, request, &reply);
@@ -30,7 +41,7 @@ bool Worker::assign_work(const std::string& binary_path, JobLeg job_leg,
   }
 
   if (reply.ok()) {
-    assigned_tasks.insert(task_uuid);
+    assigned_tasks.insert(task.get_task_uuid());
   }
 
   return reply.ok();

@@ -52,7 +52,13 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       po::value<std::string>()->default_value("0.0.0.0:50051"),
       "Specify where the worker can find master: ip.ip.ip.ip:port")(
       "class,c", po::value<std::string>(),
-      "name of class to run, if mode is mapper or reducer");
+      "name of class to run, if mode is mapper or reducer")(
+      "file,f", po::value<std::string>(), "input file for map task")(
+      "job-root-dir,d", po::value<std::string>(),
+      "absolute path to the root directory of the job")(
+      "idx,x", po::value<int>(), "index of the task to run")(
+      "m", po::value<int>(), "number of input files")("r", po::value<int>(),
+                                                      "number of ouput files");
   try {
     auto vm = std::make_unique<po::variables_map>();
     po::store(po::parse_command_line(argc, argv, desc), *vm);
@@ -66,14 +72,14 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       throw po::error("Mode not specified");
     }
 
-    auto mode = get_arg<Mode>(vm,"mode");
+    auto mode = get_arg<Mode>(vm, "mode");
 
     switch (mode) {
       case Mode::Mapper: {
         if (!vm->count("class")) {
           throw po::error("Mapper class not specified");
         }
-        auto clss = get_arg<std::string>(vm,"class");
+        auto clss = get_arg<std::string>(vm, "class");
         if (!map_reduce::get_mappers().count(clss)) {
           throw po::error(clss + " not loaded in context");
         }
@@ -83,7 +89,7 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
         if (!vm->count("class")) {
           throw po::error("Reducer class not specified");
         }
-        auto clss = get_arg<std::string>(vm,"class");
+        auto clss = get_arg<std::string>(vm, "class");
         if (!map_reduce::get_reducers().count(clss)) {
           throw po::error(clss + " not loaded in context");
         }

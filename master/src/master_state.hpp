@@ -47,11 +47,14 @@ class MasterState {
   // Stores the necessary job, map-leg and reduce-leg metadata.
   void setup_job(const std::string& job_uuid, const std::string& job_user,
                  const std::string& binary_path, const std::string& mapper_name,
-                 const std::string& reducer_name);
+                 const std::string& reducer_name, int M, int R);
 
   // Starts the map leg for a given job.
   void start_map_leg(const std::string& job_uuid,
                      const std::vector<nfs::fs::path>& input_files);
+
+  // Starts the reduce leg for a given job.
+  void start_reduce_leg(const std::string& job_uuid);
 
   // Decreases the load of the worker.
   // Deletes this task from the set of expected tasks for the current leg of the corresponding job.

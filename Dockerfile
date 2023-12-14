@@ -27,6 +27,7 @@ COPY --from=build_app /app/package .
 RUN cp ./lib/* /lib 
 # e pacat sa pui surub unde merge legat cu sarma
 COPY --from=build_app /lib/x86_64-linux-gnu/libboost_program_options.so.1.74.0 /lib/libboost_program_options.so.1.74.0
+COPY --from=build_app /lib/x86_64-linux-gnu/libboost_filesystem.so.1.74.0 /lib/libboost_filesystem.so.1.74.0
 
 WORKDIR /nfs
 

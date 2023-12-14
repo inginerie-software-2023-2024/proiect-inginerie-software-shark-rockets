@@ -30,9 +30,6 @@ class MasterServiceImpl final : public MasterService::Service {
   }
 
  public:
-  MasterServiceImpl(const std::string& eucalypt_grpc_address)
-      : master_state(eucalypt_grpc_address) {}
-
   grpc::Status RegisterWorker(grpc::ServerContext* context,
                               const RegisterWorkerRequest* request,
                               RegisterWorkerReply* response) override {
@@ -125,18 +122,17 @@ class EucalyptServiceImpl final : public EucalyptService::Service {
 };
 
 int main(int argc, char** argv) {
+  auto vm = parse_args(argc, argv);
+
   nfs::sanity_check();
 
   // This is hardcoded for now...
   std::string master_server_address = "0.0.0.0:50051";
 
-  // Parse with program options ...
-  if (argc < 2) {
-    throw std::runtime_error("Expected eucalypt address: ip.ip.ip.ip:port");
-  }
+  Persistor::set_eucalypt_address(get_arg<std::string>(vm, "eucalypt-address"));
 
   // Start a grpc server, waiting for job requests and worker heartbeats
-  MasterServiceImpl master_service(argv[1]);
+  MasterServiceImpl master_service;
   EucalyptServiceImpl eucalypt_service;
   grpc::ServerBuilder builder;
 

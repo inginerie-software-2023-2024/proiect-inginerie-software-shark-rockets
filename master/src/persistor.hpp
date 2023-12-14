@@ -6,6 +6,9 @@
 
 class Persistor {
  private:
+  // singleton
+  static std::unique_ptr<Persistor> instance;
+
   // pending updates
   std::vector<std::unique_ptr<Event>> events;
 
@@ -18,8 +21,12 @@ class Persistor {
   std::shared_ptr<grpc::Channel> chan_to_eucalypt;
   std::unique_ptr<PersistorService::Stub> eucalypt_stub;
 
- public:
   Persistor(const std::string& eucalypt_grpc_address);
+
+ public:
+  static void set_eucalypt_address(const std::string& eucalypt_grpc_address);
+
+  static std::unique_ptr<Persistor>& get_instance();
 
   void start_job(const StartJobEvent& event);
 

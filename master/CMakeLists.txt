@@ -1,7 +1,7 @@
 # Build master binary
 set(TARGET master)
 
-find_package(Boost REQUIRED COMPONENTS filesystem regex)
+find_package(Boost REQUIRED COMPONENTS filesystem regex program_options)
 
 add_executable(
     ${TARGET} 

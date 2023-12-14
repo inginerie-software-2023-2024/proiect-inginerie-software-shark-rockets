@@ -1,10 +1,9 @@
 #include "master_state.hpp"
 #include <stdexcept>
 
-MasterState::MasterState(const std::string& eucalypt_grpc_address)
+MasterState::MasterState()
     : pending_tasks_semaphore(std::counting_semaphore(0)),
-      run_assign_tasks_thread(true),
-      persistor(eucalypt_grpc_address) {
+      run_assign_tasks_thread(true) {
   // start the thread that assigns pending tasks to workers
   assign_tasks_thread = std::thread(&MasterState::assign_tasks, this);
 }
@@ -43,7 +42,8 @@ void MasterState::setup_job(const std::string& job_uuid,
   job_metadata.insert({job_uuid, job});
 
   // push start job update to Eucalypt
-  persistor.start_job(StartJobEvent(job, time_utils::get_time()));
+  Persistor::get_instance()->start_job(
+      StartJobEvent(job, time_utils::get_time()));
 }
 
 void MasterState::start_map_leg(const std::string& job_uuid,
@@ -112,8 +112,8 @@ void MasterState::assign_tasks() {
         worker->assign_work(job, task);
 
         // push start task update to Eucalypt
-        persistor.start_task(StartTaskEvent(task, time_utils::get_time(),
-                                            worker->get_listen_socket()));
+        Persistor::get_instance()->start_task(StartTaskEvent(
+            task, time_utils::get_time(), worker->get_listen_socket()));
 
         push_worker(std::move(worker));
       } catch (std::exception& e) {
@@ -144,7 +144,7 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
 
   // push complete task update to Eucalypt
   long long ms = time_utils::get_time();
-  persistor.complete_event(
+  Persistor::get_instance()->complete_event(
       CompleteEvent(CompleteEventType::TaskComplete, task_uuid, ms));
 
   // check if the current leg has finished
@@ -162,7 +162,7 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
                 << job_metadata.size() << " ongoing jobs\n";
 
       // push complete job update to Eucalypt
-      persistor.complete_event(
+      Persistor::get_instance()->complete_event(
           CompleteEvent(CompleteEventType::JobComplete, job_uuid, ms));
 
       // notify user code

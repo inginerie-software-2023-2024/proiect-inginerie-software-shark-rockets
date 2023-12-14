@@ -1,6 +1,7 @@
 import { jobModel } from "../../schemas/job.schema";
 import { taskModel } from "../../schemas/task.schema";
 
+// creates job entries
 export const start_job_update_handler = async (req) => {
     console.log(`Received start job event, uuid: ${req.job_uuid}`);
 
@@ -26,6 +27,7 @@ export const start_job_update_handler = async (req) => {
     return response;
 }
 
+// creates task entries
 export const start_task_update_handler = async (req) => {
     console.log(`Received start task event, uuid: ${req.task_uuid}`);
 
@@ -50,6 +52,7 @@ export const start_task_update_handler = async (req) => {
     return response;
 }
 
+// updates the complete time for job / task entries
 export const complete_event_handler = async (req) => {
     console.log(`Received complete event, uuid: ${req.uuid}`);
 

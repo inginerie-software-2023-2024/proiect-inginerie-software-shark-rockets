@@ -1,7 +1,7 @@
 #/bin/bash
 
 # Builds the docker image for eucalypt backend.
-# It temporarily copies the proto that the backend needs in order to talk to the master.
+# It temporarily copies the protos that the backend needs in order to talk to the master.
 # Ugly as it might look, I've chosen this for three reasons:
 #   - Docker does not do symbolic links
 #   - Docker can only operate with files in its build context (which is the current folder)

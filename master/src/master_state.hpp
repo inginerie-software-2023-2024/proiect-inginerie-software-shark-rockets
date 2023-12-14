@@ -36,11 +36,8 @@ class MasterState {
   std::counting_semaphore<> pending_tasks_semaphore;
   std::atomic_bool run_assign_tasks_thread;
 
-  // Auxiliary object used to persist updates to DB (via Eucalypt)
-  Persistor persistor;
-
  public:
-  MasterState(const std::string& eucalypt_grpc_address);
+  MasterState();
 
   // Moves a new worker into the data structure, transferring ownership.
   void push_worker(std::unique_ptr<Worker> new_worker);

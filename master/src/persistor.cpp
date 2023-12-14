@@ -1,5 +1,8 @@
 #include "persistor.hpp"
 
+// static ptr
+std::unique_ptr<Persistor> Persistor::instance = nullptr;
+
 Persistor::Persistor(const std::string& eucalypt_grpc_address)
     : run_persistor_thread(true) {
   // set up connection to eucalypt
@@ -10,6 +13,20 @@ Persistor::Persistor(const std::string& eucalypt_grpc_address)
   // start the thread that sends updates to Eucalypt
   persistor_thread = std::thread(&Persistor::send_events, this);
 };
+
+void Persistor::set_eucalypt_address(const std::string& eucalypt_grpc_address) {
+  if (instance != nullptr) {
+    throw std::runtime_error("Eucalypt grpc address already set.");
+  }
+  instance = std::unique_ptr<Persistor>(new Persistor(eucalypt_grpc_address));
+}
+
+std::unique_ptr<Persistor>& Persistor::get_instance() {
+  if (instance == nullptr) {
+    throw std::runtime_error("Eucalypt grpc address has not been set.");
+  }
+  return instance;
+}
 
 void Persistor::start_job(const StartJobEvent& start_job_event) {
   std::lock_guard<std::mutex> lock(persistor_lock);

@@ -18,7 +18,9 @@ COMPOSE_CONFIG = dict([
     ['WORKER_PORT', "7777"],
     ['EUCALYPT_BACKEND_PORT', "8080"],
     ['EUCALYPT_FRONTEND_PORT', "3000"],
-    ['PROTO_PATH', '/app/eucalypt_service.proto'],
+    ['EUCALYPT_GRPC_PORT', "5555"],
+    ['MASTER_SERVICE_PROTO_PATH', '/app/eucalypt_service.proto'],
+    ['PERSISTOR_SERVICE_PROTO_PATH', '/app/persistor_service.proto'],
     ['MAP_REDUCE_IMG_TAG', "0.0.1"],
     ['EUCALYPT_BACKEND_IMG_TAG', "0.0.1"],
     ['EUCALYPT_FRONTEND_IMG_TAG', "0.0.1"],
@@ -33,6 +35,7 @@ LOCAL_CONFIG = dict([
     ['MASTER_PORT', "50051"],
     ['EUCALYPT_BACKEND_PORT', "8080"],
     ['EUCALYPT_FRONTEND_PORT', "3000"],
+    ['EUCALYPT_GRPC_PORT', "5555"],
 ])
 
 

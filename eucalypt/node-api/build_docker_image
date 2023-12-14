@@ -13,3 +13,4 @@ cp ../../proto/src/persistor_service.proto persistor_service.proto
 docker build . -t eucalypt_backend:0.0.1
 
 rm eucalypt_service.proto
+rm persistor_service.proto

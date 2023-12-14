@@ -66,10 +66,12 @@ function getServer() {
   // load proto spec
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  var persistor_proto_path = __dirname + "../../../../proto/src/persistor_service.proto";
+  var PERSISTOR_SERVICE_PROTO_PATH = __dirname + "../../../../proto/src/persistor_service.proto";
+  if (process.env.PERSISTOR_SERVICE_PROTO_PATH)
+    PERSISTOR_SERVICE_PROTO_PATH = process.env.PERSISTOR_SERVICE_PROTO_PATH;
 
   var packageDefinition = protoLoader.loadSync(
-    persistor_proto_path,
+    PERSISTOR_SERVICE_PROTO_PATH,
     {
       keepCase: true,
       longs: String,
@@ -93,7 +95,7 @@ function getServer() {
 
 // Start Persistor service
 var persistorService = getServer();
-var persistorServicePort = 5555;
+var persistorServicePort = process.env.EUCALYPT_GRPC_PORT;
 persistorService.bindAsync(`0.0.0.0:${persistorServicePort}`, grpc.ServerCredentials.createInsecure(), () => {
   persistorService.start();
   console.log(`Persistor service started listening on port ${persistorServicePort}`)

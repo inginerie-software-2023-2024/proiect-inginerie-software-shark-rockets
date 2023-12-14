@@ -8,12 +8,12 @@ const __dirname = path.dirname(__filename);
 
 console.log(__dirname)
 
-var PROTO_PATH = __dirname + '../../../../../../proto/src/eucalypt_service.proto'
-if (process.env.PROTO_PATH)
-    PROTO_PATH = process.env.PROTO_PATH
+var MASTER_SERVICE_PROTO_PATH = __dirname + '../../../../../../proto/src/eucalypt_service.proto';
+if (process.env.MASTER_SERVICE_PROTO_PATH)
+    MASTER_SERVICE_PROTO_PATH = process.env.MASTER_SERVICE_PROTO_PATH;
 
 var packageDefinition = protoLoader.loadSync(
-    PROTO_PATH,
+    MASTER_SERVICE_PROTO_PATH,
     {   keepCase: true,
         longs: String,
         enums: String,

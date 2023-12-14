@@ -19,16 +19,12 @@ Coded by www.creative-tim.com
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
-import MDBadge from "components/MDBadge";
 
 // Images
 import team2 from "assets/images/team-2.jpg";
 
 import UserManagementService from "services/user-management-service";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { UserContext } from "context";
-
 
 export default function data() {
   const [users, setUsers] = useState([]);
@@ -45,17 +41,17 @@ export default function data() {
     fetchUsers();
   }, []);
 
-  const handleEdit = async (id, data) => {
+  const handleAccept = async (id) => {
     try {
-      const updatedUser = await UserManagementService.editUser(id, userData);
-      setUsers(users.map(user => user.id === id ? updatedUser : user)); 
+      await UserManagementService.acceptUser(id);
+      setUsers(users.filter((user) => user.id !== id));
     }
     catch (error) {
       console.log(error);
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleRefuse = async (id) => {
     try {
       await UserManagementService.deleteUser(id);
       setUsers(users.filter((user) => user.id !== id));
@@ -68,30 +64,29 @@ export default function data() {
   const Action = ({ id }) => (
     <MDBox display="flex" justifyContent="center">
       <MDBox mr={1}>
-        <Link to={`/user-management/edit/${id}`}>
+        <button onClick={() => handleAccept(id)}>
           <MDTypography
             variant="button"
             fontWeight="bold"
             textColor="info"
           >
-            Edit
+            Accept
           </MDTypography>
-        </Link>
+        </button>
       </MDBox>
       <MDBox ml={1}>
-        <button onClick={() => handleDelete(id)}>
+        <button onClick={() => handleRefuse(id)}>
           <MDTypography
             variant="button"
             fontWeight="bold"
             textColor="error"
           >
-            Delete
+            Refuse
           </MDTypography>
         </button>
       </MDBox>
     </MDBox>
   );
-
 
   const User = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -105,27 +100,19 @@ export default function data() {
     </MDBox>
   );
 
-  const isAdmin = true;
 
-    const columns = [
+  return {
+    columns: [
       { Header: "user", accessor: "user", width: "45%", align: "left" },
       { Header: "email", accessor: "email", align: "left" },
-      { Header: "role", accessor: "role", align: "center" },
       { Header: "action", accessor: "action", align: "center" },
-    ];
+    ],
 
-
-  const rows = users
-    .filter((user) => user.role !== "pending_approval")
-    .map((user) => ({
+    rows: users.map((user) => ({
       user: <User image={team2} name={user.name} email={user.email} />,
       email: user.email,
       role: user.role,
       action: <Action id={user.id} />,
-    }));
-
-  return {
-    columns,
-    rows,
+    })).filter((user) => {return user.role == 'pending_approval'}),
   };
 }

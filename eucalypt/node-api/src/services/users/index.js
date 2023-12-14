@@ -58,4 +58,17 @@ export const deleteUserRouteHandler = async (req, res) => {
     }
 };
 
+export const acceptUserRouteHandler = async (req, res) => {
+    try {
+        const user = await userModel.findOne({ _id: req.params.id });
+        await userModel.updateOne(
+            { email: user.email },
+            { $set: { role: 'user' } }
+        );
+        res.send({ data: user });
+    } catch (error) {
+        res.status(500).send({ message: "Could not accept user." });
+    }
+};
+
 

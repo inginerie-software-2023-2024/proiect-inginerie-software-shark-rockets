@@ -11,7 +11,7 @@ import Icon from "@mui/material/Icon";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 
-// Material Dashboard 2 React example components
+// Material Dashboard 2 React example components 
 import Sidenav from "examples/Sidenav";
 import Configurator from "examples/Configurator";
 
@@ -36,6 +36,7 @@ import brandDark from "assets/images/eucalypt_logo.png";
 
 import { setupAxiosInterceptors } from "./services/interceptor";
 import ProtectedRoute from "examples/ProtectedRoute";
+import AdminRoute from "examples/AdminRoute";
 import ForgotPassword from "auth/forgot-password";
 import ResetPassword from "auth/reset-password";
 import Login from "auth/login";
@@ -43,8 +44,7 @@ import Register from "auth/register";
 import { AuthContext } from "context";
 import UserProfile from "layouts/user-profile";
 import UserManagement from "layouts/user-management";
-import EditUser from "layouts/user-management/edit";
-import { Helmet } from "react-helmet";
+import UserRequests from "layouts/user-requests";
 
 export default function App() {
   const authContext = useContext(AuthContext);
@@ -191,11 +191,21 @@ export default function App() {
               exact
               path="user-management"
               element={
-                <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
+                <AdminRoute isAdmin={authContext.isAdmin}>
                   <UserManagement />
-                </ProtectedRoute>
+                </AdminRoute>
               }
               key="user-management"
+            />
+            <Route
+              exact
+              path="user-requests"
+              element={
+                <AdminRoute isAdmin={authContext.isAdmin}>
+                  <UserRequests />
+                </AdminRoute>
+              }
+              key="user-requests"
             />
             {getRoutes(routes)}
             <Route path="*" element={<Navigate to="/dashboard" />} />

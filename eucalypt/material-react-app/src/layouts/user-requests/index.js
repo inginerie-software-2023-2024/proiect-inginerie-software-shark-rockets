@@ -6,6 +6,7 @@ import Card from "@mui/material/Card";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import MDAlert from "components/MDAlert";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -14,9 +15,9 @@ import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 // Data
-import tableData from "layouts/user-management/data";
+import tableData from "layouts/user-requests/data";
 
-const UserManagement = () => {
+const UserRequests = () => {
   const { columns, rows } = tableData();
 
   return (
@@ -58,4 +59,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default UserRequests;

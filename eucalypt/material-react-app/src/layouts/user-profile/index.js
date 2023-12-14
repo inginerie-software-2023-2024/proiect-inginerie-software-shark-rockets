@@ -100,7 +100,6 @@ const UserProfile = () => {
         attributes: {
           name: user.name,
           email: user.email,
-          profile_image: null,
         },
       },
     };
@@ -111,7 +110,6 @@ const UserProfile = () => {
           type: "profile",
           attributes: {
             ...user,
-            profile_image: null,
             password: user.newPassword,
             password_new: user.newPassword,
             password_confirmation: user.confirmPassword,

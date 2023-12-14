@@ -19,7 +19,7 @@ export const getProfileRouteHandler = (req, res) => {
       attributes: {
         name: meUser.name,
         email: meUser.email,
-        profile_image: null,
+        role: meUser.role,
         createdAt: meUser.createdAt,
         updateAt: meUser.updateAt
       },
@@ -57,7 +57,6 @@ export const patchProfileRouteHandler = async (req, res) => {
           attributes: {
             name: name,
             email: email,
-            profile_image: null,
           }
         }
       }
@@ -75,7 +74,6 @@ export const patchProfileRouteHandler = async (req, res) => {
           attributes: {
             name: name,
             email: email,
-            profile_image: null,
           }
         }
       }

@@ -52,18 +52,6 @@ std::unordered_map<std::string, Reducer*>& get_reducers() {
   return reducers;
 }
 
-void ensure_intermediary_files(const std::string& job_root_dir, int idx,
-                               int R) {
-  fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
-
-  for (int i = 0; i < R; i++) {
-    // opening and closing a file - a.k.a touch
-    std::string file_name = std::to_string(idx) + "-" + std::to_string(i);
-    auto f = fs::ofstream(intermediary_dir / file_name);
-    f.close();
-  }
-}
-
 std::vector<fs::path> get_reducer_input_files(const std::string& job_root_dir,
                                               int idx) {
   fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
@@ -121,9 +109,23 @@ void map_reduce::init(int argc, char** argv) {
       std::cout << "Map task with index " << idx << " has input file "
                 << input_file << '\n';
 
-      // Create r intermediary files
-      ensure_intermediary_files(get_arg<std::string>(vm, "job-root-dir"), idx,
-                                get_arg<int>(vm, "r"));
+      // Create r intermediary temporary files
+      const std::string job_root_dir = get_arg<std::string>(vm, "job-root-dir"),
+                        rand_uuid = generate_uuid();
+      int r = get_arg<int>(vm, "r");
+      fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
+
+      std::vector<fs::path> intermediary_output_paths;  // for renaming, later
+      std::vector<std::unique_ptr<fs::ofstream>>
+          intermediary_output_streams;  // for writing intermediary kvs
+      for (int i = 0; i < r; i++) {
+        std::string temorary_file_name = rand_uuid + "-" + std::to_string(i);
+        fs::path temporary_file_path = intermediary_dir / temorary_file_name;
+
+        intermediary_output_paths.emplace_back(temporary_file_path);
+        intermediary_output_streams.emplace_back(
+            std::make_unique<fs::ofstream>(temporary_file_path.string()));
+      }
 
       // set drain
       std::vector<std::pair<std::string, std::string>> kvs;
@@ -138,12 +140,27 @@ void map_reduce::init(int argc, char** argv) {
 
         // process emitted pairs
         for (const auto& p : kvs) {
-          std::cout << "User emitted " << p.first << ' ' << p.second << '\n';
-          kvs.clear();
+          // write the emitted kv to the appropriate file
+          std::size_t intermediary_file_idx =
+              std::hash<std::string>{}(p.first) % r;
+          *intermediary_output_streams[intermediary_file_idx]
+              << p.first << ' ' << p.second << '\n';
         }
+
+        kvs.clear();
       }
 
       in.close();
+
+      // rename temporary intermediary files
+      for (int i = 0; i < r; i++) {
+        intermediary_output_streams[i]->close();
+
+        std::string permanent_file_name =
+            std::to_string(idx) + "-" + std::to_string(i);
+        fs::rename(intermediary_output_paths[i],
+                   intermediary_dir / permanent_file_name);
+      }
 
       exit(0);
       break;

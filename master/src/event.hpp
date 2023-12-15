@@ -14,6 +14,8 @@ class Event {
 
  public:
   friend class Persistor;
+
+  virtual ~Event() = default;
 };
 
 class StartJobEvent : public Event {

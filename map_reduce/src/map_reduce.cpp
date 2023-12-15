@@ -10,6 +10,28 @@
 #include "utils.hpp"
 
 namespace map_reduce {
+
+// Backend of mapper class
+struct Mapper::impl {
+  std::vector<std::pair<std::string, std::string>>* drain_;
+
+  void set_drain(std::vector<std::pair<std::string, std::string>>* drain) {
+    drain_ = drain;
+  }
+
+  void emit(const std::string& key, const std::string& value) {
+    drain_->emplace_back(key, value);
+  }
+};
+
+Mapper::Mapper() : pImpl{std::make_unique<impl>()} {}
+
+void Mapper::emit(const std::string& key, const std::string& value) {
+  pImpl->emit(key, value);
+}
+
+Mapper::~Mapper() = default;
+
 // Avoid static initialization order fiasco with construct on first use idiom (and constinit)
 // I feel this can be improved :)
 
@@ -95,14 +117,33 @@ void map_reduce::init(int argc, char** argv) {
       auto idx = get_arg<int>(vm, "idx");
 
       // Log mapper input file
+      std::string input_file = get_arg<std::string>(vm, "file");
       std::cout << "Map task with index " << idx << " has input file "
-                << get_arg<std::string>(vm, "file") << '\n';
+                << input_file << '\n';
 
       // Create r intermediary files
       ensure_intermediary_files(get_arg<std::string>(vm, "job-root-dir"), idx,
                                 get_arg<int>(vm, "r"));
 
-      get_mappers()[clss]->map();
+      // set drain
+      std::vector<std::pair<std::string, std::string>> kvs;
+      get_mappers()[clss]->pImpl->set_drain(&kvs);
+
+      // pass the user-provided map function each line in the input file
+      fs::ifstream in(input_file);
+      std::string line;
+
+      while (getline(in, line)) {
+        get_mappers()[clss]->map(line);
+
+        // process emitted pairs
+        for (const auto& p : kvs) {
+          std::cout << "User emitted " << p.first << ' ' << p.second << '\n';
+          kvs.clear();
+        }
+      }
+
+      in.close();
 
       exit(0);
       break;

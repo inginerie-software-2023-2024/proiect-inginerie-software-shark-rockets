@@ -2,7 +2,9 @@
 *   Public Interface lib koala
 */
 
+#include <memory>
 #include <string>
+#include <vector>
 
 // Macro that loads an instance of a mapper into a static dictionary
 #define REGISTER_MAPPER(t) \
@@ -18,7 +20,16 @@ namespace map_reduce {
 // User should extend this base mapper
 class Mapper {
  public:
-  virtual void map() = 0;
+  Mapper();
+
+  // pimpl pattern, so that we can hide that vales emitted with emit() end up being distributed among the intermediary files
+  struct impl;
+  std::unique_ptr<impl> pImpl;
+
+  void emit(const std::string& key, const std::string& value);
+  virtual void map(const std::string& line) = 0;
+
+  ~Mapper();
 };
 
 // User should extend this base reducer

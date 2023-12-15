@@ -14,7 +14,7 @@ services:
         expose:
           - 50051
         tty: true
-        command: bash -c "mv -f /build/master /nfs/master && mv -f /build/worker /nfs/worker && ./master"
+        command: bash -c "mv -f /build/master /nfs/master && mv -f /build/worker /nfs/worker && ./master -e {{ EUCALYPT_BACKEND_ADDRESS }}:{{ EUCALYPT_GRPC_PORT }}"
     {% for i in range(1, WORKER_REPLICAS+1) %}
     worker-{{ i }}:
         image: map_reduce:{{ MAP_REDUCE_IMG_TAG }}

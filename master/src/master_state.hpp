@@ -1,4 +1,5 @@
 #pragma once
+#include <grpcpp/grpcpp.h>
 #include <atomic>
 #include <mutex>
 #include <queue>
@@ -6,6 +7,7 @@
 #include <thread>
 #include "file_system_manager.hpp"
 #include "job.hpp"
+#include "persistor.hpp"
 #include "task.hpp"
 #include "worker.hpp"
 
@@ -16,7 +18,6 @@ class MasterState {
   // The value is a unique_ptr to worker wrapper
   // This representation is useful for worker acks and heartbeats
   WorkerDict worker_dict;
-  // std::vector<std::unique_ptr<Worker>> workers;
 
   // Job info
   std::unordered_map<std::string, Job> job_metadata;  // metadata of a job

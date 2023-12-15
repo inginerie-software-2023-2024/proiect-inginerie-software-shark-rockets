@@ -1,7 +1,7 @@
 # Build master binary
 set(TARGET master)
 
-find_package(Boost REQUIRED COMPONENTS filesystem regex)
+find_package(Boost REQUIRED COMPONENTS filesystem regex program_options)
 
 add_executable(
     ${TARGET} 
@@ -11,6 +11,8 @@ add_executable(
     src/utils.cpp
     src/user.cpp
     src/worker.cpp
+    src/persistor.cpp
+    src/event.cpp
 )
 
 target_include_directories(

@@ -121,10 +121,15 @@ class EucalyptServiceImpl final : public EucalyptService::Service {
   }
 };
 
-int main() {
+int main(int argc, char** argv) {
+  auto vm = parse_args(argc, argv);
+
   nfs::sanity_check();
+
   // This is hardcoded for now...
   std::string master_server_address = "0.0.0.0:50051";
+
+  Persistor::set_eucalypt_address(get_arg<std::string>(vm, "eucalypt-address"));
 
   // Start a grpc server, waiting for job requests and worker heartbeats
   MasterServiceImpl master_service;

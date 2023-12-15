@@ -1,14 +1,18 @@
-import express from "express";
+import express, { response } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import "./passport.js";
 import { dbConnect } from "./mongo";
 import { meRoutes, authRoutes, userRoutes, connectionRoutes } from "./routes";
+import { start_job_update_handler, start_task_update_handler, complete_event_handler } from "./services/persistor";
 import path from "path";
 import * as fs from "fs";
 import cron from "node-cron";
 import ReseedAction from "./mongo/ReseedAction";
+import { fileURLToPath } from 'url';
+import protoLoader from '@grpc/proto-loader';
+import grpc from '@grpc/grpc-js'
 
 dotenv.config();
 
@@ -55,4 +59,44 @@ app.listen(PORT, () => {
   console.log(green_color, `Eucalypt frontend URL: ${process.env.APP_URL_CLIENT}`);
   console.log(green_color, `Master URL: ${process.env.MASTER_URL}`);
   console.log(reset);
+});
+
+
+function getServer() {
+  // load proto spec
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  var PERSISTOR_SERVICE_PROTO_PATH = __dirname + "../../../../proto/src/persistor_service.proto";
+  if (process.env.PERSISTOR_SERVICE_PROTO_PATH)
+    PERSISTOR_SERVICE_PROTO_PATH = process.env.PERSISTOR_SERVICE_PROTO_PATH;
+
+  var packageDefinition = protoLoader.loadSync(
+    PERSISTOR_SERVICE_PROTO_PATH,
+    {
+      keepCase: true,
+      longs: String,
+      enums: String,
+      defaults: true,
+      oneofs: true
+    });
+  var protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
+  var srv = protoDescriptor;
+
+  // set up server methods
+  var server = new grpc.Server();
+  server.addService(srv.PersistorService.service, {
+    StartJobUpdate: (call, callback) => callback(null, start_job_update_handler(call.request)),
+    StartTaskUpdate: (call, callback) => callback(null, start_task_update_handler(call.request)),
+    CompleteEventUpdate: (call, callback) => callback(null, complete_event_handler(call.request)),
+  });
+
+  return server;
+}
+
+// Start Persistor service
+var persistorService = getServer();
+var persistorServicePort = process.env.EUCALYPT_GRPC_PORT;
+persistorService.bindAsync(`0.0.0.0:${persistorServicePort}`, grpc.ServerCredentials.createInsecure(), () => {
+  persistorService.start();
+  console.log(`Persistor service started listening on port ${persistorServicePort}`)
 });

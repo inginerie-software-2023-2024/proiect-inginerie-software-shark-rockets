@@ -118,6 +118,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
     const response = await ConnectionService.checkConnection();
   };
 
+  const title = route.includes('user-management') && route.length > 2 ? route[route.length - 2] : route[route.length - 1];
+  const displayed_route = route.includes('user-management') && route.length > 2 ? route.slice(0, -1) : route;
+
   return (
     <AppBar
       position={absolute ? "absolute" : navbarType}
@@ -126,16 +129,11 @@ function DashboardNavbar({ absolute, light, isMini }) {
     >
       <Toolbar sx={(theme) => navbarContainer(theme)}>
         <MDBox color="inherit" mb={{ xs: 1, md: 0 }} sx={(theme) => navbarRow(theme, { isMini })}>
-          <Breadcrumbs icon="home" title={route[route.length - 1]} route={route} light={light} />
+          <Breadcrumbs icon="home" title={title} route={displayed_route} light={light} />
         </MDBox>
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
             <MDBox display="flex" alignItems="center" color={light ? "white" : "inherit"}>
-              <Link to="/authentication/sign-in/basic">
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <Icon sx={iconsStyle}>account_circle</Icon>
-                </IconButton>
-              </Link>
               <IconButton
                 size="small"
                 disableRipple

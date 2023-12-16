@@ -19,6 +19,9 @@
 namespace map_reduce {
 // User should extend this base mapper
 class Mapper {
+ protected:
+  void emit(const std::string& key, const std::string& value);
+
  public:
   Mapper();
 
@@ -26,7 +29,6 @@ class Mapper {
   struct impl;
   std::unique_ptr<impl> pImpl;
 
-  void emit(const std::string& key, const std::string& value);
   virtual void map(const std::string& line) = 0;
 
   ~Mapper();

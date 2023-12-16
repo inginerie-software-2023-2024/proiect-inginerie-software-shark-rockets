@@ -11,13 +11,13 @@
 
 namespace map_reduce {
 
+using KVs = std::vector<std::pair<std::string, std::string>>;
+
 // Backend of mapper class
 struct Mapper::impl {
-  std::vector<std::pair<std::string, std::string>>* drain_;
+  KVs* drain_;
 
-  void set_drain(std::vector<std::pair<std::string, std::string>>* drain) {
-    drain_ = drain;
-  }
+  void set_drain(KVs* drain) { drain_ = drain; }
 
   void emit(const std::string& key, const std::string& value) {
     drain_->emplace_back(key, value);
@@ -128,7 +128,7 @@ void map_reduce::init(int argc, char** argv) {
       }
 
       // set drain
-      std::vector<std::pair<std::string, std::string>> kvs;
+      KVs kvs;
       get_mappers()[clss]->pImpl->set_drain(&kvs);
 
       // pass the user-provided map function each line in the input file

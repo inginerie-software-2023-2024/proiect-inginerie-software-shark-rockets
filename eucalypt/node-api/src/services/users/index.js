@@ -37,10 +37,10 @@ export const editUserRouteHandler = async (req, res) => {
     try {
         const user = await userModel.findOne({ _id: req.params.id });
         console.log(req.body);
-        const { name, email, role } = req.body;
+        const { name, email, role, quota } = req.body;
         await userModel.updateOne(
             { email: user.email },
-            { $set: { name: name, email: email, role: role } }
+            { $set: { name: name, email: email, role: role, quota: quota } }
         );
         res.send({ data: user });
     } catch (error) {

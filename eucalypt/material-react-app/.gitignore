@@ -25,3 +25,4 @@ yarn-error.log*
 
 .env
 compose.env
+package-lock.json

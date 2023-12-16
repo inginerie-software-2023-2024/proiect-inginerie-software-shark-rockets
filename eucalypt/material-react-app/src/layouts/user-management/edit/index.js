@@ -13,6 +13,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAlert from "components/MDAlert";
 import MDButton from "components/MDButton";
+import NumberInput from 'examples/NumberInput';
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -110,6 +111,19 @@ const EditUser = () => {
                                         <MenuItem value="user">Registered user</MenuItem>
                                         <MenuItem value="admin">Admin</MenuItem>
                                     </TextField>
+
+                                    <TextField
+                                        name="quota"
+                                        label="Quota"
+                                        fullWidth
+                                        margin="normal"
+                                        value={user.quota}
+                                        onChange={handleInputChange}
+                                    >                                        
+                                        <NumberInput>
+                                        </NumberInput>
+                                    </TextField>
+
                                     <MDButton
                                         variant="contained"
                                         color="info"

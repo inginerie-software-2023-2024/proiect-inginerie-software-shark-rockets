@@ -14,5 +14,5 @@ std::vector<fs::path> on_job_register_request(const std::string& uuid,
 
 // This should be called only if the job directory structure was successfully ensured
 fs::path get_job_root_dir(const std::string& uuid,
-                          const std::string& user_name);
+                          const std::string& email);
 }  // namespace nfs

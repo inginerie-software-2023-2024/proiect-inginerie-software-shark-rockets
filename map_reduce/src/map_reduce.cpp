@@ -202,7 +202,7 @@ void map_reduce::init(int argc, char** argv) {
 void map_reduce::register_job(const std::string& mapper_name,
                               const std::string& reducer_name,
                               const std::string& file_regex, int R,
-                              const std::string& user_name) {
+                              const std::string& email) {
   // check that the provided mapper and reducer are known ...
 
   std::cout << "User: sending a register job request with mapper "
@@ -215,8 +215,8 @@ void map_reduce::register_job(const std::string& mapper_name,
   request.set_file_regex(file_regex);
   request.set_r(R);
 
-  if (user_name != "")
-    request.set_user_name(user_name);  // send optional parameter
+  if (email != "")
+    request.set_email(email);  // send optional parameter
 
   RegisterJobReply reply;
   grpc::ClientContext context;

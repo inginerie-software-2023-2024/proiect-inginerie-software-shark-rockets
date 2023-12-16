@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include <string>
 #include <vector>
 #include "file_system_manager.hpp"

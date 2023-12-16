@@ -10,6 +10,28 @@
 #include "utils.hpp"
 
 namespace map_reduce {
+
+using KVs = std::vector<std::pair<std::string, std::string>>;
+
+// Backend of mapper class
+struct Mapper::impl {
+  KVs* drain_;
+
+  void set_drain(KVs* drain) { drain_ = drain; }
+
+  void emit(const std::string& key, const std::string& value) {
+    drain_->emplace_back(key, value);
+  }
+};
+
+Mapper::Mapper() : pImpl{std::make_unique<impl>()} {}
+
+void Mapper::emit(const std::string& key, const std::string& value) {
+  pImpl->emit(key, value);
+}
+
+Mapper::~Mapper() = default;
+
 // Avoid static initialization order fiasco with construct on first use idiom (and constinit)
 // I feel this can be improved :)
 
@@ -28,18 +50,6 @@ std::unordered_map<std::string, Mapper*>& get_mappers() {
 std::unordered_map<std::string, Reducer*>& get_reducers() {
   static std::unordered_map<std::string, Reducer*> reducers;
   return reducers;
-}
-
-void ensure_intermediary_files(const std::string& job_root_dir, int idx,
-                               int R) {
-  fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
-
-  for (int i = 0; i < R; i++) {
-    // opening and closing a file - a.k.a touch
-    std::string file_name = std::to_string(idx) + "-" + std::to_string(i);
-    auto f = fs::ofstream(intermediary_dir / file_name);
-    f.close();
-  }
 }
 
 std::vector<fs::path> get_reducer_input_files(const std::string& job_root_dir,
@@ -95,14 +105,62 @@ void map_reduce::init(int argc, char** argv) {
       auto idx = get_arg<int>(vm, "idx");
 
       // Log mapper input file
+      std::string input_file = get_arg<std::string>(vm, "file");
       std::cout << "Map task with index " << idx << " has input file "
-                << get_arg<std::string>(vm, "file") << '\n';
+                << input_file << '\n';
 
-      // Create r intermediary files
-      ensure_intermediary_files(get_arg<std::string>(vm, "job-root-dir"), idx,
-                                get_arg<int>(vm, "r"));
+      // Create r intermediary temporary files
+      const std::string job_root_dir = get_arg<std::string>(vm, "job-root-dir"),
+                        rand_uuid = generate_uuid();
+      int r = get_arg<int>(vm, "r");
+      fs::path intermediary_dir = fs::path(job_root_dir) / "intermediary";
 
-      get_mappers()[clss]->map();
+      std::vector<fs::path> intermediary_output_paths;  // for renaming, later
+      std::vector<std::unique_ptr<fs::ofstream>>
+          intermediary_output_streams;  // for writing intermediary kvs
+      for (int i = 0; i < r; i++) {
+        std::string temorary_file_name = rand_uuid + "-" + std::to_string(i);
+        fs::path temporary_file_path = intermediary_dir / temorary_file_name;
+
+        intermediary_output_paths.emplace_back(temporary_file_path);
+        intermediary_output_streams.emplace_back(
+            std::make_unique<fs::ofstream>(temporary_file_path.string()));
+      }
+
+      // set drain
+      KVs kvs;
+      get_mappers()[clss]->pImpl->set_drain(&kvs);
+
+      // pass the user-provided map function each line in the input file
+      fs::ifstream in(input_file);
+      std::string line;
+
+      while (getline(in, line)) {
+        get_mappers()[clss]->map(line);
+
+        // process emitted pairs
+        for (const auto& p : kvs) {
+          // write the emitted kv to the appropriate file
+          std::size_t intermediary_file_idx =
+              std::hash<std::string>{}(p.first) % r;
+          *intermediary_output_streams[intermediary_file_idx]
+              << p.first << ' ' << p.second << '\n';
+        }
+
+        kvs.clear();
+      }
+
+      in.close();
+
+      // rename temporary intermediary files
+      for (int i = 0; i < r; i++) {
+        intermediary_output_streams[i]->close();
+
+        std::string permanent_file_name =
+            std::to_string(idx) + "-" + std::to_string(i);
+        fs::rename(intermediary_output_paths[i],
+                   intermediary_dir / permanent_file_name);
+      }
 
       exit(0);
       break;

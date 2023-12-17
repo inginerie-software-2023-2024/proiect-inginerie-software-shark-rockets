@@ -14,7 +14,7 @@
 enum WorkerType { Mapper, Reducer };
 
 using Socket = std::pair<std::string, int>;
-
+using reassign_cb = std::function<void(std::unordered_set<std::string>)>;
 // A worker seen through the master's point of view.
 class Worker {
  private:
@@ -32,11 +32,14 @@ class Worker {
   // The jobs currently assigned to the worker.
   // We store them explicitly so that we can re-assign them in case this worker goes down.
   std::unordered_set<std::string> assigned_tasks;
+
+  std::atomic<bool> active_ = true;
   std::unique_ptr<HealthCheckMonitor> monitor_;
 
  public:
   // Constructs a new worker by creating a new grpc channel to the specified address.
-  Worker(std::string addr, int listen_port, int emit_port);
+  Worker(std::string addr, int listen_port, int emit_port,
+         reassign_cb failure_cb);
 
   bool assign_work(const Job& job, const Task& task);
 
@@ -52,6 +55,8 @@ class Worker {
   int load() const;
 
   void finish_task(const std::string& task_uuid);
+
+  bool is_active() const;
 };
 
 struct SocketHash {

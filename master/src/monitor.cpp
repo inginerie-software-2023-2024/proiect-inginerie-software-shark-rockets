@@ -7,8 +7,9 @@ constexpr int calculateBucketDelay(int baseDelay, int retry) {
 }
 
 HealthCheckMonitor::HealthCheckMonitor(
-    const std::shared_ptr<grpc::Channel>& channel, const Socket& target)
-    : channel_(channel), target_(target), running_(true) {
+    const std::shared_ptr<grpc::Channel>& channel, const Socket& target,
+    failure_cb cb_dead)
+    : channel_(channel), target_(target), cb_dead_(cb_dead), running_(true) {
   monitor_thread_ =
       std::make_unique<std::thread>(&HealthCheckMonitor::MonitorHealth, this);
 }
@@ -22,10 +23,10 @@ HealthCheckMonitor::~HealthCheckMonitor() {
 
 void HealthCheckMonitor::MonitorHealth() {
   // On monitor health scope end delete worker
-  auto remove_worker = finally([&worker_socket = target_]() {
-    std::cout << "Eliminating worker: " << worker_socket.first << ":"
+  auto remove_worker = finally([&worker_socket = target_, &cb = cb_dead_]() {
+    std::cout << "Marking worker as innactive: " << worker_socket.first << ":"
               << worker_socket.second << std::endl;
-    // TO DO: implement cleanup logic
+    cb();
   });
 
   int retry_count = 0;
@@ -68,8 +69,8 @@ void HealthCheckMonitor::MonitorHealth() {
       std::this_thread::sleep_for(std::chrono::seconds(delay));
       retry_count++;
     } else {
-      retry_count =
-          0;  // Reset retry count if successful or max retries reached
+      retry_count = 0;
+      // Reset retry count if successful or max retries reached
     }
   }
 }

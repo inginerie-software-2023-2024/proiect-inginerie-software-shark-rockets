@@ -1,6 +1,6 @@
 #include <chrono>
 #include <thread>
-#include "heatlh_check.hpp"
+#include "health_check.hpp"
 
 grpc::Status HealthServiceImpl::Watch(
     [[maybe_unused]] grpc::ServerContext* context,

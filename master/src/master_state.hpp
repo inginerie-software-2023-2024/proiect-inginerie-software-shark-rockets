@@ -38,6 +38,8 @@ class MasterState {
 
  public:
   MasterState();
+  void create_worker(const std::string& addr, const int listen_port,
+                     const int emit_port);
 
   // Moves a new worker into the data structure, transferring ownership.
   void push_worker(std::unique_ptr<Worker> new_worker);

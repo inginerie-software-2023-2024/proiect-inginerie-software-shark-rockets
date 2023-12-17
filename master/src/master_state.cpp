@@ -8,24 +8,62 @@ MasterState::MasterState()
   assign_tasks_thread = std::thread(&MasterState::assign_tasks, this);
 }
 
+void MasterState::create_worker(const std::string& addr, const int listen_port,
+                                const int emit_port) {
+  auto dump_work_on_failure =
+      [&master_lock = master_lock, &pending_tasks = pending_tasks,
+       &pending_tasks_semaphore = pending_tasks_semaphore](
+          const std::unordered_set<std::string>& tasks) {
+        std::lock_guard<std::mutex> lock(master_lock);
+
+        for (const auto& task_uuid : tasks) {
+          pending_tasks.push_back(task_uuid);
+        }
+        pending_tasks_semaphore.release();
+      };
+  auto worker = std::make_unique<Worker>(addr, listen_port, emit_port,
+                                         dump_work_on_failure);
+  push_worker(std::move(worker));
+}
+
 void MasterState::push_worker(std::unique_ptr<Worker> new_worker) {
+  if (!new_worker->is_active()) {
+    // worker is unresponsive, lazily delete it on scope end
+    return;
+  }
   worker_dict.insert({new_worker->get_emit_socket(), std::move(new_worker)});
 }
 
 std::unique_ptr<Worker> MasterState::pop_worker() {
-  if (worker_dict.empty())
+  if (worker_dict.empty()) {
     throw std::runtime_error("No registered workers!");
+  }
 
-  // Find the worker with the lowest load.
-  auto best = worker_dict.begin();
-  for (auto iter = std::next(worker_dict.begin()); iter != worker_dict.end();
-       iter++) {
-    if (iter->second->load() < best->second->load()) {
+  // Find the worker with the lowest load, lazily delete inactive workers
+  auto best = worker_dict.end();
+  std::vector<WorkerDict::iterator> inactive_workers;
+
+  for (auto iter = worker_dict.begin(); iter != worker_dict.end(); ++iter) {
+    if (!iter->second->is_active()) {
+      inactive_workers.push_back(iter);
+      continue;
+    }
+    if (best == worker_dict.end() ||
+        iter->second->load() < best->second->load()) {
       best = iter;
     }
   }
 
-  std::unique_ptr to_return = std::move((*best).second);
+  for (auto it : inactive_workers) {
+    std::cout << "Lazy delete worker" << std::endl;
+    worker_dict.erase(it);
+  }
+  // Handle case when all workers are inactive
+  if (best == worker_dict.end()) {
+    throw std::runtime_error("No active workers available!");
+  }
+
+  std::unique_ptr<Worker> to_return = std::move(best->second);
   worker_dict.erase(best);
   return to_return;
 }

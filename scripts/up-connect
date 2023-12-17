@@ -1,0 +1,31 @@
+#!/bin/bash
+# starts infrastructure and automatically connects you to the user container
+# writes logs to shark-rockets.log
+
+LOG_FILE="shark-rockets.log"
+
+docker compose down
+
+docker compose up > $LOG_FILE 2>&1 &
+
+terminal_pid=$!
+echo "Terminal started with PID: $terminal_pid"
+
+while true; do
+    # Check if there's a running container named 'user'
+    container_id=$(docker ps --filter "name=user" --format "{{.ID}}")
+    
+    if [ ! -z "$container_id" ]; then
+        echo "Container 'user' is running. ID: $container_id"
+        break
+    else
+        echo "Waiting for container 'user' to start..."
+    fi
+
+    sleep 1
+done
+
+docker exec -it $container_id /bin/bash
+
+kill  $terminal_pid
+docker compose down

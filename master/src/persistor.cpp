@@ -52,8 +52,8 @@ void Persistor::send_events() {
     std::swap(batch, events);
     persistor_lock.unlock();
 
-    std::cout << "Persistor thread has " << batch.size()
-              << " updates to send to Eucalypt\n";
+    // std::cout << "Persistor thread has " << batch.size()
+    //           << " updates to send to Eucalypt\n";
 
     for (const auto& event : batch)
       event->send_update(eucalypt_stub);

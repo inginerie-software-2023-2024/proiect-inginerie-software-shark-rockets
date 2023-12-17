@@ -5,6 +5,8 @@ Worker::Worker(std::string addr, int listen_port, int emit_port)
   std::string target = addr_ + ":" + std::to_string(listen_port_);
   channel = grpc::CreateChannel(target, grpc::InsecureChannelCredentials());
   stub = WorkerService::NewStub(channel);
+
+  monitor_ = std::make_unique<HealthCheckMonitor>(channel, get_emit_socket());
 }
 
 bool Worker::assign_work(const Job& job, const Task& task) {

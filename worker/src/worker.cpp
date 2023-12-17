@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include "heatlh_check.hpp"
 #include "utils.hpp"
 #include "worker_impl.hpp"
 
@@ -20,6 +21,7 @@ int main(int argc, char** argv) {
   } else {
     std::cout << "Something went wrong when notifying the master." << std::endl;
   }
+  HealthServiceImpl health_service;
 
   // Start a grpc server, waiting for work to be assigned
   grpc::ServerBuilder builder;
@@ -27,6 +29,7 @@ int main(int argc, char** argv) {
   builder.AddListeningPort("0.0.0.0:" + std::to_string(port),
                            grpc::InsecureServerCredentials());
   builder.RegisterService(&worker_service);
+  builder.RegisterService(&health_service);
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
 

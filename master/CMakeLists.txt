@@ -13,6 +13,7 @@ add_executable(
     src/worker.cpp
     src/persistor.cpp
     src/event.cpp
+    src/monitor.cpp
 )
 
 target_include_directories(

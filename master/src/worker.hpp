@@ -4,9 +4,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/functional/hash.hpp>
 #include <string>
+#include <thread>
 #include <unordered_set>
 #include "job.hpp"
 #include "job_leg.hpp"
+#include "monitor.hpp"
 #include "task.hpp"
 
 enum WorkerType { Mapper, Reducer };
@@ -30,6 +32,7 @@ class Worker {
   // The jobs currently assigned to the worker.
   // We store them explicitly so that we can re-assign them in case this worker goes down.
   std::unordered_set<std::string> assigned_tasks;
+  std::unique_ptr<HealthCheckMonitor> monitor_;
 
  public:
   // Constructs a new worker by creating a new grpc channel to the specified address.

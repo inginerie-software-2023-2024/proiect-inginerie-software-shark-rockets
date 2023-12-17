@@ -78,7 +78,8 @@ export const registerRouteHandler = async (req, res, name, email, password) => {
     name: name,
     email: email,
     password: hashPassword,
-    role: "pending_approval"
+    role: "pending_approval",
+    quota: 300
   });
   await newUser.save();
 

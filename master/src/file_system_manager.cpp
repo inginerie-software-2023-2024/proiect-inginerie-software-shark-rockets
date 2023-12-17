@@ -115,8 +115,8 @@ std::vector<fs::path> on_job_register_request(const std::string& uuid,
 }
 
 fs::path get_job_root_dir(const std::string& uuid,
-                          const std::string& user_name) {
-  fs::path job_root_dir = NFS_ROOT / user_name / ("job-" + uuid);
+                          const std::string& email) {
+  fs::path job_root_dir = NFS_ROOT / email / ("job-" + uuid);
   return job_root_dir;
 }
 }  // namespace nfs

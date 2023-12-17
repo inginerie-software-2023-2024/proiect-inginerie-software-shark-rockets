@@ -1,5 +1,6 @@
 import { jobModel } from "../../schemas/job.schema";
 import { taskModel } from "../../schemas/task.schema";
+import { userModel } from "../../schemas/user.schema";
 
 // creates job entries
 export const start_job_update_handler = async (req) => {
@@ -62,6 +63,14 @@ export const complete_event_handler = async (req) => {
                 { _id: req.uuid },
                 { $set: { complete_ms: req.ms } }
             );
+
+            const finishedJob = await jobModel.findOne({_id: req.uuid});
+            const userOfJob = await userModel.findOne({email: finishedJob.job_user});
+            await userModel.updateOne({email: finishedJob.job_user}, 
+                                        {$set: 
+                                            {quota: Math.max(userOfJob.quota - (finishedJob.complete_ms - finishedJob.start_ms) / 1000, 0)}
+                                        }
+                                     );
         } else { // task completed
             await taskModel.updateOne(
                 { _id: req.uuid },

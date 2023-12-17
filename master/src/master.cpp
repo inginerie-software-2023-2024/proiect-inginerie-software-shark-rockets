@@ -65,8 +65,8 @@ class MasterServiceImpl final : public MasterService::Service {
 
     // Get the user who initiated the request.
     std::unique_ptr<User> user;
-    if (request->has_user_name()) {
-      user = std::make_unique<User>(request->user_name());
+    if (request->has_email()) {
+      user = std::make_unique<User>(request->email());
     } else {
       user = std::make_unique<User>();  // Guest
     }

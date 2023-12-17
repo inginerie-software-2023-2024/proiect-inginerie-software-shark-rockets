@@ -105,12 +105,11 @@ export default function data() {
     </MDBox>
   );
 
-  const isAdmin = true;
-
     const columns = [
       { Header: "user", accessor: "user", width: "45%", align: "left" },
       { Header: "email", accessor: "email", align: "left" },
       { Header: "role", accessor: "role", align: "center" },
+      { Header: "quota (in seconds)", accessor: "quota", align: "center" },
       { Header: "action", accessor: "action", align: "center" },
     ];
 
@@ -121,6 +120,7 @@ export default function data() {
       user: <User image={team2} name={user.name} email={user.email} />,
       email: user.email,
       role: user.role,
+      quota: user.quota,
       action: <Action id={user.id} />,
     }));
 

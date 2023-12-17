@@ -68,8 +68,7 @@ export const complete_event_handler = async (req) => {
             const userOfJob = await userModel.findOne({email: finishedJob.job_user});
             await userModel.updateOne({email: finishedJob.job_user}, 
                                         {$set: 
-                                            {quota: userOfJob.quota - 1 
-                                                    - (finishedJob.complete_ms - finishedJob.start_ms) / 1000}
+                                            {quota: Math.max(userOfJob.quota - (finishedJob.complete_ms - finishedJob.start_ms) / 1000, 0)}
                                         }
                                      );
         } else { // task completed

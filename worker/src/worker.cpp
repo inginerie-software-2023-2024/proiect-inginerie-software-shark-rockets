@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include "heatlh_check.hpp"
+#include "health_check.hpp"
 #include "utils.hpp"
 #include "worker_impl.hpp"
 

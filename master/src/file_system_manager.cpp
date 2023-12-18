@@ -87,7 +87,7 @@ std::vector<fs::path> on_job_register_request(const std::string& uuid,
                                               const std::unique_ptr<User>& user,
                                               const std::string& file_regex) {
 
-  fs::path user_dir = NFS_ROOT / user->get_name();
+  fs::path user_dir = NFS_ROOT / user->get_email();
   fs::path user_data_dir = user_dir / "data";
 
   if (!nfs::ensure_directory(user_data_dir)) {

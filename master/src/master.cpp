@@ -87,7 +87,7 @@ class MasterServiceImpl final : public MasterService::Service {
     }
 
     // Store metadata about a job.
-    master_state.setup_job(uuid, user->get_name(), request->path(),
+    master_state.setup_job(uuid, user->get_email(), request->path(),
                            request->mapper(), request->reducer(),
                            (int)job_files.size(), request->r());
 

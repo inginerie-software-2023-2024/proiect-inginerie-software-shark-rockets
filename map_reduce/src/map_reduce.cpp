@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include "master_service.grpc.pb.h"
 #include "master_service.pb.h"
+#include "connection_service.grpc.pb.h"
+#include "connection_service.pb.h"
 #include "utils.hpp"
 
 namespace map_reduce {
@@ -36,6 +38,7 @@ Mapper::~Mapper() = default;
 // I feel this can be improved :)
 
 constinit std::unique_ptr<MasterService::Stub> master_service;
+constinit std::unique_ptr<ConnectionService::Stub> connection_service;
 
 std::string& get_executable_path() {
   static std::string executable_path;
@@ -189,9 +192,13 @@ void map_reduce::init(int argc, char** argv) {
     }
     case Mode::User: {
       const auto master_adress = get_arg<std::string>(vm, "master-address");
-      const auto channel = grpc::CreateChannel(
+      const auto master_channel = grpc::CreateChannel(
           master_adress, grpc::InsecureChannelCredentials());
-      master_service = MasterService::NewStub(channel);
+      master_service = MasterService::NewStub(master_channel);
+
+      const auto eucalypt_address = get_arg<std::string>(vm, "eucalypt-address");
+      const auto eucalypt_channel = grpc::CreateChannel(eucalypt_address, grpc::InsecureChannelCredentials());
+      connection_service = ConnectionService::NewStub(eucalypt_channel);
       break;
     }
     default:
@@ -202,7 +209,8 @@ void map_reduce::init(int argc, char** argv) {
 void map_reduce::register_job(const std::string& mapper_name,
                               const std::string& reducer_name,
                               const std::string& file_regex, int R,
-                              const std::string& email) {
+                              const std::string& email,
+                              const std::string& token) {
   // check that the provided mapper and reducer are known ...
 
   std::cout << "User: sending a register job request with mapper "
@@ -220,12 +228,25 @@ void map_reduce::register_job(const std::string& mapper_name,
 
   RegisterJobReply reply;
   grpc::ClientContext context;
-  context.AddMetadata("uuid", generate_uuid());
+  std::string uuid = generate_uuid();
 
-  auto status = master_service->RegisterJob(&context, request, &reply);
+  context.AddMetadata("uuid", uuid);
 
-  if (status.ok())
-    std::cout << "User: success, got " << reply.ok() << " from master\n";
-  else
-    std::cout << "User: failure, status is not ok\n";
+  CheckConnectionTokenRequest connection_request;
+  CheckConnectionTokenReply connection_reply;
+  connection_request.set_token(token);
+
+  auto connection_status = connection_service->CheckConnectionToken(&context, connection_request, &connection_reply);
+
+  if (connection_status.ok()) {
+    std::cout << "Connection: success, got " << connection_reply.ok() << " from Ecualypt\n";
+
+    auto register_status = master_service->RegisterJob(&context, request, &reply);
+
+    if (register_status.ok())
+      std::cout << "User: success, got " << reply.ok() << " from master\n";
+    else
+      std::cout << "User: failure, status is not ok\n";
+  } else
+      std::cout << "Connection: failure, status is not ok\n"; 
 }

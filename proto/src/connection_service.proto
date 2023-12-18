@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service ConnectionService {
+    rpc CheckConnectionToken(CheckConnectionTokenRequest) returns (CheckConnectionTokenReply) {}
+}
+
+message CheckConnectionTokenRequest {
+    string token = 1;
+}
+
+message CheckConnectionTokenReply {
+    bool ok = 1;
+}

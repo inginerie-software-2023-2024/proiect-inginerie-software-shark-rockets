@@ -48,5 +48,6 @@ void init(int argc, char** argv);
 void register_job(const std::string& mapper_name,
                   const std::string& reducer_name,
                   const std::string& file_regex, int R,
-                  const std::string& email = "");
+                  const std::string& email = "",
+                  const std::string& token = "");
 };  // namespace map_reduce

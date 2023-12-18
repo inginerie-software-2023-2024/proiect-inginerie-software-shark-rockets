@@ -45,20 +45,11 @@ export default function data() {
     fetchUsers();
   }, []);
 
-  const handleEdit = async (id, data) => {
-    try {
-      const updatedUser = await UserManagementService.editUser(id, userData);
-      setUsers(users.map(user => user.id === id ? updatedUser : user)); 
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
 
   const handleDelete = async (id) => {
     try {
       await UserManagementService.deleteUser(id);
-      setUsers(users.filter((user) => user.id !== id));
+      setUsers(users.filter((user) => user.hashed_id !== id));
     }
     catch (error) {
       console.log(error);
@@ -66,31 +57,32 @@ export default function data() {
   }
 
   const Action = ({ id }) => (
-    <MDBox display="flex" justifyContent="center">
-      <MDBox mr={1}>
-        <Link to={`/user-management/edit/${id}`}>
-          <MDTypography
-            variant="button"
-            fontWeight="bold"
-            textColor="info"
-          >
-            Edit
-          </MDTypography>
-        </Link>
+      <MDBox display="flex" justifyContent="center">
+        <MDBox mr={1}>
+          <Link to={`/user-management/edit/${id}`}>
+            <MDTypography
+              variant="button"
+              fontWeight="bold"
+              textColor="info"
+            >
+              Edit
+            </MDTypography>
+          </Link>
+        </MDBox>
+        <MDBox ml={1}>
+          <button onClick={() => handleDelete(id)}>
+            <MDTypography
+              variant="button"
+              fontWeight="bold"
+              textColor="error"
+            >
+              Delete
+            </MDTypography>
+          </button>
+        </MDBox>
       </MDBox>
-      <MDBox ml={1}>
-        <button onClick={() => handleDelete(id)}>
-          <MDTypography
-            variant="button"
-            fontWeight="bold"
-            textColor="error"
-          >
-            Delete
-          </MDTypography>
-        </button>
-      </MDBox>
-    </MDBox>
-  );
+    );
+
 
 
   const User = ({ image, name, email }) => (
@@ -121,7 +113,7 @@ export default function data() {
       email: user.email,
       role: user.role,
       quota: user.quota,
-      action: <Action id={user.id} />,
+      action: <Action id={user.hashed_id} />,
     }));
 
   return {

@@ -16,7 +16,7 @@ export const getUsersRouteHandler = async (req, res) => {
 
 export const getUserRouteHandler = async (req, res) => {
     try {
-        const user = await userModel.findOne({ _id: req.params.id });
+        const user = await userModel.findOne({ hashed_id: req.params.id });
         res.send({ data: user });
     } catch (error) {
         res.status(500).send({ message: "Could not fetch user data." });
@@ -35,7 +35,7 @@ export const createUserRouteHandler = async (req, res) => {
 
 export const editUserRouteHandler = async (req, res) => {
     try {
-        const user = await userModel.findOne({ _id: req.params.id });
+        const user = await userModel.findOne({ hashed_id: req.params.id });
         console.log(req.body);
         const { name, email, role, quota } = req.body;
         await userModel.updateOne(
@@ -50,7 +50,7 @@ export const editUserRouteHandler = async (req, res) => {
 
 export const deleteUserRouteHandler = async (req, res) => {
     try {
-        const user = await userModel.findOne({ _id: req.params.id });
+        const user = await userModel.findOne({ hashed_id: req.params.id });
         await userModel.deleteOne({ email: user.email });
         res.send({ data: user });
     } catch (error) {
@@ -60,7 +60,7 @@ export const deleteUserRouteHandler = async (req, res) => {
 
 export const acceptUserRouteHandler = async (req, res) => {
     try {
-        const user = await userModel.findOne({ _id: req.params.id });
+        const user = await userModel.findOne({ hashed_id: req.params.id });
         await userModel.updateOne(
             { email: user.email },
             { $set: { role: 'user' } }

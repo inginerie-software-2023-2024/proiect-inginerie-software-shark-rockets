@@ -2,8 +2,11 @@
 assets/
 build/
 .generated/
+scripts/
 .gitignore
 Dockerfile
 .dockerignore
 generate_proto.sh
 README.md
+docker-compose.yml
+eucalypt/

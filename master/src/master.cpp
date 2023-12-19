@@ -1,89 +1,150 @@
 #include <grpcpp/grpcpp.h>
-#include "master_service.pb.h"
-#include "master_service.grpc.pb.h"
-#include "worker_service.pb.h"
-#include "worker_service.grpc.pb.h"
-#include "master_state.hpp"
-#include <string>
 #include <iostream>
+#include <memory>
+#include <string>
+#include "eucalypt_service.grpc.pb.h"
+#include "eucalypt_service.pb.h"
+#include "file_system_manager.hpp"
+#include "master_service.grpc.pb.h"
+#include "master_service.pb.h"
+#include "master_state.hpp"
+#include "utils.hpp"
+#include "worker_service.grpc.pb.h"
+#include "worker_service.pb.h"
 
-class MasterServiceImpl final : public MasterService::Service
-{
-private:
-    MasterState master_state;
+class MasterServiceImpl final : public MasterService::Service {
+ private:
+  MasterState master_state;
 
-public:
-    grpc::Status RegisterWorker(grpc::ServerContext *context,
-                                const RegisterWorkerRequest *request,
-                                RegisterWorkerReply *response) override
-    {
-        std::cout << "Master: received a register worker request:"
-                  << " ip: " << request->ip() << ','
-                  << " port: " << request->port() << '\n';
+  Socket extract_socket_from_context(grpc::ServerContext* context) {
+    std::string peer = context->peer();  // is of the form ipv4:ip:port
+    int first_colon = peer.find(':');
+    int second_colon = peer.find(':', first_colon + 1);
 
-        master_state.register_worker(request->ip(), request->port());
-        response->set_ok(true);
-        return grpc::Status::OK;
+    std::string ip =
+        peer.substr(first_colon + 1, second_colon - first_colon - 1);
+    int port = std::stoi(
+        peer.substr(second_colon + 1, peer.size() - second_colon - 1));
+
+    return {ip, port};
+  }
+
+ public:
+  grpc::Status RegisterWorker(grpc::ServerContext* context,
+                              const RegisterWorkerRequest* request,
+                              RegisterWorkerReply* response) override {
+    auto [worker_ip, worker_emit_port] = extract_socket_from_context(context);
+    int worker_listen_port = request->worker_port();
+
+    std::cout << "Master: received a register worker request:"
+              << " ip: " << worker_ip << ',' << " port: " << worker_listen_port
+              << '\n';
+
+    auto worker = std::make_unique<Worker>(worker_ip, worker_listen_port,
+                                           worker_emit_port);
+    master_state.push_worker(std::move(worker));
+    response->set_ok(true);
+    return grpc::Status::OK;
+  }
+
+  grpc::Status RegisterJob(grpc::ServerContext* context,
+                           const RegisterJobRequest* request,
+                           RegisterJobReply* response) override {
+
+    // Retrieve the uuid from the request context.
+    const auto& metadata = context->client_metadata();
+    auto uuid_it = metadata.find("uuid");
+    std::string uuid;
+
+    // No uuid.
+    if (uuid_it == metadata.end()) {
+      std::cerr << "Request doesn't have a uuid!" << std::endl;
+      return grpc::Status::CANCELLED;
+    }
+    uuid = std::string(uuid_it->second.data(), uuid_it->second.size());
+
+    // Get the user who initiated the request.
+    std::unique_ptr<User> user;
+    if (request->has_email()) {
+      user = std::make_unique<User>(request->email());
+    } else {
+      user = std::make_unique<User>();  // Guest
     }
 
-    grpc::Status RegisterJob(grpc::ServerContext *context,
-                             const RegisterJobRequest *request,
-                             RegisterJobReply *response) override
-    {
-        std::cout << "Master: received a register job request: path=" << request->path()
-                  << ", mapper=" << request->mapper()
-                  << ", reducer=" << request->reducer() << '\n';
+    std::cout << "Master: received a register job request: path="
+              << request->path() << ", mapper=" << request->mapper()
+              << ", reducer=" << request->reducer()
+              << ", file location=" << request->file_regex()
+              << ", job uuid=" << uuid << ", R=" << request->r() << std::endl;
 
-        std::pair<std::string, int> worker = master_state.get_worker();
-        std::cout << "Master: we will assign the tasks to " << worker.first << ':' << worker.second << '\n';
+    std::vector<nfs::fs::path> job_files =
+        nfs::on_job_register_request(uuid, user, request->file_regex());
 
-        // should probably create these connections when we register a worker ...
-        auto channel = grpc::CreateChannel(worker.first + ":" + std::to_string(worker.second),
-                                           grpc::InsecureChannelCredentials());
-        auto worker_service = WorkerService::NewStub(channel);
-
-        // naive implementation :)
-        AssignWorkRequest mapper_work_request;
-        mapper_work_request.set_path(request->path());
-        mapper_work_request.set_mode("mapper");
-        mapper_work_request.set_class_(request->mapper());
-        AssignWorkReply mapper_work_reply;
-        grpc::ClientContext context_mapper;
-        auto status_mapper_worker = worker_service->AssignWork(&context_mapper, mapper_work_request, &mapper_work_reply);
-
-        AssignWorkRequest reducer_work_request;
-        reducer_work_request.set_path(request->path());
-        reducer_work_request.set_mode("reducer");
-        reducer_work_request.set_class_(request->reducer());
-        AssignWorkReply reducer_work_reply;
-        grpc::ClientContext context_reducer;
-        auto status_reducer_worker = worker_service->AssignWork(&context_reducer, reducer_work_request, &reducer_work_reply);
-
-        if (status_mapper_worker.ok() && status_reducer_worker.ok())
-            response->set_ok(true);
-        else
-            response->set_ok(false);
-
-        return grpc::Status::OK;
+    // No files to process.
+    if (job_files.empty()) {
+      std::cerr << "No files to process!" << std::endl;
+      return grpc::Status::CANCELLED;
     }
+
+    // Store metadata about a job.
+    master_state.setup_job(uuid, user->get_name(), request->path(),
+                           request->mapper(), request->reducer(),
+                           (int)job_files.size(), request->r());
+
+    // Kicks off the map leg for this job.
+    master_state.start_map_leg(uuid, job_files);
+
+    response->set_ok(true);
+    return grpc::Status::OK;
+  }
+
+  grpc::Status AckWorkerFinish(
+      [[maybe_unused]] grpc::ServerContext* context,
+      [[maybe_unused]] const AckWorkerFinishRequest* request,
+      [[maybe_unused]] AckWorkerFinishReply* response) override {
+    std::cout << "Worker finished task " << request->task_uuid() << std::endl;
+    master_state.mark_task_as_finished(extract_socket_from_context(context),
+                                       request->task_uuid());
+    response->set_ok(true);
+    return grpc::Status::OK;
+  }
 };
 
-int main()
-{
-    // This is hardcoded for now...
-    std::string master_server_address = "0.0.0.0:50051";
+class EucalyptServiceImpl final : public EucalyptService::Service {
+  grpc::Status CheckConnection([[maybe_unused]] grpc::ServerContext* context,
+                               const CheckConnectionRequest* request,
+                               CheckConnectionReply* response) override {
+    std::cout << "Master received grpc call from Eucalypt with message: "
+              << request->message() << '\n';
+    response->set_ok(true);
+    return grpc::Status::OK;
+  }
+};
 
-    // Start a grpc server, waiting for job requests and worker heartbeats
-    MasterServiceImpl master_service;
-    grpc::ServerBuilder builder;
+int main(int argc, char** argv) {
+  auto vm = parse_args(argc, argv);
 
-    builder.AddListeningPort(master_server_address, grpc::InsecureServerCredentials());
-    builder.RegisterService(&master_service);
+  nfs::sanity_check();
 
-    std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+  // This is hardcoded for now...
+  std::string master_server_address = "0.0.0.0:50051";
 
-    std::cout << "Master: listening on port 50051\n";
-    server->Wait();
+  Persistor::set_eucalypt_address(get_arg<std::string>(vm, "eucalypt-address"));
 
-    return 0;
+  // Start a grpc server, waiting for job requests and worker heartbeats
+  MasterServiceImpl master_service;
+  EucalyptServiceImpl eucalypt_service;
+  grpc::ServerBuilder builder;
+
+  builder.AddListeningPort(master_server_address,
+                           grpc::InsecureServerCredentials());
+  builder.RegisterService(&master_service);
+  builder.RegisterService(&eucalypt_service);
+
+  std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+
+  std::cout << "Master: listening on port 50051\n";
+  server->Wait();
+
+  return 0;
 }

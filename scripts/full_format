@@ -1,0 +1,20 @@
+#/bin/bash
+# Format all c++ files using clang-format.
+# Run this script from the root of the project.
+
+# Check for clang-format
+if ! command -v clang-format &> /dev/null
+then
+    echo "clang-format could not be found"
+    exit 1
+fi
+
+set -e
+FILES=$(find -iname *.cpp -o -iname *.hpp)
+
+if [ -n "$FILES" ]; then
+	echo -e "Formatting files \n$FILES"
+	clang-format --style=file -i $FILES
+else
+	echo "No files to format!"
+fi

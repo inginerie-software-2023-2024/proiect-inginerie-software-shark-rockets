@@ -3,11 +3,11 @@ syntax = "proto3";
 service MasterService {
     rpc RegisterWorker(RegisterWorkerRequest) returns (RegisterWorkerReply) {}
     rpc RegisterJob(RegisterJobRequest) returns (RegisterJobReply) {}
+    rpc AckWorkerFinish(AckWorkerFinishRequest) returns (AckWorkerFinishReply) {}
 }
 
 message RegisterWorkerRequest {
-    string ip = 1;
-    int32 port = 2;
+    int32 worker_port = 2;
 }
 
 message RegisterWorkerReply {
@@ -18,8 +18,19 @@ message RegisterJobRequest {
     string path = 1;
     string mapper = 2;
     string reducer = 3;
+    optional string email = 4;
+    string file_regex = 5;
+    int32 R = 6;
 }
 
 message RegisterJobReply {
+    bool ok = 1;
+}
+
+message AckWorkerFinishRequest{
+    string task_uuid = 1;
+}
+
+message AckWorkerFinishReply{
     bool ok = 1;
 }

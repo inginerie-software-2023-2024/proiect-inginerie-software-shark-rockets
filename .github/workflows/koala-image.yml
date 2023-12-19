@@ -3,7 +3,8 @@ name: Koala Image Build
 on:
   push:
     branches:
-      - '**'
+      - main
+      - develop
 
 jobs:
   build:

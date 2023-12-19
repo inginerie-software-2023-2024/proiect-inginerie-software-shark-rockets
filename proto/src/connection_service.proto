@@ -6,6 +6,7 @@ service ConnectionService {
 
 message CheckConnectionTokenRequest {
     string token = 1;
+    string job_uuid = 2;
 }
 
 message CheckConnectionTokenReply {

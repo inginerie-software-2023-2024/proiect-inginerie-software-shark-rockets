@@ -52,7 +52,7 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       po::value<std::string>()->default_value("0.0.0.0:50051"),
       "Specify where the worker can find master: ip.ip.ip.ip:port")(
       "eucalypt-address,e",
-      po::value<std::string>()->default_value("0.0.0.0:8080"),
+      po::value<std::string>()->default_value("localhost:5555"),
       "Specify where Eucalypt backend can can be found: ip.ip.ip.ip:port")(
       "class,c", po::value<std::string>(),
       "name of class to run, if mode is mapper or reducer")(

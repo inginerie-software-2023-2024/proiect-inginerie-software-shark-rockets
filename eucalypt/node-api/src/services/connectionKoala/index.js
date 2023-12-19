@@ -43,18 +43,14 @@ export const checkConnectionHandler = async (req, res) => {
 };
 
 export const getTokenHandler = async (id, res) => {
-    console.log(id);
     let foundToken = await tokenModel.findOne({user_id: id, expiration_date: { $gt: new Date()}});
-    console.log(foundToken);
     res.send(foundToken)
 };
 
 export const generateTokenHandler = async (id, res) => {
-    console.log('Generate Token');
     let currentDate = new Date();
 
     let alreadyExistantToken = await tokenModel.findOne({user_id: id, expiration_date: { $gt: currentDate}});
-    console.log(alreadyExistantToken);
     if(alreadyExistantToken != null) {
         res.send(alreadyExistantToken);
         return;
@@ -72,4 +68,23 @@ export const generateTokenHandler = async (id, res) => {
     let existantToken = await tokenModel.findOne({ user_id: id, expiration_date: { $gt: new Date()} });
 
     res.send(existantToken)
+};
+
+export const check_connection_token_handler = async (req) => {
+    var foundToken = await tokenModel.findById(req.token);
+
+    var response = {
+        ok: true
+    };
+
+    if(foundToken != null) {
+        if(foundToken.expiration_date > new Date() && foundToken.job_uuid == undefined) {
+            await tokenModel.findByIdAndUpdate(req.token, {$set: {job_uuid: req.job_uuid}});
+            return response;
+        } else 
+            response.ok = false;
+    } else 
+        response.ok = false;
+    
+    return response;
 };

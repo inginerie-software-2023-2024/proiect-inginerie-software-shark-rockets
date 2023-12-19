@@ -6,6 +6,7 @@ import "./passport.js";
 import { dbConnect } from "./mongo";
 import { meRoutes, authRoutes, userRoutes, connectionRoutes } from "./routes";
 import { start_job_update_handler, start_task_update_handler, complete_event_handler } from "./services/persistor";
+import { check_connection_token_handler } from "./services/connectionKoala/index.js";
 import path from "path";
 import * as fs from "fs";
 import cron from "node-cron";
@@ -61,17 +62,9 @@ app.listen(PORT, () => {
   console.log(reset);
 });
 
-
-function getServer() {
-  // load proto spec
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  var PERSISTOR_SERVICE_PROTO_PATH = __dirname + "../../../../proto/src/persistor_service.proto";
-  if (process.env.PERSISTOR_SERVICE_PROTO_PATH)
-    PERSISTOR_SERVICE_PROTO_PATH = process.env.PERSISTOR_SERVICE_PROTO_PATH;
-
+function getService(path) {
   var packageDefinition = protoLoader.loadSync(
-    PERSISTOR_SERVICE_PROTO_PATH,
+    path,
     {
       keepCase: true,
       longs: String,
@@ -80,23 +73,46 @@ function getServer() {
       oneofs: true
     });
   var protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
-  var srv = protoDescriptor;
+  return protoDescriptor;
+}
+
+function getServer() {
+  // load proto spec
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  var PERSISTOR_SERVICE_PROTO_PATH = __dirname + "../../../../proto/src/persistor_service.proto";
+  if (process.env.PERSISTOR_SERVICE_PROTO_PATH)
+    PERSISTOR_SERVICE_PROTO_PATH = process.env.PERSISTOR_SERVICE_PROTO_PATH;
+
+  var CONNECTION_SERVICE_PROTO_PATH = __dirname + "../../../../proto/src/connection_service.proto";
+  if (process.env.CONNECTION_SERVICE_PROTO_PATH)
+    CONNECTION_SERVICE_PROTO_PATH = process.env.CONNECTION_SERVICE_PROTO_PATH;
+
+  var persistorService = getService(PERSISTOR_SERVICE_PROTO_PATH).PersistorService.service;
+  var connectionService = getService(CONNECTION_SERVICE_PROTO_PATH).ConnectionService.service;
 
   // set up server methods
   var server = new grpc.Server();
-  server.addService(srv.PersistorService.service, {
+
+  //set up Peristor
+  server.addService(persistorService, {
     StartJobUpdate: (call, callback) => callback(null, start_job_update_handler(call.request)),
     StartTaskUpdate: (call, callback) => callback(null, start_task_update_handler(call.request)),
     CompleteEventUpdate: (call, callback) => callback(null, complete_event_handler(call.request)),
+  });
+
+  server.addService(connectionService, {
+    CheckConnectionToken: async (call, callback) => callback(null, await check_connection_token_handler(call.request)),
   });
 
   return server;
 }
 
 // Start Persistor service
-var persistorService = getServer();
-var persistorServicePort = process.env.EUCALYPT_GRPC_PORT;
-persistorService.bindAsync(`0.0.0.0:${persistorServicePort}`, grpc.ServerCredentials.createInsecure(), () => {
-  persistorService.start();
-  console.log(`Persistor service started listening on port ${persistorServicePort}`)
+var eucalyptGRPCService = getServer();
+var eucalyptGRPCServicePort = process.env.EUCALYPT_GRPC_PORT;
+eucalyptGRPCService.bindAsync(`0.0.0.0:${eucalyptGRPCServicePort}`, grpc.ServerCredentials.createInsecure(), () => {
+  eucalyptGRPCService.start();
+  console.log(`Persistor and Connection service started listening on port ${eucalyptGRPCServicePort}`)
 });

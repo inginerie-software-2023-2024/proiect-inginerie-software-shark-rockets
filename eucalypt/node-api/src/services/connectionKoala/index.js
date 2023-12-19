@@ -3,6 +3,8 @@ import protoLoader from '@grpc/proto-loader';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
+import { tokenModel } from '../../schemas/token.schema';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -38,4 +40,36 @@ export const checkConnectionHandler = async (req, res) => {
     });
 
     res.status(204).send()
+};
+
+export const getTokenHandler = async (id, res) => {
+    console.log(id);
+    let foundToken = await tokenModel.findOne({user_id: id, expiration_date: { $gt: new Date()}});
+    console.log(foundToken);
+    res.send(foundToken)
+};
+
+export const generateTokenHandler = async (id, res) => {
+    console.log('Generate Token');
+    let currentDate = new Date();
+
+    let alreadyExistantToken = await tokenModel.findOne({user_id: id, expiration_date: { $gt: currentDate}});
+    console.log(alreadyExistantToken);
+    if(alreadyExistantToken != null) {
+        res.send(alreadyExistantToken);
+        return;
+    }
+
+    currentDate.setMinutes(currentDate.getMinutes() + 5);
+
+    const newToken = new tokenModel({
+        expiration_date: currentDate,
+        user_id: id
+      });
+
+    await newToken.save();
+    
+    let existantToken = await tokenModel.findOne({ user_id: id, expiration_date: { $gt: new Date()} });
+
+    res.send(existantToken)
 };

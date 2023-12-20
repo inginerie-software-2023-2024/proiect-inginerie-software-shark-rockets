@@ -227,22 +227,23 @@ void map_reduce::register_job(const std::string& mapper_name,
     request.set_email(email);  // send optional parameter
 
   RegisterJobReply reply;
-  grpc::ClientContext context;
+  grpc::ClientContext contextConnection, contextMaster;
   std::string uuid = generate_uuid();
 
-  context.AddMetadata("uuid", uuid);
+  contextConnection.AddMetadata("uuid", uuid);
+  contextMaster.AddMetadata("uuid", uuid);
 
   CheckConnectionTokenRequest connection_request;
   CheckConnectionTokenReply connection_reply;
   connection_request.set_token(token);
   connection_request.set_job_uuid(uuid);
 
-  auto connection_status = connection_service->CheckConnectionToken(&context, connection_request, &connection_reply);
+  auto connection_status = connection_service->CheckConnectionToken(&contextConnection, connection_request, &connection_reply);
 
   if (connection_status.ok() && connection_reply.ok() == 1) {
     std::cout << "Connection: success, got " << connection_reply.ok() << " from Ecualypt\n";
     
-    auto register_status = master_service->RegisterJob(&context, request, &reply);
+    auto register_status = master_service->RegisterJob(&contextMaster, request, &reply);
 
     if (register_status.ok())
       std::cout << "User: success, got " << reply.ok() << " from master\n";

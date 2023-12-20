@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include "job_wait_test.cpp"
 #include "nfs_test.cpp"
 
 TEST(SmokeTest, DoesNothing) {}

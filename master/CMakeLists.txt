@@ -14,6 +14,7 @@ add_executable(
     src/persistor.cpp
     src/event.cpp
     src/monitor.cpp
+    src/job_wait_handle.cpp
 )
 
 target_include_directories(

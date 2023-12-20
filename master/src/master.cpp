@@ -50,8 +50,6 @@ class MasterServiceImpl final : public MasterService::Service {
   grpc::Status RegisterJob(grpc::ServerContext* context,
                            const RegisterJobRequest* request,
                            RegisterJobReply* response) override {
-    std::cout << "Am ajuns pana aci 3!\n";
-
     // Retrieve the uuid from the request context.
     const auto& metadata = context->client_metadata();
     auto uuid_it = metadata.find("uuid");
@@ -66,13 +64,11 @@ class MasterServiceImpl final : public MasterService::Service {
 
     // Get the user who initiated the request.
     std::unique_ptr<User> user;
-    std::cout << "Am ajuns pana aci!\n";
     if (request->has_email()) {
       user = std::make_unique<User>(request->email());
     } else {
       user = std::make_unique<User>();  // Guest
     }
-    std::cout << "Am ajuns pana aci 2!\n";
 
     std::cout << "Master: received a register job request: path="
               << request->path() << ", mapper=" << request->mapper()

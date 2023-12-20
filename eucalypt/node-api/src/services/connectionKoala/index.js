@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 import { tokenModel } from '../../schemas/token.schema';
+import { userModel } from '../../schemas/user.schema'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -79,8 +80,12 @@ export const check_connection_token_handler = async (req) => {
 
     if(foundToken != null) {
         if(foundToken.expiration_date > new Date() && foundToken.job_uuid == undefined) {
-            await tokenModel.findByIdAndUpdate(req.token, {$set: {job_uuid: req.job_uuid}});
-            return response;
+            var jobUser = await userModel.findById(foundToken.user_id);
+            
+            if(jobUser.quota == 0)
+                response.ok = false;
+            else 
+                await tokenModel.findByIdAndUpdate(req.token, {$set: {job_uuid: req.job_uuid}});
         } else 
             response.ok = false;
     } else 

@@ -250,7 +250,7 @@ void map_reduce::register_job(const std::string& mapper_name,
     else
       std::cout << "User: failure, status is not ok\n";
   } else if(connection_status.ok())
-      std::cout << "Connection: failure, status is not ok: wrong token\n";
+      std::cout << "Connection: failure, status is not ok: wrong token or quota reached!\n";
     else 
       std::cout << "Connection: failure, status is not ok\n";
 }

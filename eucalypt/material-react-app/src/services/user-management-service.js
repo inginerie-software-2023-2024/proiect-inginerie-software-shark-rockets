@@ -1,4 +1,5 @@
 import HttpService from "./htttp.service";
+import AuthService from "./auth-service";
 
 class UserManagementService { 
   // get users
@@ -66,7 +67,17 @@ class UserManagementService {
       console.log(error);
     }
   }
-
+  getUserJobs =  async () => {
+    const response = await AuthService.getProfile();
+    const id = response.data.id;
+    try {
+      const response = await HttpService.get(`/users/getUserJobs/${id}`);
+      return response;
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default new UserManagementService();

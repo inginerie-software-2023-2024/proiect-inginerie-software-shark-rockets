@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <chrono>
 #include <iostream>
 #include "koala.hpp"
 
@@ -33,7 +34,14 @@ int main(int argc, char** argv) {
   map_reduce::init(argc, argv);
 
   // We submit a job to be computed
-  map_reduce::register_job("MyMapper", "MyReducer", "^.*.txt$", 5);
+  auto job = map_reduce::register_job("MyMapper", "MyReducer", "^.*.txt$", 5);
 
+  auto start = std::chrono::system_clock::now();
+  map_reduce::join_job(job);
+  auto end = std::chrono::system_clock::now();
+
+  auto elapsed =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+  std::cout << "Job finished, took: " << elapsed.count() << " ms" << std::endl;
   return 0;
 }

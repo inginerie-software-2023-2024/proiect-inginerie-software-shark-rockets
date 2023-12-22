@@ -45,8 +45,11 @@ bool register_reducer(const std::string& name, Reducer* reducer);
 
 void init(int argc, char** argv);
 
-void register_job(const std::string& mapper_name,
-                  const std::string& reducer_name,
-                  const std::string& file_regex, int R,
-                  const std::string& token = "");
+using job_uuid = std::string;
+
+job_uuid register_job(const std::string& mapper_name,
+                      const std::string& reducer_name,
+                      const std::string& file_regex, int R,
+                      const std::string& token= "");
+void join_job(const job_uuid& job);
 };  // namespace map_reduce

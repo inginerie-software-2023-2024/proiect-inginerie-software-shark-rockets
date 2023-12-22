@@ -208,10 +208,10 @@ void map_reduce::init(int argc, char** argv) {
   }
 }
 
-void map_reduce::register_job(const std::string& mapper_name,
-                              const std::string& reducer_name,
-                              const std::string& file_regex, int R,
-                              const std::string& token) {
+map_reduce::job_uuid map_reduce::register_job(const std::string& mapper_name,
+                                              const std::string& reducer_name,
+                                              const std::string& file_regex,
+                                              int R, const std::string& token) {
   // check that the provided mapper and reducer are known ...
 
   LOG_INFO << "User: sending a register job request with mapper " << mapper_name
@@ -246,5 +246,22 @@ void map_reduce::register_job(const std::string& mapper_name,
     } else {
       LOG_INFO << "Connection: failure, status is not ok\n";
     }
+  }
+  return uuid;
+}
+
+void map_reduce::join_job(const job_uuid& job) {
+  JoinJobRequest request;
+  JoinJobReply reply;
+  grpc::ClientContext context;
+
+  request.set_job_uuid(job);
+  auto status = master_service->JoinJob(&context, request, &reply);
+
+  if (status.ok()) {
+    std::cout << "User: join(" << job << ") sucess." << std::endl;
+  } else {
+    std::cout << "User: join(" << job << ") failed: " << status.error_message()
+              << std::endl;
   }
 }

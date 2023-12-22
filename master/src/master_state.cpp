@@ -81,6 +81,7 @@ void MasterState::setup_job(const std::string& job_uuid,
   // store job metadata
   Job job(job_uuid, job_user, binary_path, mapper_name, reducer_name, M, R);
   job_metadata.insert({job_uuid, job});
+  wait_handles.insert({job_uuid, std::make_shared<JobWaitHandle>()});
 
   // push start job update to Eucalypt
   Persistor::get_instance()->start_job(
@@ -207,8 +208,20 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
           CompleteEvent(CompleteEventType::JobComplete, job_uuid, ms));
 
       // notify user code
+      wait_handles.at(job_uuid)->set_finished();
     }
   }
+}
+
+std::shared_ptr<JobWaitHandle> MasterState::get_wait_handle(
+    const std::string& job_uuid) {
+  std::lock_guard<std::mutex> lock(master_lock);
+  return wait_handles.at(job_uuid);
+}
+
+void MasterState::remove_wait_handle(const std::string& job_uuid) {
+  std::lock_guard<std::mutex> lock(master_lock);
+  wait_handles.erase(job_uuid);
 }
 
 MasterState::~MasterState() {

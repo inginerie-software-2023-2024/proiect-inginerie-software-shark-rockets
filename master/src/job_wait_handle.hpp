@@ -3,6 +3,7 @@
 #include <mutex>
 
 // Used for waiting until a job has finished running.
+// See: https://en.cppreference.com/w/cpp/thread/condition_variable
 class JobWaitHandle {
  private:
   std::mutex m;

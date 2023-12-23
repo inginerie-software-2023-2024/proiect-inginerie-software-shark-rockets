@@ -8,6 +8,7 @@ add_executable(
     src/worker.cpp 
     src/utils.cpp
     src/worker_impl.cpp
+    src/health_check.cpp
 )
 target_include_directories(
     ${TARGET}  

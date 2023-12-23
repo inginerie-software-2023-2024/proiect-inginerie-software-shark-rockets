@@ -13,7 +13,7 @@ Worker::Worker(std::string addr, int listen_port, int emit_port,
     cb(tasks);
   };
   monitor_ = std::make_unique<HealthCheckMonitor>(channel, get_emit_socket(),
-                                                  on_failure);
+                                                  std::move(on_failure));
 }
 
 bool Worker::assign_work(const Job& job, const Task& task) {

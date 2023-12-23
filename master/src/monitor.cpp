@@ -49,7 +49,8 @@ void HealthCheckMonitor::MonitorHealth() {
     grpc::Status status = reader->Finish();
     if (!status.ok()) {
       // Handle deadline exceeded and other errors, ignore first error to avoid spam until connection is stable
-      if (retry_count && status.error_code() == grpc::StatusCode::DEADLINE_EXCEEDED) {
+      if (retry_count &&
+          status.error_code() == grpc::StatusCode::DEADLINE_EXCEEDED) {
         std::cerr << "Health check deadline exceeded" << std::endl;
       } else {
         std::cerr << "Health check stream failed: " << status.error_message()

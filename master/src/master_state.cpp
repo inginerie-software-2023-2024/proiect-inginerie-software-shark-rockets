@@ -27,6 +27,7 @@ void MasterState::create_worker(const std::string& addr, const int listen_port,
 }
 
 void MasterState::push_worker(std::unique_ptr<Worker> new_worker) {
+  std::lock_guard<std::mutex> lock(worker_dict_lock);
   if (!new_worker->is_active()) {
     // worker is unresponsive, lazily delete it on scope end
     return;
@@ -35,6 +36,7 @@ void MasterState::push_worker(std::unique_ptr<Worker> new_worker) {
 }
 
 std::unique_ptr<Worker> MasterState::pop_worker() {
+  std::lock_guard<std::mutex> lock(worker_dict_lock);
   if (worker_dict.empty()) {
     throw std::runtime_error("No registered workers!");
   }

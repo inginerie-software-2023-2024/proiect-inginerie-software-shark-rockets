@@ -14,7 +14,7 @@
 enum WorkerType { Mapper, Reducer };
 
 using Socket = std::pair<std::string, int>;
-using reassign_cb = std::function<void(std::unordered_set<std::string>)>;
+using reassign_cb = std::function<void(const std::unordered_set<std::string>&)>;
 // A worker seen through the master's point of view.
 class Worker {
  private:

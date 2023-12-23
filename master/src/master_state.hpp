@@ -18,6 +18,7 @@ class MasterState {
   // The value is a unique_ptr to worker wrapper
   // This representation is useful for worker acks and heartbeats
   WorkerDict worker_dict;
+  std::mutex worker_dict_lock;
 
   // Job info
   std::unordered_map<std::string, Job> job_metadata;  // metadata of a job

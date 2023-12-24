@@ -23,6 +23,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(USER_CODE "Build user test code" ON)
 option(BUILD_TESTS "Build the tests" OFF)
+option(DISABLE_LOGS "Disable logs at compile times" OFF)
+
+if(DISABLE_LOGS)
+    add_definitions(-DNDEBUG)
+endif()
 
 set(BOOST_ROOT "$ENV{HOME}/boost")
 set(Boost_NO_SYSTEM_PATHS ON)

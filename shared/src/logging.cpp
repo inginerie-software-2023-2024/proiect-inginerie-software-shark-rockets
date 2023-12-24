@@ -19,7 +19,8 @@ void Logger::show_thread_id(bool show) {
   show_thread_id_ = show;
 }
 
-severity_level Logger::log_level_ = severity_level::info; // Default log level is INFO
+severity_level Logger::log_level_ =
+    severity_level::info;  // Default log level is INFO
 
 void Logger::set_log_level(severity_level level) {
   log_level_ = level;
@@ -31,7 +32,8 @@ severity_level Logger::get_log_level() {
 
 void Logger::set_file_name(const std::string& file_name) {
   Logger& instance = get_instance();
-  instance.file_name_ = "./logs/" + file_name; // XXX: future, dump logs in nfs with some logic
+  instance.file_name_ =
+      "./logs/" + file_name;  // XXX: future, dump logs in nfs with some logic
   instance.initialized_ = false;
 }
 

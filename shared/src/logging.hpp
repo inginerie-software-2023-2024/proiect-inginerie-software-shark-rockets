@@ -30,6 +30,28 @@ class Logger {
   void init_logging();
 };
 
+#ifdef NDEBUG  // Adds a way to build libkoala without logs
+
+// Dummy macros
+
+#define LOG_TRACE \
+  if (false)      \
+  BOOST_LOG_SEV(logging::Logger::get_logger(), logging::severity_level::trace)
+#define LOG_INFO \
+  if (false)     \
+  BOOST_LOG_SEV(logging::Logger::get_logger(), logging::severity_level::info)
+#define LOG_WARNING \
+  if (false)        \
+  BOOST_LOG_SEV(logging::Logger::get_logger(), logging::severity_level::warning)
+#define LOG_ERROR \
+  if (false)      \
+  BOOST_LOG_SEV(logging::Logger::get_logger(), logging::severity_level::error)
+#define LOG_FATAL \
+  if (false)      \
+  BOOST_LOG_SEV(logging::Logger::get_logger(), logging::severity_level::fatal)
+
+#else
+
 // Convenience macros
 
 #define LOG_TRACE                                                         \
@@ -47,5 +69,7 @@ class Logger {
 #define LOG_FATAL                                                         \
   if (logging::Logger::get_log_level() <= logging::severity_level::fatal) \
   BOOST_LOG_SEV(logging::Logger::get_logger(), logging::severity_level::fatal)
+
+#endif
 
 }  // namespace logging

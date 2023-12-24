@@ -7,8 +7,6 @@
 #include <unordered_map>
 #include "master_service.grpc.pb.h"
 #include "master_service.pb.h"
-#include "connection_service.grpc.pb.h"
-#include "connection_service.pb.h"
 #include "utils.hpp"
 
 namespace map_reduce {
@@ -38,7 +36,6 @@ Mapper::~Mapper() = default;
 // I feel this can be improved :)
 
 constinit std::unique_ptr<MasterService::Stub> master_service;
-constinit std::unique_ptr<ConnectionService::Stub> connection_service;
 
 std::string& get_executable_path() {
   static std::string executable_path;
@@ -195,10 +192,6 @@ void map_reduce::init(int argc, char** argv) {
       const auto master_channel = grpc::CreateChannel(
           master_adress, grpc::InsecureChannelCredentials());
       master_service = MasterService::NewStub(master_channel);
-
-      const auto eucalypt_address = get_arg<std::string>(vm, "eucalypt-address");
-      const auto eucalypt_channel = grpc::CreateChannel(eucalypt_address, grpc::InsecureChannelCredentials());
-      connection_service = ConnectionService::NewStub(eucalypt_channel);
       break;
     }
     default:
@@ -209,7 +202,6 @@ void map_reduce::init(int argc, char** argv) {
 void map_reduce::register_job(const std::string& mapper_name,
                               const std::string& reducer_name,
                               const std::string& file_regex, int R,
-                              const std::string& email,
                               const std::string& token) {
   // check that the provided mapper and reducer are known ...
 
@@ -222,35 +214,21 @@ void map_reduce::register_job(const std::string& mapper_name,
   request.set_reducer(reducer_name);
   request.set_file_regex(file_regex);
   request.set_r(R);
-
-  if (email != "")
-    request.set_email(email);  // send optional parameter
+  request.set_token(token);
 
   RegisterJobReply reply;
-  grpc::ClientContext contextConnection, contextMaster;
+  grpc::ClientContext contextMaster;
   std::string uuid = generate_uuid();
 
-  contextConnection.AddMetadata("uuid", uuid);
   contextMaster.AddMetadata("uuid", uuid);
 
-  CheckConnectionTokenRequest connection_request;
-  CheckConnectionTokenReply connection_reply;
-  connection_request.set_token(token);
-  connection_request.set_job_uuid(uuid);
+  auto register_status = master_service->RegisterJob(&contextMaster, request, &reply);
 
-  auto connection_status = connection_service->CheckConnectionToken(&contextConnection, connection_request, &connection_reply);
-
-  if (connection_status.ok() && connection_reply.ok() == 1) {
-    std::cout << "Connection: success, got " << connection_reply.ok() << " from Ecualypt\n";
-    
-    auto register_status = master_service->RegisterJob(&contextMaster, request, &reply);
-
-    if (register_status.ok())
-      std::cout << "User: success, got " << reply.ok() << " from master\n";
-    else
-      std::cout << "User: failure, status is not ok\n";
-  } else if(connection_status.ok())
-      std::cout << "Connection: failure, status is not ok: wrong token or quota reached!\n";
-    else 
-      std::cout << "Connection: failure, status is not ok\n";
+  if (register_status.ok())
+    std::cout << "User: success, got " << reply.ok() << " from master\n";
+  else
+    if (register_status.error_code() == grpc::StatusCode::RESOURCE_EXHAUSTED)
+    std::cout << "User: " << register_status.error_message() << '\n';
+  else
+    std::cout << "Connection: failure, status is not ok\n";
 }

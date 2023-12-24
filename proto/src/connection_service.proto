@@ -11,4 +11,5 @@ message CheckConnectionTokenRequest {
 
 message CheckConnectionTokenReply {
     bool ok = 1;
+    string email = 2;
 }

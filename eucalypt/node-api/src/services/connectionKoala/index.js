@@ -75,12 +75,14 @@ export const check_connection_token_handler = async (req) => {
     var foundToken = await tokenModel.findById(req.token);
 
     var response = {
-        ok: true
+        ok: true,
+        email: ""
     };
 
     if(foundToken != null) {
         if(foundToken.expiration_date > new Date() && foundToken.job_uuid == undefined) {
             var jobUser = await userModel.findById(foundToken.user_id);
+            response.email = jobUser.email;
             
             if(jobUser.quota == 0)
                 response.ok = false;

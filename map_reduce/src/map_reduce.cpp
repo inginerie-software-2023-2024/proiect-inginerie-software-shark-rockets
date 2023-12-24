@@ -36,6 +36,7 @@ Mapper::~Mapper() = default;
 // I feel this can be improved :)
 
 constinit std::unique_ptr<MasterService::Stub> master_service;
+std::string CLI_token;
 
 std::string& get_executable_path() {
   static std::string executable_path;
@@ -188,6 +189,7 @@ void map_reduce::init(int argc, char** argv) {
       break;
     }
     case Mode::User: {
+      CLI_token = get_arg<std::string>(vm, "token");
       const auto master_adress = get_arg<std::string>(vm, "master-address");
       const auto master_channel = grpc::CreateChannel(
           master_adress, grpc::InsecureChannelCredentials());
@@ -214,7 +216,11 @@ void map_reduce::register_job(const std::string& mapper_name,
   request.set_reducer(reducer_name);
   request.set_file_regex(file_regex);
   request.set_r(R);
-  request.set_token(token);
+  
+  if(CLI_token == "")
+    request.set_token(token);
+  else
+    request.set_token(CLI_token);
 
   RegisterJobReply reply;
   grpc::ClientContext contextMaster;

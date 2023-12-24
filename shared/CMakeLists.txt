@@ -5,6 +5,7 @@ find_package(Boost REQUIRED COMPONENTS log log_setup)
 
 add_library(
     ${TARGET} 
+    src/shared_util.cpp
     src/logging.cpp
 )
 

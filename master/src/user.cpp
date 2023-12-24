@@ -1,7 +1,7 @@
 #include "user.hpp"
 #include <iostream>
-#include "utils.hpp"
 #include "logging.hpp"
+#include "utils.hpp"
 
 User::User(std::string email) : email(email) {
 

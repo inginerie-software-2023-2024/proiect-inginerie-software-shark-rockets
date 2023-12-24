@@ -19,9 +19,8 @@ void StartJobEvent::send_update(
   auto status = eucalypt_stub->StartJobUpdate(&context, request, &reply);
 
   if (!status.ok()) {
-      LOG_WARNING
-        << "Persistor failed to send start job update to Eucalypt: "
-        << status.error_message() << std::endl;
+    LOG_WARNING << "Persistor failed to send start job update to Eucalypt: "
+                << status.error_message() << std::endl;
   }
 }
 
@@ -45,9 +44,8 @@ void StartTaskEvent::send_update(
   auto status = eucalypt_stub->StartTaskUpdate(&context, request, &reply);
 
   if (!status.ok()) {
-    LOG_WARNING
-        << "Persistor failed to send start task update to Eucalypt: "
-        << status.error_message() << std::endl;
+    LOG_WARNING << "Persistor failed to send start task update to Eucalypt: "
+                << status.error_message() << std::endl;
   }
 }
 
@@ -65,7 +63,7 @@ void CompleteEvent::send_update(
 
   if (!status.ok()) {
     LOG_WARNING << "Persistor failed to send complete event update to "
-                 "Eucalypt: "
-              << status.error_message() << std::endl;
+                   "Eucalypt: "
+                << status.error_message() << std::endl;
   }
 }

@@ -9,6 +9,7 @@ namespace logging {
 
 enum class severity_level { trace, info, warning, error, fatal };
 
+// Logger is a singleton class that provides formatted logs to stdout and a user specified file as well as some macros for convenience
 class Logger {
  public:
   static Logger& get_instance();

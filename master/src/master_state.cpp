@@ -1,6 +1,6 @@
 #include "master_state.hpp"
-#include "logging.hpp"
 #include <stdexcept>
+#include "logging.hpp"
 
 MasterState::MasterState()
     : pending_tasks_semaphore(std::counting_semaphore(0)),
@@ -173,8 +173,8 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
   // decrease worker load
   worker_dict.at(worker_socket)->finish_task(task_uuid);
   LOG_INFO << "Worker " << worker_dict.at(worker_socket)->address() << ':'
-            << worker_dict.at(worker_socket)->listen_port() << " has "
-            << worker_dict.at(worker_socket)->load() << " remaining load\n";
+           << worker_dict.at(worker_socket)->listen_port() << " has "
+           << worker_dict.at(worker_socket)->load() << " remaining load\n";
 
   // removes this task from the set of expected tasks for the current leg of the corresponding job
   auto task = task_metadata.at(task_uuid);
@@ -191,7 +191,7 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
   // check if the current leg has finished
   if (expected_tasks[job_uuid].empty()) {
     LOG_INFO << "The " << job.get_current_leg() << " of the job " << job_uuid
-              << " has finished!\n";
+             << " has finished!\n";
 
     if (job.get_current_leg() == JobLeg::Map) {
       start_reduce_leg(job_uuid);
@@ -200,7 +200,7 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
       job_metadata.erase(job_uuid);
       expected_tasks.erase(job_uuid);
       LOG_INFO << "Job " << job_uuid << " has finished. There are "
-                << job_metadata.size() << " ongoing jobs\n";
+               << job_metadata.size() << " ongoing jobs\n";
 
       // push complete job update to Eucalypt
       Persistor::get_instance()->complete_event(

@@ -3,8 +3,8 @@
 #include <boost/regex.hpp>
 #include <iostream>
 #include <vector>
-#include "utils.hpp"
 #include "logging.hpp"
+#include "utils.hpp"
 
 namespace nfs {
 

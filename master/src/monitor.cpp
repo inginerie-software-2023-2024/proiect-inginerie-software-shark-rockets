@@ -1,7 +1,7 @@
 #include "monitor.hpp"
-#include "logging.hpp"
 #include <chrono>
 #include <cmath>
+#include "logging.hpp"
 
 constexpr int calculateBucketDelay(int baseDelay, int retry) {
   return baseDelay * (1 << retry);  // Exponential backoff calculation
@@ -26,7 +26,7 @@ void HealthCheckMonitor::MonitorHealth() {
   // On monitor health scope end delete worker
   auto remove_worker = finally([&worker_socket = target_, &cb = cb_dead_]() {
     LOG_INFO << "Marking worker as innactive: " << worker_socket.first << ":"
-              << worker_socket.second << std::endl;
+             << worker_socket.second << std::endl;
     cb();
   });
 
@@ -55,15 +55,15 @@ void HealthCheckMonitor::MonitorHealth() {
         LOG_WARNING << "Health check deadline exceeded" << std::endl;
       } else {
         LOG_WARNING << "Health check stream failed: " << status.error_message()
-                  << std::endl;
+                    << std::endl;
       }
     }
 
     if (!call_successful) {
       if (retry_count >= MAX_RETRIES) {
         LOG_WARNING << "Maximum number of retries reached for target: "
-                  << target_.first << ":" << target_.second
-                  << " assume worker is dead" << std::endl;
+                    << target_.first << ":" << target_.second
+                    << " assume worker is dead" << std::endl;
         return;
       }
 

@@ -55,8 +55,8 @@ class MasterServiceImpl final : public MasterService::Service {
     int worker_listen_port = request->worker_port();
 
     LOG_INFO << "Master: received a register worker request:"
-              << " ip: " << worker_ip << ',' << " port: " << worker_listen_port
-              << '\n';
+             << " ip: " << worker_ip << ',' << " port: " << worker_listen_port
+             << '\n';
     master_state.create_worker(worker_ip, worker_listen_port, worker_emit_port);
     response->set_ok(true);
     return grpc::Status::OK;
@@ -107,10 +107,10 @@ class MasterServiceImpl final : public MasterService::Service {
     }
 
     LOG_INFO << "Master: received a register job request: path="
-              << request->path() << ", mapper=" << request->mapper()
-              << ", reducer=" << request->reducer()
-              << ", file location=" << request->file_regex()
-              << ", job uuid=" << uuid << ", R=" << request->r() << std::endl;
+             << request->path() << ", mapper=" << request->mapper()
+             << ", reducer=" << request->reducer()
+             << ", file location=" << request->file_regex()
+             << ", job uuid=" << uuid << ", R=" << request->r() << std::endl;
 
     std::vector<nfs::fs::path> job_files =
         nfs::on_job_register_request(uuid, user, request->file_regex());
@@ -150,7 +150,7 @@ class EucalyptServiceImpl final : public EucalyptService::Service {
                                const CheckConnectionRequest* request,
                                CheckConnectionReply* response) override {
     LOG_INFO << "Master received grpc call from Eucalypt with message: "
-              << request->message() << '\n';
+             << request->message() << '\n';
     response->set_ok(true);
     return grpc::Status::OK;
   }

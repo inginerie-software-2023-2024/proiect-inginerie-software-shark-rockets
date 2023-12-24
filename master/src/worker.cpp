@@ -23,9 +23,9 @@ bool Worker::assign_work(const Job& job, const Task& task) {
       input_file.has_value() ? input_file.value().string() : "does_not_matter";
 
   LOG_INFO << "Assign task " << task.get_task_uuid() << ", index "
-            << task.get_idx() << " to " << address() << ":" << listen_port()
-            << " with load = " << load() << ", input file: " << input_file_str
-            << std::endl;
+           << task.get_idx() << " to " << address() << ":" << listen_port()
+           << " with load = " << load() << ", input file: " << input_file_str
+           << std::endl;
 
   std::string mode =
       (job.get_current_leg() == JobLeg::Map) ? "mapper" : "reducer";

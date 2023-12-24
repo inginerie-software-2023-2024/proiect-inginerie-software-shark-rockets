@@ -8,6 +8,8 @@ class MyMapper : public map_reduce::Mapper {
   void map(const std::string& line) {
     // for each line, emit it's length and 1
     // in the reducer, we should sum up all the 1s for a given key, s.t. we'll have a frequency map of line lengths
+    sleep(1);
+    std::cout << line << std::endl;
     emit(std::to_string(line.size()), std::to_string(1));
   }
 };

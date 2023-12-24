@@ -1,10 +1,19 @@
 #include "worker.hpp"
 
-Worker::Worker(std::string addr, int listen_port, int emit_port)
+Worker::Worker(std::string addr, int listen_port, int emit_port,
+               reassign_cb failure_cb)
     : addr_(std::move(addr)), listen_port_(listen_port), emit_port_(emit_port) {
   std::string target = addr_ + ":" + std::to_string(listen_port_);
   channel = grpc::CreateChannel(target, grpc::InsecureChannelCredentials());
   stub = WorkerService::NewStub(channel);
+
+  auto on_failure = [&active = active_, &tasks = assigned_tasks,
+                     cb = std::move(failure_cb)]() {
+    active = false;
+    cb(tasks);
+  };
+  monitor_ = std::make_unique<HealthCheckMonitor>(channel, get_emit_socket(),
+                                                  std::move(on_failure));
 }
 
 bool Worker::assign_work(const Job& job, const Task& task) {
@@ -69,4 +78,8 @@ int Worker::load() const {
 
 void Worker::finish_task(const std::string& task_uuid) {
   assigned_tasks.erase(task_uuid);
+}
+
+bool Worker::is_active() const {
+  return active_.load();
 }

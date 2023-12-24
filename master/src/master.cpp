@@ -55,10 +55,7 @@ class MasterServiceImpl final : public MasterService::Service {
     std::cout << "Master: received a register worker request:"
               << " ip: " << worker_ip << ',' << " port: " << worker_listen_port
               << '\n';
-
-    auto worker = std::make_unique<Worker>(worker_ip, worker_listen_port,
-                                           worker_emit_port);
-    master_state.push_worker(std::move(worker));
+    master_state.create_worker(worker_ip, worker_listen_port, worker_emit_port);
     response->set_ok(true);
     return grpc::Status::OK;
   }

@@ -18,6 +18,7 @@ class MasterState {
   // The value is a unique_ptr to worker wrapper
   // This representation is useful for worker acks and heartbeats
   WorkerDict worker_dict;
+  std::mutex worker_dict_lock;
 
   // Job info
   std::unordered_map<std::string, Job> job_metadata;  // metadata of a job
@@ -38,6 +39,8 @@ class MasterState {
 
  public:
   MasterState();
+  void create_worker(const std::string& addr, const int listen_port,
+                     const int emit_port);
 
   // Moves a new worker into the data structure, transferring ownership.
   void push_worker(std::unique_ptr<Worker> new_worker);

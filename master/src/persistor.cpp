@@ -1,4 +1,5 @@
 #include "persistor.hpp"
+#include "logging.hpp"
 
 // static ptr
 std::unique_ptr<Persistor> Persistor::instance = nullptr;
@@ -52,7 +53,7 @@ void Persistor::send_events() {
     std::swap(batch, events);
     persistor_lock.unlock();
 
-    std::cout << "Persistor thread has " << batch.size()
+    LOG_TRACE << "Persistor thread has " << batch.size()
               << " updates to send to Eucalypt\n";
 
     for (const auto& event : batch)

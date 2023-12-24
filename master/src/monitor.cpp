@@ -1,4 +1,5 @@
 #include "monitor.hpp"
+#include "logging.hpp"
 #include <chrono>
 #include <cmath>
 
@@ -24,7 +25,7 @@ HealthCheckMonitor::~HealthCheckMonitor() {
 void HealthCheckMonitor::MonitorHealth() {
   // On monitor health scope end delete worker
   auto remove_worker = finally([&worker_socket = target_, &cb = cb_dead_]() {
-    std::cout << "Marking worker as innactive: " << worker_socket.first << ":"
+    LOG_INFO << "Marking worker as innactive: " << worker_socket.first << ":"
               << worker_socket.second << std::endl;
     cb();
   });
@@ -51,16 +52,16 @@ void HealthCheckMonitor::MonitorHealth() {
       // Handle deadline exceeded and other errors, ignore first error to avoid spam until connection is stable
       if (retry_count &&
           status.error_code() == grpc::StatusCode::DEADLINE_EXCEEDED) {
-        std::cerr << "Health check deadline exceeded" << std::endl;
+        LOG_WARNING << "Health check deadline exceeded" << std::endl;
       } else {
-        std::cerr << "Health check stream failed: " << status.error_message()
+        LOG_WARNING << "Health check stream failed: " << status.error_message()
                   << std::endl;
       }
     }
 
     if (!call_successful) {
       if (retry_count >= MAX_RETRIES) {
-        std::cerr << "Maximum number of retries reached for target: "
+        LOG_WARNING << "Maximum number of retries reached for target: "
                   << target_.first << ":" << target_.second
                   << " assume worker is dead" << std::endl;
         return;

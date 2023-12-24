@@ -1,4 +1,5 @@
 #include "master_state.hpp"
+#include "logging.hpp"
 #include <stdexcept>
 
 MasterState::MasterState()
@@ -57,7 +58,7 @@ std::unique_ptr<Worker> MasterState::pop_worker() {
   }
 
   for (auto it : inactive_workers) {
-    std::cout << "Lazy delete worker" << std::endl;
+    LOG_INFO << "Lazy delete worker" << std::endl;
     worker_dict.erase(it);
   }
   // Handle case when all workers are inactive
@@ -139,7 +140,7 @@ void MasterState::assign_tasks() {
     std::swap(tasks_to_assign, pending_tasks);
     master_lock.unlock();
 
-    std::cout << "There are " << tasks_to_assign.size() << " tasks to assign\n";
+    LOG_INFO << "There are " << tasks_to_assign.size() << " tasks to assign\n";
     for (const auto& task_uuid : tasks_to_assign) {
       auto task = task_metadata.at(task_uuid);
       auto job = job_metadata.at(task.get_job_uuid());
@@ -157,7 +158,7 @@ void MasterState::assign_tasks() {
 
         push_worker(std::move(worker));
       } catch (std::exception& e) {
-        std::cout << "An exception occurred while assigning task: " << e.what()
+        LOG_ERROR << "An exception occurred while assigning task: " << e.what()
                   << '\n';
         // should probably re-insert the task in the pending list
       }
@@ -171,7 +172,7 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
 
   // decrease worker load
   worker_dict.at(worker_socket)->finish_task(task_uuid);
-  std::cout << "Worker " << worker_dict.at(worker_socket)->address() << ':'
+  LOG_INFO << "Worker " << worker_dict.at(worker_socket)->address() << ':'
             << worker_dict.at(worker_socket)->listen_port() << " has "
             << worker_dict.at(worker_socket)->load() << " remaining load\n";
 
@@ -189,7 +190,7 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
 
   // check if the current leg has finished
   if (expected_tasks[job_uuid].empty()) {
-    std::cout << "The " << job.get_current_leg() << " of the job " << job_uuid
+    LOG_INFO << "The " << job.get_current_leg() << " of the job " << job_uuid
               << " has finished!\n";
 
     if (job.get_current_leg() == JobLeg::Map) {
@@ -198,7 +199,7 @@ void MasterState::mark_task_as_finished(const Socket& worker_socket,
       // clean up job metadata
       job_metadata.erase(job_uuid);
       expected_tasks.erase(job_uuid);
-      std::cout << "Job " << job_uuid << " has finished. There are "
+      LOG_INFO << "Job " << job_uuid << " has finished. There are "
                 << job_metadata.size() << " ongoing jobs\n";
 
       // push complete job update to Eucalypt

@@ -1,6 +1,7 @@
 #include "user.hpp"
 #include <iostream>
 #include "utils.hpp"
+#include "logging.hpp"
 
 User::User(std::string email) : email(email) {
 
@@ -11,7 +12,7 @@ User::User(std::string email) : email(email) {
   u_nfs_ok &= nfs::ensure_directory(nfs::NFS_ROOT / email / "data");
 
   if (!u_nfs_ok) {
-    std::cerr << "Failure, user doesn't have dirs" << std::endl;
+    LOG_ERROR << "Failure, user doesn't have dirs" << std::endl;
   }
 }
 

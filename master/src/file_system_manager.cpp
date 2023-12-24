@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include "utils.hpp"
+#include "logging.hpp"
 
 namespace nfs {
 
@@ -36,13 +37,13 @@ std::vector<fs::path> list_files_matching_pattern(
 bool create_job_structure(const fs::path& job_root) {
 
   if (!ensure_directory(job_root)) {
-    std::cerr << "Failed to ensure job root " << job_root << std::endl;
+    LOG_ERROR << "Failed to ensure job root " << job_root << std::endl;
     return false;
   }
 
   for (const auto& job_dir : {"input", "intermediary", "output"}) {
     if (!ensure_directory(job_root / job_dir)) {
-      std::cerr << "Failed to ensure job dir" << job_root << std::endl;
+      LOG_ERROR << "Failed to ensure job dir" << job_root << std::endl;
       return false;
     }
   }
@@ -91,7 +92,7 @@ std::vector<fs::path> on_job_register_request(const std::string& uuid,
   fs::path user_data_dir = user_dir / "data";
 
   if (!nfs::ensure_directory(user_data_dir)) {
-    std::cerr << "Failed to ensure directory: " << user_data_dir << std::endl;
+    LOG_ERROR << "Failed to ensure directory: " << user_data_dir << std::endl;
     return {};
   }
 
@@ -100,14 +101,14 @@ std::vector<fs::path> on_job_register_request(const std::string& uuid,
   fs::path job_root = user_dir / ("job-" + uuid);
 
   if (!create_job_structure(job_root)) {
-    std::cerr << "Creating job structure failed " << std::endl;
+    LOG_ERROR << "Creating job structure failed " << std::endl;
     return {};
   }
 
   try {
     return sym_link_data(files, job_root);
   } catch (const fs::filesystem_error& e) {
-    std::cerr
+    LOG_ERROR
         << "Creating symbolic links failed, defaulting to normal paths, error="
         << e.what() << std::endl;
     return files;

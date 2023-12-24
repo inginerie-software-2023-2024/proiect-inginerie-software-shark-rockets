@@ -53,7 +53,7 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
     po::notify(*vm);
 
     if (vm->count("help")) {
-      std::cerr << "Worker CLI Interface: " << std::endl << desc << std::endl;
+      std::cerr << "Master CLI Interface: " << std::endl << desc << std::endl;
       exit(0);
     }
 

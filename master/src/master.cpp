@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include "logging.hpp"
 #include <grpc/status.h>
 #include "eucalypt_service.grpc.pb.h"
 #include "eucalypt_service.pb.h"
@@ -155,6 +156,8 @@ class EucalyptServiceImpl final : public EucalyptService::Service {
 };
 
 int main(int argc, char** argv) {
+  logging::Logger::set_file_name("master.log");
+  LOG_ERROR("A crapat");
   auto vm = parse_args(argc, argv);
 
   nfs::sanity_check();

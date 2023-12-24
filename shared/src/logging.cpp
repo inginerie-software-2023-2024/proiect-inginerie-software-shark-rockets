@@ -13,9 +13,25 @@ Logger& Logger::get_instance() {
   return instance;
 }
 
+bool Logger::show_thread_id_ = false;  // Default to NOT showing thread ID
+
+void Logger::show_thread_id(bool show) {
+  show_thread_id_ = show;
+}
+
+severity_level Logger::log_level_ = severity_level::info; // Default log level is INFO
+
+void Logger::set_log_level(severity_level level) {
+  log_level_ = level;
+}
+
+severity_level Logger::get_log_level() {
+  return log_level_;
+}
+
 void Logger::set_file_name(const std::string& file_name) {
   Logger& instance = get_instance();
-  instance.file_name_ = file_name;
+  instance.file_name_ = "./logs/" + file_name; // XXX: future, dump logs in nfs with some logic
   instance.initialized_ = false;
 }
 
@@ -65,16 +81,19 @@ void Logger::init_logging() {
             severity_str = "\033[0mUNKNOWN";
         }
       }
-      auto thread_id = boost::log::extract<
-          boost::log::attributes::current_thread_id::value_type>("ThreadID",
-                                                                 rec);
+
       auto timestamp =
           boost::log::extract<boost::posix_time::ptime>("TimeStamp", rec);
 
-      strm << "[" << timestamp << "] "
-           << "[" << thread_id << "] "
-           << "[" << severity_str << "] "
-           << rec[boost::log::expressions::smessage];
+      strm << "[" << timestamp << "] ";
+      if (show_thread_id_) {
+        auto thread_id = boost::log::extract<
+            boost::log::attributes::current_thread_id::value_type>("ThreadID",
+                                                                   rec);
+        strm << "[" << thread_id << "] ";
+      }
+      strm << "[" << severity_str << "] ";
+      strm << rec[boost::log::expressions::smessage];
     };
 
     logging::add_console_log(std::cout, keywords::format = formatter_lambda);

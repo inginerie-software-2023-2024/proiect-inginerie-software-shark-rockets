@@ -23,7 +23,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(USER_CODE "Build user test code" ON)
 option(BUILD_TESTS "Build the tests" OFF)
 
-set(Boost_USE_STATIC_LIBS   ON)
+set(BOOST_ROOT "$ENV{HOME}/boost")
+set(Boost_NO_SYSTEM_PATHS ON)
 
 add_subdirectory(proto)
 add_subdirectory(master)

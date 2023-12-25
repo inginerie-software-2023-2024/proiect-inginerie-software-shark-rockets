@@ -3,6 +3,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <iostream>
+#include "logging.hpp"
 #include "map_reduce.hpp"
 
 std::string generate_uuid() {
@@ -65,6 +66,8 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       "idx,x", po::value<int>(), "index of the task to run")(
       "m", po::value<int>(), "number of input files")("r", po::value<int>(),
                                                       "number of ouput files");
+  desc.add(logging::Logger::get_logger_desc());
+
   try {
     auto vm = std::make_unique<po::variables_map>();
     po::store(po::parse_command_line(argc, argv, desc), *vm);

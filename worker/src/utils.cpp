@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include <iostream>
+#include "logging.hpp"
 
 std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
   po::options_description desc("Options");
@@ -9,6 +10,7 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       "Specify where the worker can find master: ip.ip.ip.ip:port")(
       "port,p", po::value<int>()->default_value(7777),
       "Set the port on which the worker will listen");
+  desc.add(logging::Logger::get_logger_desc());
 
   try {
     auto vm = std::make_unique<po::variables_map>();

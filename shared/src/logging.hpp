@@ -1,18 +1,22 @@
 #pragma once
-
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/program_options.hpp>
 #include <mutex>
 #include <string>
 
 namespace logging {
 
 enum class severity_level { trace, info, warning, error, fatal };
-
+namespace po = boost::program_options;
 // Logger is a singleton class that provides formatted logs to stdout and a user specified file as well as some macros for convenience
 class Logger {
  public:
   static Logger& get_instance();
+  static po::options_description get_logger_desc();
+  static void load_cli_config(
+      const std::unique_ptr<boost::program_options::variables_map>& vm,
+      const std::string& default_file);
   static void set_file_name(const std::string& file_name);
   static boost::log::sources::severity_logger_mt<severity_level>& get_logger();
   static void show_thread_id(bool show);

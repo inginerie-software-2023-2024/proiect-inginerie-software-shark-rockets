@@ -94,8 +94,8 @@ bool map_reduce::register_reducer(const std::string& name, Reducer* reducer) {
 }
 
 void map_reduce::init(int argc, char** argv) {
-  logging::Logger::set_file_name("koala.log");
   auto vm = parse_args(argc, argv);
+  logging::Logger::load_cli_config(vm, "koala.log");
 
   get_executable_path() = argv[0];
 

@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include <iostream>
+#include "logging.hpp"
 
 std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
   po::options_description desc("Options");
@@ -7,6 +8,7 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       "eucalypt-address,e",
       po::value<std::string>()->default_value("localhost:5555"),
       "Specify where the master can find Eucalypt node-api: ip.ip.ip.ip:port");
+  desc.add(logging::Logger::get_logger_desc());
 
   try {
     auto vm = std::make_unique<po::variables_map>();

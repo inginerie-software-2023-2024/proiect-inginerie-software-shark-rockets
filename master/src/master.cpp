@@ -157,10 +157,8 @@ class EucalyptServiceImpl final : public EucalyptService::Service {
 };
 
 int main(int argc, char** argv) {
-  logging::Logger::set_file_name("master.log");
-
   auto vm = parse_args(argc, argv);
-
+  logging::Logger::load_cli_config(vm, "master.log");
   nfs::sanity_check();
 
   // This is hardcoded for now...

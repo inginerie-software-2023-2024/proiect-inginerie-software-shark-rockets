@@ -10,9 +10,9 @@
 #include "worker_impl.hpp"
 
 int main(int argc, char** argv) {
-  logging::Logger::set_file_name("worker.log");
-
   auto vm = parse_args(argc, argv);
+  logging::Logger::load_cli_config(vm, "worker.log");
+
   std::string master_address = get_arg<std::string>(vm, "master-address");
   int port = get_arg<int>(vm, "port");
 

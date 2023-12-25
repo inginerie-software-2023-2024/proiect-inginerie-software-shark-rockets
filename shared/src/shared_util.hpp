@@ -5,6 +5,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <chrono>
+#include <optional>
 #include <string>
 
 namespace nfs {
@@ -37,4 +38,13 @@ T get_arg(const std::unique_ptr<po::variables_map>& vm,
     throw std::logic_error("Accesing a argument that was not parsed");
   }
   return (*vm)[key].as<T>();
+}
+
+template <typename T>
+std::optional<T> get_optional_arg(const std::unique_ptr<po::variables_map>& vm,
+                                  const std::string& key) {
+  if (vm->count(key)) {
+    return (*vm)[key].as<T>();
+  }
+  return std::nullopt;
 }

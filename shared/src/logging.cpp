@@ -153,14 +153,15 @@ po::options_description Logger::get_logger_desc() {
       "log-severity-level,l", po::value<severity_level>(),
       "Set the log severity level (trace, info, warning, error, fatal)")(
       "thread-id,t", po::bool_switch(), "Include thread ID in logs")(
-      "file,f", po::value<std::string>(), "Set custom log file");
+      "log-file", po::value<std::string>(), "Set custom log file");
   return desc;
 }
 
-void Logger::load_cli_config([[maybe_unused]] const std::unique_ptr<
-                                 boost::program_options::variables_map>& vm,
-                             const std::string& default_file) {
-  auto file = get_optional_arg<std::string>(vm, "file").value_or(default_file);
+void Logger::load_cli_config(
+    const std::unique_ptr<boost::program_options::variables_map>& vm,
+    const std::string& default_file) {
+  auto file =
+      get_optional_arg<std::string>(vm, "log-file").value_or(default_file);
   Logger::set_file_name(file);
 
   auto thread_id = get_optional_arg<bool>(vm, "thread-id").value_or(false);

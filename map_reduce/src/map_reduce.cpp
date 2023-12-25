@@ -95,17 +95,17 @@ bool map_reduce::register_reducer(const std::string& name, Reducer* reducer) {
 
 void map_reduce::init(int argc, char** argv) {
   auto vm = parse_args(argc, argv);
-  logging::Logger::load_cli_config(vm, "koala.log");
-
   get_executable_path() = argv[0];
 
   auto mode = get_arg<Mode>(vm, "mode");
-  LOG_INFO << mode;
 
   switch (mode) {
     case Mode::Mapper: {
       const auto clss = get_arg<std::string>(vm, "class");
       auto idx = get_arg<int>(vm, "idx");
+      logging::Logger::load_cli_config(vm, "koala/koala-mapper-" + clss + "-" +
+                                               std::to_string(idx) + ".log");
+      LOG_INFO << mode;
 
       // Log mapper input file
       std::string input_file = get_arg<std::string>(vm, "file");
@@ -171,6 +171,9 @@ void map_reduce::init(int argc, char** argv) {
     case Mode::Reducer: {
       auto clss = get_arg<std::string>(vm, "class");
       auto idx = get_arg<int>(vm, "idx"), m = get_arg<int>(vm, "m");
+      logging::Logger::load_cli_config(vm, "koala/koala-reducer-" + clss + "-" +
+                                               std::to_string(idx) + ".log");
+      LOG_INFO << mode;
 
       // Find reducer input files
       std::vector<fs::path> input_files = get_reducer_input_files(
@@ -190,6 +193,9 @@ void map_reduce::init(int argc, char** argv) {
       break;
     }
     case Mode::User: {
+      logging::Logger::load_cli_config(vm, "koala/koala-user.log");
+      LOG_INFO << mode;
+
       CLI_token = get_arg<std::string>(vm, "token");
       const auto master_adress = get_arg<std::string>(vm, "master-address");
       const auto master_channel = grpc::CreateChannel(

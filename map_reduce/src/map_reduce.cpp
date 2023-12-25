@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include "logging.hpp"
 #include "master_service.grpc.pb.h"
 #include "master_service.pb.h"
 #include "utils.hpp"
@@ -93,12 +94,13 @@ bool map_reduce::register_reducer(const std::string& name, Reducer* reducer) {
 }
 
 void map_reduce::init(int argc, char** argv) {
+  logging::Logger::set_file_name("koala.log");
   auto vm = parse_args(argc, argv);
 
   get_executable_path() = argv[0];
 
   auto mode = get_arg<Mode>(vm, "mode");
-  std::cout << mode;
+  LOG_INFO << mode;
 
   switch (mode) {
     case Mode::Mapper: {
@@ -107,8 +109,8 @@ void map_reduce::init(int argc, char** argv) {
 
       // Log mapper input file
       std::string input_file = get_arg<std::string>(vm, "file");
-      std::cout << "Map task with index " << idx << " has input file "
-                << input_file << '\n';
+      LOG_INFO << "Map task with index " << idx << " has input file "
+               << input_file << '\n';
 
       // Create r intermediary temporary files
       const std::string job_root_dir = get_arg<std::string>(vm, "job-root-dir"),
@@ -175,12 +177,11 @@ void map_reduce::init(int argc, char** argv) {
           get_arg<std::string>(vm, "job-root-dir"), idx);
 
       if ((int)input_files.size() != m) {
-        std::cout << "Warning: expected " << m
-                  << " intermediary files for index " << idx << ", found "
-                  << input_files.size() << '\n';
+        LOG_WARNING << "Expected " << m << " intermediary files for index "
+                    << idx << ", found " << input_files.size() << '\n';
 
       } else {
-        std::cout << "Found all intermediary files for index " << idx << '\n';
+        LOG_INFO << "Found all intermediary files for index " << idx << '\n';
       }
 
       get_reducers()[clss]->reduce();
@@ -207,8 +208,8 @@ void map_reduce::register_job(const std::string& mapper_name,
                               const std::string& token) {
   // check that the provided mapper and reducer are known ...
 
-  std::cout << "User: sending a register job request with mapper "
-            << mapper_name << " and reducer " << reducer_name << '\n';
+  LOG_INFO << "User: sending a register job request with mapper " << mapper_name
+           << " and reducer " << reducer_name << '\n';
 
   RegisterJobRequest request;
   request.set_path(get_executable_path());
@@ -231,10 +232,10 @@ void map_reduce::register_job(const std::string& mapper_name,
   auto register_status = master_service->RegisterJob(&contextMaster, request, &reply);
 
   if (register_status.ok())
-    std::cout << "User: success, got " << reply.ok() << " from master\n";
+    LOG_INFO << "User: success, got " << reply.ok() << " from master\n";
   else
     if (register_status.error_code() == grpc::StatusCode::RESOURCE_EXHAUSTED)
-    std::cout << "User: " << register_status.error_message() << '\n';
+    LOG_INFO << "User: " << register_status.error_message() << '\n';
   else
-    std::cout << "Connection: failure, status is not ok\n";
+    LOG_INFO << "Connection: failure, status is not ok\n";
 }

@@ -12,11 +12,15 @@ target_include_directories(
     ${TARGET} 
     PUBLIC
         ${GENERATED_OUTPUT_DIR}/src
+    PRIVATE
+        ${UTIL_INCLUDE}
+
 )
 target_link_libraries(
     ${TARGET}  
     PRIVATE
-    ${Boost_LIBRARIES}
+        ${Boost_LIBRARIES}
+        shared_util
     PUBLIC 
         proto
 )

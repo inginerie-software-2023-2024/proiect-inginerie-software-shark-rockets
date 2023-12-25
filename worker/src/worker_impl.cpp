@@ -32,7 +32,7 @@ void WorkerServiceImpl::wait_then_notify_master(pid_t pid,
   int pstatus;
   int pid_ret = waitpid(pid, &pstatus, 0);
   if (pid_ret == -1) {
-    std::cerr << "Waitpid failed!" << std::endl;
+    LOG_ERROR << "Waitpid failed!" << std::endl;
   }
 
   AckWorkerFinishRequest request;
@@ -43,7 +43,7 @@ void WorkerServiceImpl::wait_then_notify_master(pid_t pid,
   auto status = master_stub->AckWorkerFinish(&context, request, &reply);
 
   if (!status.ok()) {
-    std::cerr << "Grpc call failed:" << status.error_message() << std::endl;
+    LOG_ERROR << "Grpc call failed:" << status.error_message() << std::endl;
   }
 }
 

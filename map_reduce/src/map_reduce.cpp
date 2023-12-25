@@ -36,6 +36,7 @@ Mapper::~Mapper() = default;
 // I feel this can be improved :)
 
 constinit std::unique_ptr<MasterService::Stub> master_service;
+std::string CLI_token;
 
 std::string& get_executable_path() {
   static std::string executable_path;
@@ -188,10 +189,11 @@ void map_reduce::init(int argc, char** argv) {
       break;
     }
     case Mode::User: {
+      CLI_token = get_arg<std::string>(vm, "token");
       const auto master_adress = get_arg<std::string>(vm, "master-address");
-      const auto channel = grpc::CreateChannel(
+      const auto master_channel = grpc::CreateChannel(
           master_adress, grpc::InsecureChannelCredentials());
-      master_service = MasterService::NewStub(channel);
+      master_service = MasterService::NewStub(master_channel);
       break;
     }
     default:
@@ -202,7 +204,7 @@ void map_reduce::init(int argc, char** argv) {
 void map_reduce::register_job(const std::string& mapper_name,
                               const std::string& reducer_name,
                               const std::string& file_regex, int R,
-                              const std::string& email) {
+                              const std::string& token) {
   // check that the provided mapper and reducer are known ...
 
   std::cout << "User: sending a register job request with mapper "
@@ -214,18 +216,25 @@ void map_reduce::register_job(const std::string& mapper_name,
   request.set_reducer(reducer_name);
   request.set_file_regex(file_regex);
   request.set_r(R);
-
-  if (email != "")
-    request.set_email(email);  // send optional parameter
+  
+  if(CLI_token == "")
+    request.set_token(token);
+  else
+    request.set_token(CLI_token);
 
   RegisterJobReply reply;
-  grpc::ClientContext context;
-  context.AddMetadata("uuid", generate_uuid());
+  grpc::ClientContext contextMaster;
+  std::string uuid = generate_uuid();
 
-  auto status = master_service->RegisterJob(&context, request, &reply);
+  contextMaster.AddMetadata("uuid", uuid);
 
-  if (status.ok())
+  auto register_status = master_service->RegisterJob(&contextMaster, request, &reply);
+
+  if (register_status.ok())
     std::cout << "User: success, got " << reply.ok() << " from master\n";
   else
-    std::cout << "User: failure, status is not ok\n";
+    if (register_status.error_code() == grpc::StatusCode::RESOURCE_EXHAUSTED)
+    std::cout << "User: " << register_status.error_message() << '\n';
+  else
+    std::cout << "Connection: failure, status is not ok\n";
 }

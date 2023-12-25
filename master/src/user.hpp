@@ -4,9 +4,9 @@
 // dummy user implementation
 class User {
  private:
-  const std::string name;
+  const std::string email;
 
  public:
-  User(std::string name = "guest");
-  std::string get_name() const;
+  User(std::string email = "guest");
+  std::string get_email() const;
 };

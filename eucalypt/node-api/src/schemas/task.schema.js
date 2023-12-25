@@ -12,7 +12,7 @@ const taskSchema = new mongoose.Schema({
 });
 
 taskSchema.virtual("id").get(function () {
-    return this._id.toHexString();
+    return this._id;
 });
 
 taskSchema.set("toJSON", { virtuals: true });

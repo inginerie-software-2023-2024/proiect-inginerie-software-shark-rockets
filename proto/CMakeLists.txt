@@ -16,6 +16,7 @@ set(PROTO_FILES
     src/worker_service.proto
     src/eucalypt_service.proto
     src/persistor_service.proto
+    src/connection_service.proto
     src/health_service.proto
 )
 # Add Library target with protobuf sources

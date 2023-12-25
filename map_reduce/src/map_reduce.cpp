@@ -223,8 +223,8 @@ void map_reduce::register_job(const std::string& mapper_name,
   request.set_reducer(reducer_name);
   request.set_file_regex(file_regex);
   request.set_r(R);
-  
-  if(CLI_token == "")
+
+  if (CLI_token == "")
     request.set_token(token);
   else
     request.set_token(CLI_token);
@@ -235,13 +235,16 @@ void map_reduce::register_job(const std::string& mapper_name,
 
   contextMaster.AddMetadata("uuid", uuid);
 
-  auto register_status = master_service->RegisterJob(&contextMaster, request, &reply);
+  auto register_status =
+      master_service->RegisterJob(&contextMaster, request, &reply);
 
-  if (register_status.ok())
+  if (register_status.ok()) {
     LOG_INFO << "User: success, got " << reply.ok() << " from master\n";
-  else
-    if (register_status.error_code() == grpc::StatusCode::RESOURCE_EXHAUSTED)
-    LOG_INFO << "User: " << register_status.error_message() << '\n';
-  else
-    LOG_INFO << "Connection: failure, status is not ok\n";
+  } else {
+    if (register_status.error_code() == grpc::StatusCode::RESOURCE_EXHAUSTED) {
+      LOG_INFO << "User: " << register_status.error_message() << '\n';
+    } else {
+      LOG_INFO << "Connection: failure, status is not ok\n";
+    }
+  }
 }

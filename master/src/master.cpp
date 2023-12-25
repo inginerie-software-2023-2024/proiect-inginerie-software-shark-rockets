@@ -1,9 +1,10 @@
+#include <grpc/status.h>
 #include <grpcpp/grpcpp.h>
 #include <iostream>
 #include <memory>
 #include <string>
-#include "logging.hpp"
-#include <grpc/status.h>
+#include "connection_service.grpc.pb.h"
+#include "connection_service.pb.h"
 #include "eucalypt_service.grpc.pb.h"
 #include "eucalypt_service.pb.h"
 #include "file_system_manager.hpp"
@@ -14,8 +15,6 @@
 #include "utils.hpp"
 #include "worker_service.grpc.pb.h"
 #include "worker_service.pb.h"
-#include "connection_service.grpc.pb.h"
-#include "connection_service.pb.h"
 
 class MasterServiceImpl final : public MasterService::Service {
  private:
@@ -37,15 +36,14 @@ class MasterServiceImpl final : public MasterService::Service {
   }
 
  public:
-
-   void setConnectionService() {
-      const auto eucalypt_channel = grpc::CreateChannel(eucalypt_address, grpc::InsecureChannelCredentials());
-      connection_service = ConnectionService::NewStub(eucalypt_channel);
+  void setConnectionService() {
+    const auto eucalypt_channel = grpc::CreateChannel(
+        eucalypt_address, grpc::InsecureChannelCredentials());
+    connection_service = ConnectionService::NewStub(eucalypt_channel);
   }
 
-
   void setEucalyptAddress(std::string eucalypt_address) {
-    this->eucalypt_address = eucalypt_address; 
+    this->eucalypt_address = eucalypt_address;
   }
 
   grpc::Status RegisterWorker(grpc::ServerContext* context,
@@ -87,19 +85,22 @@ class MasterServiceImpl final : public MasterService::Service {
       token_request.set_token(request->token());
       token_request.set_job_uuid(uuid);
 
-      auto token_status = connection_service->CheckConnectionToken(&contextToken, token_request, &token_reply);
+      auto token_status = connection_service->CheckConnectionToken(
+          &contextToken, token_request, &token_reply);
 
-      if(token_status.ok()) {
-        if(token_reply.ok() == 0) {
-          const std::string error_msg = "Invalid token, please check your token and quota again.";
-          std::cerr << "Invalid token!" << std::endl;
-          grpc::Status err_status = grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED, error_msg);
+      if (token_status.ok()) {
+        if (token_reply.ok() == 0) {
+          const std::string error_msg =
+              "Invalid token, please check your token and quota again.";
+          LOG_ERROR << "Invalid token!" << std::endl;
+          grpc::Status err_status =
+              grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED, error_msg);
           return err_status;
         } else {
           user = std::make_unique<User>(token_reply.email());
         }
       } else {
-        std::cerr << "Failed to validate token!" << std::endl;
+        LOG_ERROR << "Failed to validate token!" << std::endl;
         return grpc::Status::CANCELLED;
       }
     } else {
@@ -171,7 +172,8 @@ int main(int argc, char** argv) {
   EucalyptServiceImpl eucalypt_service;
   grpc::ServerBuilder builder;
 
-  master_service.setEucalyptAddress(get_arg<std::string>(vm, "eucalypt-address"));
+  master_service.setEucalyptAddress(
+      get_arg<std::string>(vm, "eucalypt-address"));
   master_service.setConnectionService();
 
   builder.AddListeningPort(master_server_address,

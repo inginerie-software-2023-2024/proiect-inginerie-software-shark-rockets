@@ -1,19 +1,20 @@
+#include <grpc/status.h>
 #include <grpcpp/grpcpp.h>
 #include <iostream>
 #include <memory>
 #include <string>
-#include <grpc/status.h>
+#include "connection_service.grpc.pb.h"
+#include "connection_service.pb.h"
 #include "eucalypt_service.grpc.pb.h"
 #include "eucalypt_service.pb.h"
 #include "file_system_manager.hpp"
+#include "logging.hpp"
 #include "master_service.grpc.pb.h"
 #include "master_service.pb.h"
 #include "master_state.hpp"
 #include "utils.hpp"
 #include "worker_service.grpc.pb.h"
 #include "worker_service.pb.h"
-#include "connection_service.grpc.pb.h"
-#include "connection_service.pb.h"
 
 class MasterServiceImpl final : public MasterService::Service {
  private:
@@ -35,15 +36,14 @@ class MasterServiceImpl final : public MasterService::Service {
   }
 
  public:
-
-   void setConnectionService() {
-      const auto eucalypt_channel = grpc::CreateChannel(eucalypt_address, grpc::InsecureChannelCredentials());
-      connection_service = ConnectionService::NewStub(eucalypt_channel);
+  void setConnectionService() {
+    const auto eucalypt_channel = grpc::CreateChannel(
+        eucalypt_address, grpc::InsecureChannelCredentials());
+    connection_service = ConnectionService::NewStub(eucalypt_channel);
   }
 
-
   void setEucalyptAddress(std::string eucalypt_address) {
-    this->eucalypt_address = eucalypt_address; 
+    this->eucalypt_address = eucalypt_address;
   }
 
   grpc::Status RegisterWorker(grpc::ServerContext* context,
@@ -52,9 +52,9 @@ class MasterServiceImpl final : public MasterService::Service {
     auto [worker_ip, worker_emit_port] = extract_socket_from_context(context);
     int worker_listen_port = request->worker_port();
 
-    std::cout << "Master: received a register worker request:"
-              << " ip: " << worker_ip << ',' << " port: " << worker_listen_port
-              << '\n';
+    LOG_INFO << "Master: received a register worker request:"
+             << " ip: " << worker_ip << ',' << " port: " << worker_listen_port
+             << '\n';
     master_state.create_worker(worker_ip, worker_listen_port, worker_emit_port);
     response->set_ok(true);
     return grpc::Status::OK;
@@ -70,7 +70,7 @@ class MasterServiceImpl final : public MasterService::Service {
 
     // No uuid.
     if (uuid_it == metadata.end()) {
-      std::cerr << "Request doesn't have a uuid!" << std::endl;
+      LOG_ERROR << "Request doesn't have a uuid!" << std::endl;
       return grpc::Status::CANCELLED;
     }
     uuid = std::string(uuid_it->second.data(), uuid_it->second.size());
@@ -85,37 +85,40 @@ class MasterServiceImpl final : public MasterService::Service {
       token_request.set_token(request->token());
       token_request.set_job_uuid(uuid);
 
-      auto token_status = connection_service->CheckConnectionToken(&contextToken, token_request, &token_reply);
+      auto token_status = connection_service->CheckConnectionToken(
+          &contextToken, token_request, &token_reply);
 
-      if(token_status.ok()) {
-        if(token_reply.ok() == 0) {
-          const std::string error_msg = "Invalid token, please check your token and quota again.";
-          std::cerr << "Invalid token!" << std::endl;
-          grpc::Status err_status = grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED, error_msg);
+      if (token_status.ok()) {
+        if (token_reply.ok() == 0) {
+          const std::string error_msg =
+              "Invalid token, please check your token and quota again.";
+          LOG_ERROR << "Invalid token!" << std::endl;
+          grpc::Status err_status =
+              grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED, error_msg);
           return err_status;
         } else {
           user = std::make_unique<User>(token_reply.email());
         }
       } else {
-        std::cerr << "Failed to validate token!" << std::endl;
+        LOG_ERROR << "Failed to validate token!" << std::endl;
         return grpc::Status::CANCELLED;
       }
     } else {
       user = std::make_unique<User>();  // Guest
     }
 
-    std::cout << "Master: received a register job request: path="
-              << request->path() << ", mapper=" << request->mapper()
-              << ", reducer=" << request->reducer()
-              << ", file location=" << request->file_regex()
-              << ", job uuid=" << uuid << ", R=" << request->r() << std::endl;
+    LOG_INFO << "Master: received a register job request: path="
+             << request->path() << ", mapper=" << request->mapper()
+             << ", reducer=" << request->reducer()
+             << ", file location=" << request->file_regex()
+             << ", job uuid=" << uuid << ", R=" << request->r() << std::endl;
 
     std::vector<nfs::fs::path> job_files =
         nfs::on_job_register_request(uuid, user, request->file_regex());
 
     // No files to process.
     if (job_files.empty()) {
-      std::cerr << "No files to process!" << std::endl;
+      LOG_ERROR << "No files to process!" << std::endl;
       return grpc::Status::CANCELLED;
     }
 
@@ -135,7 +138,7 @@ class MasterServiceImpl final : public MasterService::Service {
       [[maybe_unused]] grpc::ServerContext* context,
       [[maybe_unused]] const AckWorkerFinishRequest* request,
       [[maybe_unused]] AckWorkerFinishReply* response) override {
-    std::cout << "Worker finished task " << request->task_uuid() << std::endl;
+    LOG_INFO << "Worker finished task " << request->task_uuid() << std::endl;
     master_state.mark_task_as_finished(extract_socket_from_context(context),
                                        request->task_uuid());
     response->set_ok(true);
@@ -147,8 +150,8 @@ class EucalyptServiceImpl final : public EucalyptService::Service {
   grpc::Status CheckConnection([[maybe_unused]] grpc::ServerContext* context,
                                const CheckConnectionRequest* request,
                                CheckConnectionReply* response) override {
-    std::cout << "Master received grpc call from Eucalypt with message: "
-              << request->message() << '\n';
+    LOG_INFO << "Master received grpc call from Eucalypt with message: "
+             << request->message() << '\n';
     response->set_ok(true);
     return grpc::Status::OK;
   }
@@ -156,7 +159,7 @@ class EucalyptServiceImpl final : public EucalyptService::Service {
 
 int main(int argc, char** argv) {
   auto vm = parse_args(argc, argv);
-
+  logging::Logger::load_cli_config(vm, "master.log");
   nfs::sanity_check();
 
   // This is hardcoded for now...
@@ -169,7 +172,8 @@ int main(int argc, char** argv) {
   EucalyptServiceImpl eucalypt_service;
   grpc::ServerBuilder builder;
 
-  master_service.setEucalyptAddress(get_arg<std::string>(vm, "eucalypt-address"));
+  master_service.setEucalyptAddress(
+      get_arg<std::string>(vm, "eucalypt-address"));
   master_service.setConnectionService();
 
   builder.AddListeningPort(master_server_address,
@@ -179,7 +183,7 @@ int main(int argc, char** argv) {
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
 
-  std::cout << "Master: listening on port 50051\n";
+  LOG_INFO << "Master: listening on port 50051\n";
   server->Wait();
 
   return 0;

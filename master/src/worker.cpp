@@ -1,4 +1,5 @@
 #include "worker.hpp"
+#include "logging.hpp"
 
 Worker::Worker(std::string addr, int listen_port, int emit_port,
                reassign_cb failure_cb)
@@ -21,10 +22,10 @@ bool Worker::assign_work(const Job& job, const Task& task) {
   std::string input_file_str =
       input_file.has_value() ? input_file.value().string() : "does_not_matter";
 
-  std::cout << "Assign task " << task.get_task_uuid() << ", index "
-            << task.get_idx() << " to " << address() << ":" << listen_port()
-            << " with load = " << load() << ", input file: " << input_file_str
-            << std::endl;
+  LOG_INFO << "Assign task " << task.get_task_uuid() << ", index "
+           << task.get_idx() << " to " << address() << ":" << listen_port()
+           << " with load = " << load() << ", input file: " << input_file_str
+           << std::endl;
 
   std::string mode =
       (job.get_current_leg() == JobLeg::Map) ? "mapper" : "reducer";

@@ -5,21 +5,23 @@
 #include <stdexcept>
 #include <string>
 #include "health_check.hpp"
+#include "logging.hpp"
 #include "utils.hpp"
 #include "worker_impl.hpp"
 
 int main(int argc, char** argv) {
-
   auto vm = parse_args(argc, argv);
+  logging::Logger::load_cli_config(vm, "worker.log");
+
   std::string master_address = get_arg<std::string>(vm, "master-address");
   int port = get_arg<int>(vm, "port");
 
   WorkerServiceImpl worker_service(master_address);
   bool ok = worker_service.notify_master(port);
   if (ok) {
-    std::cout << "Master was notified successfully" << std::endl;
+    LOG_INFO << "Master was notified successfully" << std::endl;
   } else {
-    std::cout << "Something went wrong when notifying the master." << std::endl;
+    LOG_ERROR << "Something went wrong when notifying the master." << std::endl;
   }
   HealthServiceImpl health_service;
 
@@ -33,7 +35,7 @@ int main(int argc, char** argv) {
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
 
-  std::cout << "Worker: listening on port " << port << '\n';
+  LOG_INFO << "Worker: listening on port " << port << '\n';
   server->Wait();
 
   return 0;

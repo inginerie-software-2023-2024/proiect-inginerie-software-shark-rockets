@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include "logging.hpp"
 #include "master_service.grpc.pb.h"
 #include "master_service.pb.h"
 #include "utils.hpp"
@@ -94,21 +95,22 @@ bool map_reduce::register_reducer(const std::string& name, Reducer* reducer) {
 
 void map_reduce::init(int argc, char** argv) {
   auto vm = parse_args(argc, argv);
-
   get_executable_path() = argv[0];
 
   auto mode = get_arg<Mode>(vm, "mode");
-  std::cout << mode;
 
   switch (mode) {
     case Mode::Mapper: {
       const auto clss = get_arg<std::string>(vm, "class");
       auto idx = get_arg<int>(vm, "idx");
+      logging::Logger::load_cli_config(vm, "koala/koala-mapper-" + clss + "-" +
+                                               std::to_string(idx) + ".log");
+      LOG_INFO << mode;
 
       // Log mapper input file
       std::string input_file = get_arg<std::string>(vm, "file");
-      std::cout << "Map task with index " << idx << " has input file "
-                << input_file << '\n';
+      LOG_INFO << "Map task with index " << idx << " has input file "
+               << input_file << '\n';
 
       // Create r intermediary temporary files
       const std::string job_root_dir = get_arg<std::string>(vm, "job-root-dir"),
@@ -169,18 +171,20 @@ void map_reduce::init(int argc, char** argv) {
     case Mode::Reducer: {
       auto clss = get_arg<std::string>(vm, "class");
       auto idx = get_arg<int>(vm, "idx"), m = get_arg<int>(vm, "m");
+      logging::Logger::load_cli_config(vm, "koala/koala-reducer-" + clss + "-" +
+                                               std::to_string(idx) + ".log");
+      LOG_INFO << mode;
 
       // Find reducer input files
       std::vector<fs::path> input_files = get_reducer_input_files(
           get_arg<std::string>(vm, "job-root-dir"), idx);
 
       if ((int)input_files.size() != m) {
-        std::cout << "Warning: expected " << m
-                  << " intermediary files for index " << idx << ", found "
-                  << input_files.size() << '\n';
+        LOG_WARNING << "Expected " << m << " intermediary files for index "
+                    << idx << ", found " << input_files.size() << '\n';
 
       } else {
-        std::cout << "Found all intermediary files for index " << idx << '\n';
+        LOG_INFO << "Found all intermediary files for index " << idx << '\n';
       }
 
       get_reducers()[clss]->reduce();
@@ -189,6 +193,9 @@ void map_reduce::init(int argc, char** argv) {
       break;
     }
     case Mode::User: {
+      logging::Logger::load_cli_config(vm, "koala/koala-user.log");
+      LOG_INFO << mode;
+
       CLI_token = get_arg<std::string>(vm, "token");
       const auto master_adress = get_arg<std::string>(vm, "master-address");
       const auto master_channel = grpc::CreateChannel(
@@ -207,8 +214,8 @@ void map_reduce::register_job(const std::string& mapper_name,
                               const std::string& token) {
   // check that the provided mapper and reducer are known ...
 
-  std::cout << "User: sending a register job request with mapper "
-            << mapper_name << " and reducer " << reducer_name << '\n';
+  LOG_INFO << "User: sending a register job request with mapper " << mapper_name
+           << " and reducer " << reducer_name << '\n';
 
   RegisterJobRequest request;
   request.set_path(get_executable_path());
@@ -216,8 +223,8 @@ void map_reduce::register_job(const std::string& mapper_name,
   request.set_reducer(reducer_name);
   request.set_file_regex(file_regex);
   request.set_r(R);
-  
-  if(CLI_token == "")
+
+  if (CLI_token == "")
     request.set_token(token);
   else
     request.set_token(CLI_token);
@@ -228,13 +235,16 @@ void map_reduce::register_job(const std::string& mapper_name,
 
   contextMaster.AddMetadata("uuid", uuid);
 
-  auto register_status = master_service->RegisterJob(&contextMaster, request, &reply);
+  auto register_status =
+      master_service->RegisterJob(&contextMaster, request, &reply);
 
-  if (register_status.ok())
-    std::cout << "User: success, got " << reply.ok() << " from master\n";
-  else
-    if (register_status.error_code() == grpc::StatusCode::RESOURCE_EXHAUSTED)
-    std::cout << "User: " << register_status.error_message() << '\n';
-  else
-    std::cout << "Connection: failure, status is not ok\n";
+  if (register_status.ok()) {
+    LOG_INFO << "User: success, got " << reply.ok() << " from master\n";
+  } else {
+    if (register_status.error_code() == grpc::StatusCode::RESOURCE_EXHAUSTED) {
+      LOG_INFO << "User: " << register_status.error_message() << '\n';
+    } else {
+      LOG_INFO << "Connection: failure, status is not ok\n";
+    }
+  }
 }

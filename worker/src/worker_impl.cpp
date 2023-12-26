@@ -1,4 +1,5 @@
 #include "worker_impl.hpp"
+#include "logging.hpp"
 
 WorkerServiceImpl::WorkerServiceImpl(std::string master_address)
     : WorkerService::Service(), master_address_(std::move(master_address)) {
@@ -9,8 +10,8 @@ WorkerServiceImpl::WorkerServiceImpl(std::string master_address)
 }
 
 bool WorkerServiceImpl::notify_master(int port) {
-  std::cout << "Worker: sending a register worker request with port " << port
-            << '\n';
+  LOG_INFO << "Worker: sending a register worker request with port " << port
+           << '\n';
 
   RegisterWorkerRequest request;
   request.set_worker_port(port);
@@ -31,7 +32,7 @@ void WorkerServiceImpl::wait_then_notify_master(pid_t pid,
   int pstatus;
   int pid_ret = waitpid(pid, &pstatus, 0);
   if (pid_ret == -1) {
-    std::cerr << "Waitpid failed!" << std::endl;
+    LOG_ERROR << "Waitpid failed!" << std::endl;
   }
 
   AckWorkerFinishRequest request;
@@ -42,7 +43,7 @@ void WorkerServiceImpl::wait_then_notify_master(pid_t pid,
   auto status = master_stub->AckWorkerFinish(&context, request, &reply);
 
   if (!status.ok()) {
-    std::cerr << "Grpc call failed:" << status.error_message() << std::endl;
+    LOG_ERROR << "Grpc call failed:" << status.error_message() << std::endl;
   }
 }
 
@@ -51,14 +52,14 @@ grpc::Status WorkerServiceImpl::AssignWork(
     const AssignWorkRequest* request, AssignWorkReply* response) {
 
   std::string task_uuid = request->task_uuid();
-  std::cout << "Worker: received an assign work request:"
-            << " task: " << task_uuid << ',' << " idx: " << request->idx()
-            << ',' << " path: " << request->path() << ','
-            << " job root dir: " << request->job_root_dir() << ','
-            << " mode: " << request->mode() << ','
-            << " class: " << request->class_() << ','
-            << " file: " << request->file() << ',' << " R: " << request->r()
-            << std::endl;
+  LOG_INFO << "Worker: received an assign work request:"
+           << " task: " << task_uuid << ',' << " idx: " << request->idx() << ','
+           << " path: " << request->path() << ','
+           << " job root dir: " << request->job_root_dir() << ','
+           << " mode: " << request->mode() << ','
+           << " class: " << request->class_() << ','
+           << " file: " << request->file() << ',' << " R: " << request->r()
+           << std::endl;
 
   // Fork a new process and run the job!
   pid_t child_pid = fork();

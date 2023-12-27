@@ -259,9 +259,9 @@ void map_reduce::join_job(const job_uuid& job) {
   auto status = master_service->JoinJob(&context, request, &reply);
 
   if (status.ok()) {
-    std::cout << "User: join(" << job << ") sucess." << std::endl;
+    LOG_INFO << "User: join(" << job << ") sucess." << std::endl;
   } else {
-    std::cout << "User: join(" << job << ") failed: " << status.error_message()
+    LOG_ERROR << "User: join(" << job << ") failed: " << status.error_message()
               << std::endl;
   }
 }

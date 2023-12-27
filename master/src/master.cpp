@@ -157,7 +157,7 @@ class MasterServiceImpl final : public MasterService::Service {
       return grpc::Status(grpc::StatusCode::NOT_FOUND, "No such job.");
     }
 
-    std::cout << "Master: Joining job: " << job_uuid << std::endl;
+    LOG_INFO << "Master: Joining job: " << job_uuid << std::endl;
     wait_handle->wait();
     master_state.remove_wait_handle(job_uuid);
     return grpc::Status::OK;

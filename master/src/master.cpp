@@ -144,6 +144,24 @@ class MasterServiceImpl final : public MasterService::Service {
     response->set_ok(true);
     return grpc::Status::OK;
   }
+
+  grpc::Status JoinJob([[maybe_unused]] grpc::ServerContext* context,
+                       const JoinJobRequest* request,
+                       [[maybe_unused]] JoinJobReply* response) override {
+    std::string job_uuid = request->job_uuid();
+    std::shared_ptr<JobWaitHandle> wait_handle;
+
+    try {
+      wait_handle = master_state.get_wait_handle(job_uuid);
+    } catch (std::out_of_range&) {
+      return grpc::Status(grpc::StatusCode::NOT_FOUND, "No such job.");
+    }
+
+    LOG_INFO << "Master: Joining job: " << job_uuid << std::endl;
+    wait_handle->wait();
+    master_state.remove_wait_handle(job_uuid);
+    return grpc::Status::OK;
+  }
 };
 
 class EucalyptServiceImpl final : public EucalyptService::Service {

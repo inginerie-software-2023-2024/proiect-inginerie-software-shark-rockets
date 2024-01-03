@@ -33,7 +33,7 @@ class Mapper {
 
   virtual void map(const std::string& line) = 0;
 
-  ~Mapper();
+  virtual ~Mapper();
 };
 
 class ValueIterator {
@@ -68,7 +68,7 @@ class Reducer {
 
   virtual void reduce(const std::string& key, ValueIterator& iter) = 0;
 
-  ~Reducer();
+  virtual ~Reducer();
 };
 
 bool register_mapper(const std::string& name, Mapper* mapper);

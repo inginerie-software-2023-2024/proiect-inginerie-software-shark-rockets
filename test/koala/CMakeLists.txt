@@ -3,7 +3,7 @@ set(TARGET test_koala)
 
 find_package(Boost REQUIRED COMPONENTS program_options filesystem)
 
-add_definitions(-DNO_LOGGING)
+add_definitions(-DNDEBUG)
 
 add_executable(
     ${TARGET}

@@ -113,11 +113,8 @@ bool KVManager::read_kv(const std::string& file_name) {
   file_name_to_handle.erase(file_name);
   file_name_to_kv.erase(file_name);
 
-  // in case we are running unit tests
-#ifndef NO_LOGGING
   LOG_INFO << "KVManager has " << file_name_to_handle.size()
            << " remaining input files" << '\n';
-#endif
 
   return false;
 }

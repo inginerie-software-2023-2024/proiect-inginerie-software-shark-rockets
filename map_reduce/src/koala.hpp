@@ -2,7 +2,9 @@
 *   Public Interface lib koala
 */
 
+#include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -25,7 +27,7 @@ class Mapper {
  public:
   Mapper();
 
-  // pimpl pattern, so that we can hide that vales emitted with emit() end up being distributed among the intermediary files
+  // pimpl pattern, so that we can hide that values emitted with emit() end up being distributed among the intermediary files
   struct impl;
   std::unique_ptr<impl> pImpl;
 
@@ -34,10 +36,39 @@ class Mapper {
   ~Mapper();
 };
 
+class ValueIterator {
+ private:
+  std::string current_key;
+  std::optional<std::string> current_value;
+  std::function<std::optional<std::string>()> ask_for_value;
+
+ public:
+  ValueIterator(
+      const std::string& key,
+      const std::function<std::optional<std::string>()>& ask_for_value);
+
+  bool has_next();
+
+  std::string get();
+
+  ~ValueIterator();
+};
+
 // User should extend this base reducer
 class Reducer {
+ protected:
+  void emit(const std::string& key, const std::string& value);
+
  public:
-  virtual void reduce() = 0;
+  Reducer();
+
+  // pimpl pattern
+  struct impl;
+  std::unique_ptr<impl> pImpl;
+
+  virtual void reduce(const std::string& key, ValueIterator& iter) = 0;
+
+  ~Reducer();
 };
 
 bool register_mapper(const std::string& name, Mapper* mapper);
@@ -50,6 +81,6 @@ using job_uuid = std::string;
 job_uuid register_job(const std::string& mapper_name,
                       const std::string& reducer_name,
                       const std::string& file_regex, int R,
-                      const std::string& token= "");
+                      const std::string& token = "");
 void join_job(const job_uuid& job);
 };  // namespace map_reduce

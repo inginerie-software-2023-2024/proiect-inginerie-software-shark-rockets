@@ -13,9 +13,9 @@
 
 namespace map_reduce {
 
+// Backend of mapper class
 using KVs = std::set<std::pair<std::string, std::string>>;
 
-// Backend of mapper class
 struct Mapper::impl {
   KVs* drain_;
 
@@ -54,6 +54,128 @@ std::unordered_map<std::string, Reducer*>& get_reducers() {
   static std::unordered_map<std::string, Reducer*> reducers;
   return reducers;
 }
+
+ValueIterator::ValueIterator(
+    const std::string& key,
+    const std::function<std::optional<std::string>()>& ask_for_value)
+    : current_key{key}, current_value{}, ask_for_value{ask_for_value} {};
+
+ValueIterator::~ValueIterator() {
+  // drain remaining values, if user decides not to iterate through all of them
+  while (has_next())
+    get();
+}
+
+bool ValueIterator::has_next() {
+  if (!current_value.has_value())
+    current_value = ask_for_value();
+
+  if (current_value.has_value())
+    return true;
+
+  return false;
+}
+
+std::string ValueIterator::get() {
+  if (!has_next())
+    throw std::runtime_error("No more values for current key");
+
+  std::string value = current_value.value();
+  current_value.reset();
+
+  return value;
+}
+
+KVManager::KVManager(const std::vector<fs::path>& reducer_input_files) {
+  for (const auto& file : reducer_input_files) {
+    std::string file_name = file.string();
+
+    file_name_to_handle.emplace(file_name,
+                                std::make_unique<fs::ifstream>(file_name));
+
+    read_kv(file_name);
+  }
+}
+
+bool KVManager::read_kv(const std::string& file_name) {
+  std::string line;
+
+  if (getline(*file_name_to_handle.at(file_name), line)) {
+    // assume key and value are space separated
+    std::size_t space = line.find(" ");
+    std::pair<std::string, std::string> kv = {
+        line.substr(0, space), line.substr(space + 1, line.size() - space - 1)};
+    file_name_to_kv[file_name] = kv;
+    return true;
+  }
+
+  // reached EOF
+  file_name_to_handle.erase(file_name);
+  file_name_to_kv.erase(file_name);
+  LOG_INFO << "KVManager has " << file_name_to_handle.size()
+           << " remaining input files" << '\n';
+  return false;
+}
+
+bool KVManager::has_next_key() const {
+  if (file_name_to_handle.empty())
+    return false;
+  return true;
+}
+
+std::optional<std::string> KVManager::get_next_key() {
+  min_key.reset();
+  for (const auto& p : file_name_to_kv) {
+    if (!min_key.has_value() || p.second.first < min_key.value()) {
+      min_key = p.second.first;
+      min_key_file_name = p.first;
+    }
+  }
+
+  return min_key;
+}
+
+std::optional<std::string> KVManager::get_value_for_key(
+    const std::string& key) {
+  // requested key is not the current key (or we have finished parsing)
+  if (!min_key.has_value() || min_key.value() != key)
+    return {};
+
+  // find a file whose current key matches requested key
+  std::optional<std::string> value;
+  for (const auto& p : file_name_to_kv) {
+    if (p.second.first == key) {
+      value = p.second.second;
+      read_kv(p.first);
+      break;
+    }
+  }
+
+  return value;
+}
+
+KVManager::~KVManager() = default;
+
+// Backend of reducer class
+using Writer = std::function<void(const std::string&, const std::string&)>;
+
+struct Reducer::impl {
+  Writer writer_;
+
+  void set_writer(const Writer& writer) { writer_ = writer; }
+
+  void emit(const std::string& key, const std::string& value) {
+    writer_(key, value);
+  }
+};
+
+Reducer::Reducer() : pImpl{std::make_unique<impl>()} {}
+
+void Reducer::emit(const std::string& key, const std::string& value) {
+  pImpl->emit(key, value);
+}
+
+Reducer::~Reducer() = default;
 
 std::vector<fs::path> get_reducer_input_files(const std::string& job_root_dir,
                                               int idx) {
@@ -181,15 +303,36 @@ void map_reduce::init(int argc, char** argv) {
           get_arg<std::string>(vm, "job-root-dir"), idx);
 
       if ((int)input_files.size() != m) {
-        LOG_WARNING << "Expected " << m << " intermediary files for index "
-                    << idx << ", found " << input_files.size() << '\n';
-
+        LOG_ERROR << "Expected " << m << " intermediary files for index " << idx
+                  << ", found " << input_files.size() << '\n';
+        exit(0);
       } else {
         LOG_INFO << "Found all intermediary files for index " << idx << '\n';
       }
 
-      get_reducers()[clss]->reduce();
+      // kv-pairs emitted by user-overloaded reducer go to reducer output file
+      fs::ofstream output_file{
+          fs::path(get_arg<std::string>(vm, "job-root-dir")) / "output" /
+          std::to_string(idx)};
+      get_reducers()[clss]->pImpl->set_writer(
+          [&output_file](const std::string& key, const std::string& value) {
+            output_file << key << ' ' << value << '\n';
+          });
 
+      KVManager kv_manager(input_files);
+
+      while (kv_manager.has_next_key()) {
+        std::string current_key = kv_manager.get_next_key().value();
+
+        // build iterator to supply to user-overloaded reducer function
+        ValueIterator iterator(current_key, [&kv_manager, &current_key]() {
+          return kv_manager.get_value_for_key(current_key);
+        });
+
+        get_reducers()[clss]->reduce(current_key, iterator);
+      }
+
+      output_file.close();
       exit(0);
       break;
     }

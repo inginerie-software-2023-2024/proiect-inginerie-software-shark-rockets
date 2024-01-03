@@ -2,6 +2,7 @@
 #include <grpcpp/grpcpp.h>
 #include <iostream>
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -12,7 +13,7 @@
 
 namespace map_reduce {
 
-using KVs = std::vector<std::pair<std::string, std::string>>;
+using KVs = std::set<std::pair<std::string, std::string>>;
 
 // Backend of mapper class
 struct Mapper::impl {
@@ -21,7 +22,7 @@ struct Mapper::impl {
   void set_drain(KVs* drain) { drain_ = drain; }
 
   void emit(const std::string& key, const std::string& value) {
-    drain_->emplace_back(key, value);
+    drain_->insert(std::make_pair(key, value));
   }
 };
 
@@ -138,22 +139,22 @@ void map_reduce::init(int argc, char** argv) {
       fs::ifstream in(input_file);
       std::string line;
 
+      // this is a naive implementation, as it keeps all emitted key-value pairs in memory
+      // should flush to disk periodically as memory fills up, then merge the sorted files
       while (getline(in, line)) {
         get_mappers()[clss]->map(line);
-
-        // process emitted pairs
-        for (const auto& p : kvs) {
-          // write the emitted kv to the appropriate file
-          std::size_t intermediary_file_idx =
-              std::hash<std::string>{}(p.first) % r;
-          *intermediary_output_streams[intermediary_file_idx]
-              << p.first << ' ' << p.second << '\n';
-        }
-
-        kvs.clear();
       }
 
       in.close();
+
+      // process emitted pairs
+      for (const auto& p : kvs) {
+        // write the emitted kv to the appropriate file
+        std::size_t intermediary_file_idx =
+            std::hash<std::string>{}(p.first) % r;
+        *intermediary_output_streams[intermediary_file_idx] << p.first << ' '
+                                                            << p.second << '\n';
+      }
 
       // rename temporary intermediary files
       for (int i = 0; i < r; i++) {

@@ -29,7 +29,7 @@ TEST(MapperTest, RetrieveEmittedValues) {
   // expect that the mapper emitted values 1, 2, ..., 100
   ASSERT_EQ(kvs.size(), 100);
 
-  std::set<std::pair<std::string, std::string>> expected;
+  std::multiset<std::pair<std::string, std::string>> expected;
   for (int i = 1; i <= 100; i++)
     expected.insert({std::to_string(i), ""});
 

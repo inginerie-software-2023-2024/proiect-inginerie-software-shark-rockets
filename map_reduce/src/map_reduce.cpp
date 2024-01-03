@@ -14,7 +14,7 @@
 namespace map_reduce {
 
 // Backend of mapper class
-using KVs = std::set<std::pair<std::string, std::string>>;
+using KVs = std::multiset<std::pair<std::string, std::string>>;
 
 struct Mapper::impl {
   KVs* drain_;
@@ -269,7 +269,9 @@ void map_reduce::init(int argc, char** argv) {
       // this is a naive implementation, as it keeps all emitted key-value pairs in memory
       // should flush to disk periodically as memory fills up, then merge the sorted files
       while (getline(in, line)) {
-        get_mappers()[clss]->map(line);
+        try {  // an exception in user-overloaded map prevents intermediary file renaming
+          get_mappers()[clss]->map(line);
+        } catch (...) {}
       }
 
       in.close();

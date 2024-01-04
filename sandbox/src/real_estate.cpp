@@ -1,3 +1,5 @@
+// To generate data, see sandbox/data/real_estate.py
+
 #include <unistd.h>
 #include <chrono>
 #include <iostream>

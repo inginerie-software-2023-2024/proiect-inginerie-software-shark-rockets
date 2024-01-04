@@ -1,3 +1,5 @@
+// To generate data, see sandbox/data/word_counter.py
+
 #include <unistd.h>
 #include <chrono>
 #include <iostream>

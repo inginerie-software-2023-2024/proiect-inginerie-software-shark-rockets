@@ -1,0 +1,32 @@
+persistent_volume:
+  host_path: "/home/nfs"
+
+master:
+  image_name: "mihai145145/map_reduce:0.0.1"
+  address: 10.245.0.7 # arbitrary, static cluster ip
+  grpc_port: 50051
+
+worker:
+  image_name: "mihai145145/map_reduce:0.0.1"
+  grpc_port: 7777
+  replicas: 3
+
+user:
+  image_name: "mihai145145/map_reduce:0.0.1"
+  replicas: 1
+
+eucalypt_backend:
+  image_name: "mihai145145/eucalypt_backend:0.0.4"
+  address: 10.245.0.8 # arbitrary, static cluster ip
+  grpc_port: 5555
+  http_port: 8080
+  db_link: db_link  # fill in real value
+  jwt_secret: jwt_secret  # fill in real value
+  master_service_proto_path: /app/eucalypt_service.proto
+  persistor_proto_path: /app/persistor_service.proto
+  connection_service_proto_path: /app/connection_service.proto
+
+# need to keep these, as eucalypt logs these adresses on startup
+eucalypt_frontend:
+  address: "public_eucalypt_address"
+  http_port: "http_or_https"

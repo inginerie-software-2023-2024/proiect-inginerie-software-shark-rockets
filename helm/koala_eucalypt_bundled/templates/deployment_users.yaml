@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+spec:
+  replicas: {{ .Values.user.replicas }}
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: {{ .Values.user.image_name }}
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: "/nfs"
+              name: nfs-storage
+          command:
+            [
+              "/bin/sh",
+              "-c",
+              "mv -f /build/sample /nfs/sample && mv -f /build/word_counter /nfs/word_counter && mv -f /build/real_estate /nfs/real_estate && sleep infinity"
+            ]
+          tty: true
+      volumes:
+        - name: nfs-storage
+          persistentVolumeClaim:
+            claimName: nfs-claim

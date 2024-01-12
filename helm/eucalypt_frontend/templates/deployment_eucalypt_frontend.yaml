@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eucalypt-frontend-deployment
+  labels:
+    app: eucalypt-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eucalypt-frontend
+  template:
+    metadata:
+      labels:
+        app: eucalypt-frontend
+    spec:
+      containers:
+        - name: eucalypt-frontend
+          image: {{ .Values.eucalypt_frontend.image_name }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.eucalypt_frontend.http_port }}
+          tty: true
+          volumeMounts:
+            - name: eucalypt-frontend-env
+              mountPath: /app/.env
+              subPath: .env
+      volumes:
+        - name: eucalypt-frontend-env
+          configMap:
+            name: eucalypt-frontend-env-configmap

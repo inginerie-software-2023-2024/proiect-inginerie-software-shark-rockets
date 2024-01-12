@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eucalypt-backend-lb
+  annotations:
+    kubernetes.digitalocean.com/load-balancer-id: "eucalypt-backend-lb"
+    service.beta.kubernetes.io/do-loadbalancer-size-unit: "1"
+    service.beta.kubernetes.io/do-loadbalancer-disable-lets-encrypt-dns-records: "false"
+spec:
+  type: LoadBalancer
+  selector:
+    app: eucalypt-backend
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.eucalypt_backend.http_port }}
+      targetPort: {{ .Values.eucalypt_backend.http_port }}

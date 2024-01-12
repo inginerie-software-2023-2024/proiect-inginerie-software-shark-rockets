@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: master-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: master
+  template:
+    metadata:
+      labels:
+        app: master
+    spec:
+      containers:
+        - name: master
+          image: {{ .Values.master.image_name }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.master.grpc_port }}
+          volumeMounts:
+            - mountPath: "/nfs"
+              name: nfs-storage
+          command:
+            [
+              "/bin/sh",
+              "-c",
+              "mv -f /build/master /nfs/master && mv -f /build/worker /nfs/worker && ./master -e {{ .Values.eucalypt_backend.address }}:{{ .Values.eucalypt_backend.grpc_port }}",
+            ]
+          tty: true
+      volumes:
+        - name: nfs-storage
+          persistentVolumeClaim:
+            claimName: nfs-claim

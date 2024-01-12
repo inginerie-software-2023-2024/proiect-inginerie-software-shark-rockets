@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eucalypt-backend-env-configmap
+data:
+  .env: |
+    DB_LINK={{ .Values.eucalypt_backend.db_link }}
+    JWT_SECRET= {{ .Values.eucalypt_backend.jwt_secret }}
+    APP_URL_CLIENT=http://{{ .Values.eucalypt_frontend.address }}:{{ .Values.eucalypt_frontend.http_port }}
+    APP_URL_API=http://{{ .Values.eucalypt_backend.address }}:{{ .Values.eucalypt_backend.http_port }}
+    MASTER_URL={{ .Values.master.address }}:{{ .Values.master.grpc_port }}
+    MASTER_SERVICE_PROTO_PATH={{ .Values.eucalypt_backend.master_service_proto_path }}
+    PERSISTOR_SERVICE_PROTO_PATH={{ .Values.eucalypt_backend.persistor_proto_path }}
+    CONNECTION_SERVICE_PROTO_PATH={{ .Values.eucalypt_backend.connection_service_proto_path }}
+    EUCALYPT_GRPC_PORT={{ .Values.eucalypt_backend.grpc_port }}

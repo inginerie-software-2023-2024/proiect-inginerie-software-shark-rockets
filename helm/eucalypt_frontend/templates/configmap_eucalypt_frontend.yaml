@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eucalypt-frontend-env-configmap
+data:
+  .env: |
+    REACT_APP_API_URL=http://{{ .Values.eucalypt_backend.address }}:{{ .Values.eucalypt_backend.http_port }}
+    REACT_APP_URL=http://{{ .Values.eucalypt_frontend.address }}:{{ .Values.eucalypt_frontend.http_port }}
+    REACT_APP_IS_DEMO=false

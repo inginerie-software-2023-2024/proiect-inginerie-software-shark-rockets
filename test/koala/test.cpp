@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include "lib_test.cpp"
 
 TEST(SmokeTest, DoesNothing) {}
 

@@ -19,18 +19,24 @@ if(NOT TARGET koala)
     endif()
 endif()
 
-add_executable(
+function(add_user_executable target_name source_file)
+    add_executable(${target_name} ${source_file})
+    target_include_directories(${target_name} PRIVATE ${KOALA_INTERFACE})
+    target_link_libraries(${target_name} PRIVATE koala)
+endfunction()
+
+
+add_user_executable(
     ${TARGET} 
     src/sample.cpp 
 )
-target_include_directories(
-    ${TARGET} 
-    PRIVATE 
-        ${KOALA_INTERFACE}
+
+add_user_executable(
+    word_counter
+    src/word_counter.cpp
 )
 
-target_link_libraries(
-    ${TARGET}  
-    PRIVATE 
-        koala
+add_user_executable(
+    real_estate
+    src/real_estate.cpp
 )

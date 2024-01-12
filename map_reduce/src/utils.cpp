@@ -56,7 +56,7 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       po::value<std::string>()->default_value("localhost:5555"),
       "Specify where Eucalypt backend can can be found: ip.ip.ip.ip:port")(
       "token,t", po::value<std::string>()->default_value(""),
-      "Specify your connection token yo Eucalypt")(
+      "Specify your job token")(
       "class,c", po::value<std::string>(),
       "name of class to run, if mode is mapper or reducer")(
       "file,f", po::value<std::string>(), "input file for map task")(

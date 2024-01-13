@@ -71,7 +71,6 @@ function Token() {
             </Grid>
         </MDBox>
 
-        <Footer />
     </DashboardLayout>);
 }
 

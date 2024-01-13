@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.virtual("id").get(function () {
-  return this._id.toHexString();
+  return this._id;
 });
 
 userSchema.set("toJSON", { virtuals: true });

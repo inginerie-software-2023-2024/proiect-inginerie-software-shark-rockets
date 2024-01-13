@@ -1,35 +1,48 @@
+// To generate data, see sandbox/data/word_counter.py
+
 #include <unistd.h>
 #include <chrono>
 #include <iostream>
+#include <vector>
 #include "koala.hpp"
 
-// User's mapper function
-class MyMapper : public map_reduce::Mapper {
+class WordSplitter : public map_reduce::Mapper {
  public:
   void map(const std::string& line) {
-    // for each line, emit it's length and 1
-    // in the reducer, we should sum up all the 1s for a given key, s.t. we'll have a frequency map of line lengths
-    std::cout << line << std::endl;
-    emit(std::to_string(line.size()), std::to_string(1));
+    // for each word w, emit (w, 1)
+
+    // spaces, punctuation etc.
+    std::vector<int> v;
+    for (int i = 0; i < (int)line.size(); i++)
+      if (!isalnum(line[i]))
+        v.push_back(i);
+    v.push_back(line.size());
+
+    if (v[0] > 0)
+      emit(line.substr(0, v[0]), std::to_string(1));
+    for (int i = 0; i < (int)v.size() - 1; i++) {
+      if (v[i + 1] - v[i] - 1 > 0)
+        emit(line.substr(v[i] + 1, v[i + 1] - v[i] - 1), std::to_string(1));
+    }
   }
 };
-REGISTER_MAPPER(MyMapper);
+REGISTER_MAPPER(WordSplitter);
 
-// User's reducer function
-class MyReducer : public map_reduce::Reducer {
+class Counter : public map_reduce::Reducer {
  public:
   void reduce(const std::string& key, map_reduce::ValueIterator& iter) {
-    // calculate frequency for a given line length
+    // calculate frequency for a given word
     int sum = 0;
     while (iter.has_next()) {
-      sum += std::stoi(iter.get());
+      auto res = iter.get();
+      sum += std::stoi(res);
     }
 
     std::cout << key << ' ' << sum << std::endl;
     emit(key, std::to_string(sum));
   }
 };
-REGISTER_REDUCER(MyReducer);
+REGISTER_REDUCER(Counter);
 
 int main(int argc, char** argv) {
   // Init should be called after all mappers and reducers are registered
@@ -39,7 +52,7 @@ int main(int argc, char** argv) {
 
   // We submit a job to be computed
   auto job =
-      map_reduce::register_job("MyMapper", "MyReducer", "^lorem/.*.txt$", 5);
+      map_reduce::register_job("WordSplitter", "Counter", "^lorem/.*.txt$", 5);
 
   auto start = std::chrono::system_clock::now();
   map_reduce::join_job(job);

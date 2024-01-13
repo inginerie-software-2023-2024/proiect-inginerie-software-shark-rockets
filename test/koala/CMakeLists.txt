@@ -1,6 +1,10 @@
 
 set(TARGET test_koala)
 
+find_package(Boost REQUIRED COMPONENTS program_options filesystem)
+
+add_definitions(-DNDEBUG)
+
 add_executable(
     ${TARGET}
     test.cpp
@@ -21,4 +25,5 @@ target_link_libraries(
     GTest::Main
     proto
     shared_util
+    ${Boost_LIBRARIES}
 )

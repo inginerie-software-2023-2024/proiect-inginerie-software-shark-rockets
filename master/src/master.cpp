@@ -108,7 +108,8 @@ class MasterServiceImpl final : public MasterService::Service {
     }
 
     LOG_INFO << "Master: received a register job request: path="
-             << request->path() << ", mapper=" << request->mapper()
+             << request->path() << ", user=" << user->get_email()
+             << ", mapper=" << request->mapper()
              << ", reducer=" << request->reducer()
              << ", file location=" << request->file_regex()
              << ", job uuid=" << uuid << ", R=" << request->r() << std::endl;

@@ -25,7 +25,7 @@ HealthCheckMonitor::~HealthCheckMonitor() {
 void HealthCheckMonitor::MonitorHealth() {
   // On monitor health scope end delete worker
   auto remove_worker = finally([&worker_socket = target_, &cb = cb_dead_]() {
-    LOG_INFO << "Marking worker as innactive: " << worker_socket.first << ":"
+    LOG_INFO << "Marking worker as inactive: " << worker_socket.first << ":"
              << worker_socket.second << std::endl;
     cb();
   });

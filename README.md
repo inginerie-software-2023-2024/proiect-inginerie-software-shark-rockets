@@ -7,6 +7,7 @@
 - Activity diagram: [Activity diagram](assets/activity_diagram.md)
 - User stories: [User stories](assets/user_stories.md)
 - Product backlog: [Product backlog](https://trello.com/b/w71cxBJY/map-reduce)
+- Software architecture backlog: [Software architecture report](assets/software_architecture_report.md)
 
 # Koala - Intro
 

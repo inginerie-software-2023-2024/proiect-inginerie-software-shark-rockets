@@ -20,21 +20,11 @@ dotenv.config();
 const PORT = process.env.PORT || 8080;
 const app = express();
 
-const whitelist = [process.env.APP_URL_CLIENT];
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-};
-
 dbConnect();
 
-app.use(cors(corsOptions));
+app.use(cors());
+console.log('No CORS restrictions')
+
 app.use(bodyParser.json({ type: "application/vnd.api+json", strict: false }));
 
 app.get("/", function (req, res) {

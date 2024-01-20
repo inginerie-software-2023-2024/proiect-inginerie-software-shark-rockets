@@ -1,0 +1,8 @@
+eucalypt_backend:
+  address: 159.89.215.155 # public address for eucalypt API
+  http_port: 8080
+
+eucalypt_frontend:
+  image_name: "mihai145145/eucalypt_frontend:0.0.1"
+  address: 10.245.0.9 # arbitrary, static ip address
+  http_port: 3000

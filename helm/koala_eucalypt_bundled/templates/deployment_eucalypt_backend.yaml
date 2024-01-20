@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eucalypt-backend-deployment
+  labels:
+    app: eucalypt-backend
+    internal: eucalypt-backend-internal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eucalypt-backend
+      internal: eucalypt-backend-internal
+  template:
+    metadata:
+      labels:
+        app: eucalypt-backend
+        internal: eucalypt-backend-internal
+    spec:
+      containers:
+        - name: eucalypt-backend
+          image: {{ .Values.eucalypt_backend.image_name }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.eucalypt_backend.grpc_port }}
+            - containerPort: {{ .Values.eucalypt_backend.http_port }}
+          tty: true
+          volumeMounts:
+            - name: eucalypt-backend-env
+              mountPath: /app/.env
+              subPath: .env
+      volumes:
+        - name: eucalypt-backend-env
+          configMap:
+            name: eucalypt-backend-env-configmap

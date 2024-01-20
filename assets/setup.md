@@ -89,3 +89,9 @@ JWT_SECRET=<jwt_secret without quotes>
 - If you modified the source code and cmake configuration: ```cd build && cmake .. && cmake --build .```
 - If you modified the definition of the protobufs (they need to be regenerated): make sure to add the files into the ./proto/CMakeLista.txt
 - If you want to recreate the docker image: ```docker build . -t map_reduce:<version>```
+
+#### Deployment
+- Connect to Digital Ocean's (or other cloud's) Kubernetes service
+- Tweak values in ```helm/koala_eucalypt_bundled``` (this deploys master, workers, user nodes and the eucalypt backend) and ```helm/eucalypt_frontend``` (this deploys eucalypt react app)
+- ```helm install koala koala_eucalypt_bundled```
+- ```helm install eucalypt eucalypt_frontend```

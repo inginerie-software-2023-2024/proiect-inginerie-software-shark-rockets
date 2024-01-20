@@ -50,11 +50,11 @@ const StartCronJob = (cronJob) => {
     console.log(cronJob.period);
     cron.schedule(`*/${cronJob.period} * * * *`, async () => {
         var user = await userModel.findOne({email: cronJob.email})
-
+        
         if (user.quota == 0) {
-            this.stop();
+            return;
         }
-
+        
         request = {
             path: cronJob.path,
             mapper: cronJob.mapper,

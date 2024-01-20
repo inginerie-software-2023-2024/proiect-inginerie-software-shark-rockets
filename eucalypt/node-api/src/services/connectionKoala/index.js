@@ -2,16 +2,19 @@ import grpc from '@grpc/grpc-js';
 import protoLoader from '@grpc/proto-loader';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import cron from 'node-cron';
 
 import { tokenModel } from '../../schemas/token.schema';
 import { userModel } from '../../schemas/user.schema'
+import { cronJobModel } from '../../schemas/cronjobs.schema';
+import { v4 as uuidv4 } from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 console.log(__dirname)
 
-var MASTER_SERVICE_PROTO_PATH = __dirname + '../../../../../../proto/src/eucalypt_service.proto';
+var MASTER_SERVICE_PROTO_PATH = __dirname + '../../../../../../proto/src/master_service.proto';
 if (process.env.MASTER_SERVICE_PROTO_PATH)
     MASTER_SERVICE_PROTO_PATH = process.env.MASTER_SERVICE_PROTO_PATH;
 
@@ -23,8 +26,8 @@ var packageDefinition = protoLoader.loadSync(
         defaults: true,
         oneofs: true
     });
-var EucalyptService = grpc.loadPackageDefinition(packageDefinition).EucalyptService;
-var client = new EucalyptService(process.env.MASTER_URL,
+var MasterService = grpc.loadPackageDefinition(packageDefinition).MasterService;
+var client = new MasterService(process.env.MASTER_URL,
                                        grpc.credentials.createInsecure());
 
 var request = {
@@ -32,16 +35,43 @@ var request = {
 };
 
 export const checkConnectionHandler = async (req, res) => {
-    client.CheckConnection(request, (err, ok) => {
-        if (err) {
-            console.log(err);
-          } else {
-            console.log(ok);
-          }
-    });
+    // client.CheckConnection(request, (err, ok) => {
+    //     if (err) {
+    //         console.log(err);
+    //       } else {
+    //         console.log(ok);
+    //       }
+    // });
 
     res.status(204).send()
 };
+
+const StartCronJob = (cronJob) => {
+    console.log(cronJob.period);
+    cron.schedule(`*/${cronJob.period} * * * *`, async () => {
+        var user = await userModel.findOne({email: cronJob.email})
+
+        if (user.quota == 0) {
+            this.stop();
+        }
+
+        request = {
+            path: cronJob.path,
+            mapper: cronJob.mapper,
+            reducer: cronJob.reducer,
+            file_regex: cronJob.regex,
+            R: cronJob.r,
+            token: "",
+            type: "cronJob",
+            email: cronJob.email
+        }
+        var meta = new grpc.Metadata();
+        meta.add("uuid", uuidv4());
+        client.RegisterJob(request, meta, (err, ok) => {
+
+        });
+    })
+} 
 
 export const getTokenHandler = async (id, res) => {
     let foundToken = await tokenModel.findOne({user_id: id, expiration_date: { $gt: new Date()}});
@@ -95,3 +125,25 @@ export const check_connection_token_handler = async (req) => {
     
     return response;
 };
+
+export const register_cronJob_handler = async (req) => {
+    var response = {
+        ok: true
+    };
+
+    const cronJob = new cronJobModel({
+        path: req.path,
+        email: req.email,
+        mapper: req.mapper,
+        reducer: req.reducer,
+        regex: req.regex,
+        r: req.r,
+        period: req.period,
+    });
+
+    await cronJob.save();
+
+    StartCronJob(cronJob);
+
+    return response
+}

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 service ConnectionService {
     rpc CheckConnectionToken(CheckConnectionTokenRequest) returns (CheckConnectionTokenReply) {}
+    rpc RegisterCronJob(RegisterCronJobRequest) returns (RegisterCronJobReply) {}
 }
 
 message CheckConnectionTokenRequest {
@@ -12,4 +13,18 @@ message CheckConnectionTokenRequest {
 message CheckConnectionTokenReply {
     bool ok = 1;
     string email = 2;
+}
+
+message RegisterCronJobRequest {
+    string email = 1;
+    string mapper = 2;
+    string reducer = 3;
+    string regex = 4;
+    int32 r = 5;
+    int32 period = 6;
+    string path = 7;
+}
+
+message RegisterCronJobReply {
+    bool ok = 1;
 }

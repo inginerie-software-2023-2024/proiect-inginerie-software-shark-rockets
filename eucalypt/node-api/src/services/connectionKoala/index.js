@@ -34,27 +34,35 @@ var request = {
     message: 'A test message'
 };
 
-export const checkConnectionHandler = async (req, res) => {
-    // client.CheckConnection(request, (err, ok) => {
-    //     if (err) {
-    //         console.log(err);
-    //       } else {
-    //         console.log(ok);
-    //       }
-    // });
+export const stopCronJobsHandler = async (req, res, id) => {
+    const tasks = cron.getTasks();
+    const user = await userModel.findById(id);
 
-    res.status(204).send()
+    for (let [key, value] of tasks.entries()) {
+        if(key == user.email)
+            value.stop();
+    }
+
+    res.status(200).send()
 };
 
 const StartCronJob = (cronJob) => {
     console.log(cronJob.period);
-    cron.schedule(`*/${cronJob.period} * * * *`, async () => {
+    
+    let minutes, hours, days;
+    
+    hours = cronJob.period / 60;
+    minutes = cronJob.period % 60;
+    days = hours / 24;
+    hours = hours % 24;
+
+    cron.schedule(`*/${minutes} */${hours} */${days} * *`, async () => {
         var user = await userModel.findOne({email: cronJob.email})
         
         if (user.quota == 0) {
             return;
         }
-        
+
         request = {
             path: cronJob.path,
             mapper: cronJob.mapper,
@@ -70,7 +78,9 @@ const StartCronJob = (cronJob) => {
         client.RegisterJob(request, meta, (err, ok) => {
 
         });
-    })
+    }, {
+        name: `${cronJob.email}`
+    });
 } 
 
 export const getTokenHandler = async (id, res) => {

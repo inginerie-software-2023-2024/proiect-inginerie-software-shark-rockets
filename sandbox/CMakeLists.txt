@@ -40,3 +40,8 @@ add_user_executable(
     real_estate
     src/real_estate.cpp
 )
+
+add_user_executable(
+    genomic_sample
+    src/genomic_sample.cpp
+)

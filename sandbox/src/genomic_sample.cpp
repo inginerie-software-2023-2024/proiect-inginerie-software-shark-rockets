@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
     // We submit a job to be computed
     auto job = map_reduce::register_job("GenomicMapper", "GenomicReducer", 
-                                "^.*.csv$", 1);
+                                "^genomic_dna/.*.csv$", 1);
 
     auto start = std::chrono::system_clock::now();
     map_reduce::join_job(job);

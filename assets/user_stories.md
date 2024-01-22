@@ -32,6 +32,10 @@
 - As a user, I want to configure I/O parameters for map-reduce jobs, namely the number of input and output files, so that I have control over the size of the generated files.
 - As a user, I want to monitor ongoing jobs created by me so that I can track their progress and view utilization statistics.
 - As a user, I want to set up recurring or scheduled map-reduce jobs so that they can execute without manual triggering.
+    - Scenario: Launching a new map-reduce job.
+        - Given: The user has authored the code and is about to launch the job.
+        - When: The user configures the frequency CLI argument for the job.
+        - Then: The scheduled job will execute at regular intervals, instead of a one-time occurrence.
 
 ## Admin
 - As an admin, I want to delete/ban users so that I can manage the user base effectively.
@@ -45,4 +49,12 @@
 
 ## Network Administrator
 - As a network administrator, I want to be able to set up this infrastructure on my Kubernetes cluster, so that my organization can benefit from the parallelization features provided.
+    - Scenario: Deploying the Koala & Eucalypt solution.
+        - Given: The network administrator intends to deploy the solution within the company's cluster.
+        - When: The network administrator executes the Kubernetes (Helm) setup.
+        - Then: The infrastructure becomes operational on the company's cluster.
 - As a network administrator, I want to be able to scale the cluster by adding or removing machines dynamically so that the cluster perfectly fits the users’ needs.
+    - Scenario: Scaling the infrastructure up or down.
+        - Given: The network administrator intends to increase or decrease the number of worker pods (for workload acceleration or cost reduction).
+        - When: The network administrator executes the Kubernetes (Helm) deployment update.
+        - Then: The number of workers is scaled up or down accordingly.

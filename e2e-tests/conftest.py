@@ -7,6 +7,7 @@ import time
 import uuid
 import re
 import consts
+import utils
 class SubprocessRunner:
     def __init__(self, command: consts.Executable, args: list):
         unique_id = str(uuid.uuid4())
@@ -90,6 +91,11 @@ class Master(SubprocessRunner):
 class Worker(SubprocessRunner):
     def __init__(self, args=[]):
         super().__init__(consts.Executable.WORKER, args)
+        
+class UserCode(SubprocessRunner):
+    def __init__(self,user_executable:consts.UserExecutable,args):
+        super().__init__(user_executable,args + ["--mode","user"])
+    
 
 @pytest.fixture
 def master():
@@ -121,3 +127,7 @@ def worker_cluster(worker,request):
         workers.append(worker(consts.START_PORT + i))
     yield workers
 
+@pytest.fixture(scope="session", autouse=True)
+def nfs_file_sync():
+    utils.sync(consts.PATH_TO_PACKAGE, consts.PATH_NFS)
+    yield

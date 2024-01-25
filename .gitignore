@@ -9,3 +9,6 @@ install/
 eucalypt/*/node_modules
 docker-compose.yml
 shark-rockets.log
+__pycache__
+logs
+.pytest_cache

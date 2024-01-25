@@ -6,7 +6,7 @@ import "./passport.js";
 import { dbConnect } from "./mongo";
 import { meRoutes, authRoutes, userRoutes, connectionRoutes } from "./routes";
 import { start_job_update_handler, start_task_update_handler, complete_event_handler } from "./services/persistor";
-import { check_connection_token_handler } from "./services/connectionKoala/index.js";
+import { check_connection_token_handler, register_cronJob_handler } from "./services/connectionKoala/index.js";
 import path from "path";
 import * as fs from "fs";
 import cron from "node-cron";
@@ -94,6 +94,7 @@ function getServer() {
 
   server.addService(connectionService, {
     CheckConnectionToken: async (call, callback) => callback(null, await check_connection_token_handler(call.request)),
+    RegisterCronJob: async (call, callback) => callback(null, await register_cronJob_handler(call.request)),
   });
 
   return server;

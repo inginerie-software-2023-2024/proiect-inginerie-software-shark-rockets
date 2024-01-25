@@ -39,6 +39,7 @@ Mapper::~Mapper() = default;
 
 constinit std::unique_ptr<MasterService::Stub> master_service;
 std::string CLI_token;
+int cronJobTime;
 
 std::string& get_executable_path() {
   static std::string executable_path;
@@ -345,6 +346,7 @@ void map_reduce::init(int argc, char** argv) {
       LOG_INFO << mode;
 
       CLI_token = get_arg<std::string>(vm, "token");
+      cronJobTime = get_arg<int>(vm, "cronJob");
       const auto master_adress = get_arg<std::string>(vm, "master-address");
       const auto master_channel = grpc::CreateChannel(
           master_adress, grpc::InsecureChannelCredentials());
@@ -371,6 +373,7 @@ map_reduce::job_uuid map_reduce::register_job(const std::string& mapper_name,
   request.set_reducer(reducer_name);
   request.set_file_regex(file_regex);
   request.set_r(R);
+  request.set_type("unique");
 
   if (CLI_token == "")
     request.set_token(token);
@@ -380,8 +383,10 @@ map_reduce::job_uuid map_reduce::register_job(const std::string& mapper_name,
   RegisterJobReply reply;
   grpc::ClientContext contextMaster;
   std::string uuid = generate_uuid();
+  std::string cronJob = std::to_string(cronJobTime);
 
   contextMaster.AddMetadata("uuid", uuid);
+  contextMaster.AddMetadata("cronjob", cronJob);
 
   auto register_status =
       master_service->RegisterJob(&contextMaster, request, &reply);

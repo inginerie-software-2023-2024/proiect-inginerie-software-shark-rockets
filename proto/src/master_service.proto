@@ -22,6 +22,8 @@ message RegisterJobRequest {
     string file_regex = 5;
     int32 R = 6;
     string token = 7;
+    string type = 8;
+    string email = 9;
 }
 
 message JoinJobRequest{

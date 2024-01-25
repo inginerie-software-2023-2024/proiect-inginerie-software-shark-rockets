@@ -56,8 +56,8 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       po::value<std::string>()->default_value("localhost:5555"),
       "Specify where Eucalypt backend can can be found: ip.ip.ip.ip:port")(
       "token,k", po::value<std::string>()->default_value(""),
-       "Specify your job token")(
-      "class,c", po::value<std::string>(),
+      "Specify your job token")("cronJob,j", po::value<int>()->default_value(0),
+      "Specify the number of minutes between 2 periodic jobs")("class,c", po::value<std::string>(),
       "name of class to run, if mode is mapper or reducer")(
       "file,f", po::value<std::string>(), "input file for map task")(
       "job-root-dir,d", po::value<std::string>(),

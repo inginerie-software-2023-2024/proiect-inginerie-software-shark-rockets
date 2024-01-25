@@ -66,18 +66,28 @@ class MasterServiceImpl final : public MasterService::Service {
     // Retrieve the uuid from the request context.
     const auto& metadata = context->client_metadata();
     auto uuid_it = metadata.find("uuid");
+    auto cronJobTime_it = metadata.find("cronjob");
     std::string uuid;
+    int cronJobTime;
 
     // No uuid.
     if (uuid_it == metadata.end()) {
       LOG_ERROR << "Request doesn't have a uuid!" << std::endl;
       return grpc::Status::CANCELLED;
     }
+
+    if (request->type() == "unique" && cronJobTime_it == metadata.end()) {
+      LOG_ERROR << "Request doesn't have a cronJob set!" << std::endl;
+      return grpc::Status::CANCELLED;
+    }
+
     uuid = std::string(uuid_it->second.data(), uuid_it->second.size());
+    if (request->type() == "unique")
+      cronJobTime = stoi(std::string(cronJobTime_it->second.data(), cronJobTime_it->second.size()));
 
     // Get the user who initiated the request.
     std::unique_ptr<User> user;
-    if (request->token() != "") {
+    if (request->token() != "" && request->type() == "unique") {
       CheckConnectionTokenRequest token_request;
       CheckConnectionTokenReply token_reply;
       grpc::ClientContext contextToken;
@@ -98,11 +108,30 @@ class MasterServiceImpl final : public MasterService::Service {
           return err_status;
         } else {
           user = std::make_unique<User>(token_reply.email());
+
+          if (cronJobTime != 0) {
+            RegisterCronJobRequest cronJob_request;
+            RegisterCronJobReply cronJob_reply;
+            grpc::ClientContext cronJobContext;
+
+            cronJob_request.set_mapper(request->mapper());
+            cronJob_request.set_reducer(request->reducer());
+            cronJob_request.set_email(user->get_email());
+            cronJob_request.set_r(request->r());
+            cronJob_request.set_regex(request->file_regex());
+            cronJob_request.set_period(cronJobTime);
+            cronJob_request.set_path(request->path());
+
+            connection_service->RegisterCronJob(
+              &cronJobContext, cronJob_request, &cronJob_reply);
+          }
         }
       } else {
         LOG_ERROR << "Failed to validate token!" << std::endl;
         return grpc::Status::CANCELLED;
       }
+    } else if (request->type() == "cronJob") {
+      user = std::make_unique<User>(request->email());
     } else {
       user = std::make_unique<User>();  // Guest
     }

@@ -1,4 +1,3 @@
-import enum
 import subprocess
 import threading
 import queue
@@ -7,20 +6,13 @@ import os
 import time
 import uuid
 import re
-
-# Enum for binaries
-class Executable(enum.Enum):
-    MASTER = 'master'
-    WORKER = 'worker'
-
-PATH_TO_PACKAGE = "../package"
-
+import consts
 class SubprocessRunner:
-    def __init__(self, command: Executable, args: list):
+    def __init__(self, command: consts.Executable, args: list):
         unique_id = str(uuid.uuid4())
         timestamp = time.strftime("%Y%m%d%H%M%S")
         log_filename = f"custom_log_file_{timestamp}_{unique_id}.log"
-        binary_path = os.path.join(PATH_TO_PACKAGE, command.value)
+        binary_path = os.path.join(consts.PATH_TO_PACKAGE, command.value)
         full_command = [binary_path] + args + ['--log-file', log_filename]
         self.log_file_path = os.path.join('./logs', log_filename)
 
@@ -72,13 +64,13 @@ class SubprocessRunner:
             except queue.Empty:
                 continue
 
-    def wait_on_log(self, timeout=float('inf')):
+    def wait_on_log(self, timeout=consts.SANITY_TIMEOUT):
         return self._wait_for_condition(lambda _: True, timeout)
 
-    def wait_on_log_contains(self, substring, timeout=float('inf')):
+    def wait_on_log_contains(self, substring, timeout=consts.SANITY_TIMEOUT):
         return self._wait_for_condition(lambda line: substring in line, timeout)
 
-    def wait_on_log_match_regex(self, pattern, timeout=float('inf')):
+    def wait_on_log_match_regex(self, pattern, timeout=consts.SANITY_TIMEOUT):
         compiled_pattern = re.compile(pattern)
         return self._wait_for_condition(lambda line: compiled_pattern.search(line), timeout)
 
@@ -93,25 +85,39 @@ class SubprocessRunner:
 
 class Master(SubprocessRunner):
     def __init__(self, args=[]):
-        super().__init__(Executable.MASTER, args)
+        super().__init__(consts.Executable.MASTER, args)
 
 class Worker(SubprocessRunner):
     def __init__(self, args=[]):
-        super().__init__(Executable.WORKER, args)
+        super().__init__(consts.Executable.WORKER, args)
 
 @pytest.fixture
-def master(master_args):
-    print(master_args)
-    master_instance = Master(master_args)
+def master():
+    master_instance = Master()
     yield master_instance
     master_instance.terminate()
     master_instance.clean()
 
+# factory worker fixture
 @pytest.fixture
-def worker(worker_args):
-    print(worker_args)
-    worker_instance = Worker(worker_args)
-    yield worker_instance
-    worker_instance.terminate()
-    worker_instance.clean()
+def worker(master):
+    worker_instances = []
+    
+    def _make_worker(port:int) -> Worker:
+        worker_instance = Worker(["--port",f"{port}"])
+        worker_instances.append(worker_instance)
+        return worker_instance
+    
+    yield _make_worker
+    
+    for worker_instance in worker_instances:
+        worker_instance.terminate()
+        worker_instance.clean()
+        
+@pytest.fixture(params=[1,2,5])
+def worker_cluster(worker,request):
+    workers = []
+    for i in range(request.param):
+        workers.append(worker(consts.START_PORT + i))
+    yield workers
 

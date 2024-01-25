@@ -83,7 +83,8 @@ class MasterServiceImpl final : public MasterService::Service {
 
     uuid = std::string(uuid_it->second.data(), uuid_it->second.size());
     if (request->type() == "unique")
-      cronJobTime = stoi(std::string(cronJobTime_it->second.data(), cronJobTime_it->second.size()));
+      cronJobTime = stoi(std::string(cronJobTime_it->second.data(),
+                                     cronJobTime_it->second.size()));
 
     // Get the user who initiated the request.
     std::unique_ptr<User> user;
@@ -123,7 +124,7 @@ class MasterServiceImpl final : public MasterService::Service {
             cronJob_request.set_path(request->path());
 
             connection_service->RegisterCronJob(
-              &cronJobContext, cronJob_request, &cronJob_reply);
+                &cronJobContext, cronJob_request, &cronJob_reply);
           }
         }
       } else {

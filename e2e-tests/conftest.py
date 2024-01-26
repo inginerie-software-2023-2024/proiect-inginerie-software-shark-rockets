@@ -25,6 +25,7 @@ class SubprocessRunner:
             stderr=subprocess.DEVNULL
         )
         self.log_queue = queue.Queue()
+        self.log_storage = []
 
         def wait_for_log_file_creation(log_file_path):
             while not os.path.exists(log_file_path):
@@ -44,6 +45,7 @@ class SubprocessRunner:
                         time.sleep(0.1)
                         continue
                     queue.put(line)
+                    self.log_storage.append(line)
 
         thread = threading.Thread(target=monitor_log_file, args=(self.log_file_path, self.log_queue))
         thread.daemon = True
@@ -87,12 +89,24 @@ class SubprocessRunner:
         compiled_pattern = re.compile(pattern)
         return lambda: self._wait_for_condition(lambda line: compiled_pattern.search(line), timeout)
         
-    def dump_logs_timed(self,wait=None):
+    def dump_logs_timed(self, wait=None):
         start_time = time.time()
         while True:
             log = self.wait_on_log(timeout=0.1)
             if log != None:
                 print(log)
+            elif wait == None:
+                return
+            
+            elapsed_time = time.time() - start_time
+            if wait != None and elapsed_time > wait:
+                return
+    def _dump_logs_storage(self, wait=None):
+        start_time = time.time()
+        while True:
+            log = self.wait_on_log(timeout=0.1)
+            if log != None:
+                self.log_storage.append(log)
             elif wait == None:
                 return
             
@@ -111,7 +125,7 @@ class SubprocessRunner:
             if elapsed_time > timeout:
                 return None
 
-            time.sleep(0.1) 
+            time.sleep(0.1)
 
     def terminate(self):
         if self.process.poll() is None:
@@ -121,6 +135,17 @@ class SubprocessRunner:
     def clean(self):
         if os.path.exists(self.log_file_path):
             os.remove(self.log_file_path)
+
+    def _assert_no_error(self):
+        self._dump_logs_storage()
+        for log in self.log_storage:
+            if "ERROR" in log:
+                raise Exception(f"Error found in logs: {log}")
+            
+    def teardown(self):
+        self.terminate()
+        self._assert_no_error()
+        self.clean()
 
 class Master(SubprocessRunner):
     def __init__(self, args=[]):
@@ -157,8 +182,7 @@ def guest():
 def master():
     master_instance = Master()
     yield master_instance
-    master_instance.terminate()
-    master_instance.clean()
+    master_instance.teardown()
 
 # factory worker fixture
 @pytest.fixture
@@ -173,8 +197,7 @@ def worker(master):
     yield _make_worker
     
     for worker_instance in worker_instances:
-        worker_instance.terminate()
-        worker_instance.clean()
+        worker_instance.teardown()
         
 @pytest.fixture(params=[1,2,5])
 def worker_cluster(worker,request):
@@ -197,8 +220,7 @@ def user_code(guest,worker_cluster):
     yield _make_job
     
     for instance in instances:
-        instance.terminate()
-        instance.clean()
+        instance.teardown()
 
 @pytest.fixture(scope="session", autouse=True)
 def nfs_file_sync():

@@ -39,7 +39,7 @@ def assert_log_chain(chain:list):
         
 def get_file_iterators(directory):
     file_iterators = []
-    
+
     # Iterate over all files in the given directory
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)

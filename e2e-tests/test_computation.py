@@ -39,3 +39,20 @@ def test_sample_correctness(user_code):
     data = job.input()
     correct = solvers.sample(data)
     assert out == correct
+    
+def test_wc_correctness(user_code):
+    job = user_code(UE.WORD_COUNTER)
+    job.wait_for_process_exit()
+    out = job.output()
+    data = job.input()
+    correct = solvers.word_counter(data)
+    assert out == correct
+
+
+def test_real_estate_correctness(user_code):
+    job = user_code(UE.REAL_ESTATE)
+    job.wait_for_process_exit()
+    out = job.output()
+    data = job.input()
+    correct = solvers.real_estate(data)
+    assert out == correct

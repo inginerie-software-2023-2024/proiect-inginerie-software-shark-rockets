@@ -125,7 +125,7 @@ class SubprocessRunner:
             
             elapsed_time = time.time() - start_time
             if elapsed_time > timeout:
-                return None
+                return -1
 
             time.sleep(0.1)
 
@@ -198,7 +198,7 @@ class UserCode(SubprocessRunner):
                 end_index = uuid_log.find(']', start_index)
                 if end_index != -1:
                     return uuid_log[start_index:end_index]
-        return None
+        raise ValueError("cannot aquire job uuid")
     
     def job_dir(self):
         return f"{consts.PATH_NFS}/{self.user.dir()}/job-{self.get_uuid()}"
@@ -207,15 +207,18 @@ class UserCode(SubprocessRunner):
         out_dir = f"{self.job_dir()}/output"
         iterators = utils.get_file_iterators(out_dir)
         serialize = utils.serialize_iterators(iterators)
-        kv_result = {int(k): int(v) for k, v in (item.split() for item in serialize)}
-        return kv_result
+        if len(serialize[0].split()) == 1:
+            result = {x for x in serialize}
+        else:
+            result = {k: v for k, v in (item.split() for item in serialize)}
+        return result
     
     def input(self):
         out_dir = f"{self.job_dir()}/input"
         iterators = utils.get_file_iterators(out_dir)
         return utils.serialize_iterators(iterators)
         
-    def __del__(self):
+    def clean_nfs(self):
         shutil.rmtree(self.job_dir())
     
 
@@ -268,6 +271,7 @@ def user_code(guest,worker_cluster):
     
     for instance in instances:
         instance.teardown()
+        instance.clean_nfs()
 
 @pytest.fixture(scope="session", autouse=True)
 def nfs_file_sync():

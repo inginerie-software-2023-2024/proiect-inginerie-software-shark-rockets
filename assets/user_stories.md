@@ -29,6 +29,10 @@
 
 ## User (can access cluster resources, as he/she has an account created by the administrator)
 - As a user, I want to create a map-reduce job and submit it for computation *on the cluster* so that I can efficiently process large amounts of data.
+    - Scenario: User submits a map-reduce job
+        - Given: The user has a valid account.
+        - When: The user fsends a job request.
+        - Then: The user should receive a confirmation message and be able to track the job status.
 - As a user, I want to configure I/O parameters for map-reduce jobs, namely the number of input and output files, so that I have control over the size of the generated files.
 - As a user, I want to monitor ongoing jobs created by me so that I can track their progress and view utilization statistics.
 - As a user, I want to set up recurring or scheduled map-reduce jobs so that they can execute without manual triggering.
@@ -40,8 +44,16 @@
         - When: The administrator clicks on the ban user button.
         - Then: The user is banned and a message is displayed to the administrator.
 - As an admin, I want to accept user account creation requests so that new users can access the resources of the cluster.
+    - Scenario: Admin reviews a user account creation request
+        - Given: The admin is logged in and has pending account creation requests.
+        - When: The admin reviews a request.
+        - Then: A refused request should be deleted, an accepted request should grant the user login capabilities.
 - As an admin, I want to monitor all ongoing jobs and utilization metrics so that I can assess the performance and cost of the cluster.
 - As an admin, I want to be able to promote a user to admin status so that I can delegate administrative responsibilities.
+    - Scenario: Admin promotes a user to admin status
+        - Given: The admin is logged in and has access to user management.
+        - When: The admin promotes a user to admin status.
+        - Then: The user should receive admin capabilities.
 
 ## Network Administrator
 - As a network administrator, I want to be able to set up this infrastructure on my Kubernetes cluster, so that my organization can benefit from the parallelization features provided.

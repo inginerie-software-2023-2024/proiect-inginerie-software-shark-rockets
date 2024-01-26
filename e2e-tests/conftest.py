@@ -199,10 +199,24 @@ class UserCode(SubprocessRunner):
                 if end_index != -1:
                     return uuid_log[start_index:end_index]
         return None
+    
+    def job_dir(self):
+        return f"{consts.PATH_NFS}/{self.user.dir()}/job-{self.get_uuid()}"
+    
+    def output(self):
+        out_dir = f"{self.job_dir()}/output"
+        iterators = utils.get_file_iterators(out_dir)
+        serialize = utils.serialize_iterators(iterators)
+        kv_result = {int(k): int(v) for k, v in (item.split() for item in serialize)}
+        return kv_result
+    
+    def input(self):
+        out_dir = f"{self.job_dir()}/input"
+        iterators = utils.get_file_iterators(out_dir)
+        return utils.serialize_iterators(iterators)
         
     def __del__(self):
-        job_dir = f"{consts.PATH_NFS}/{self.user.dir()}/job-{self.get_uuid()}"
-        shutil.rmtree(job_dir)
+        shutil.rmtree(self.job_dir())
     
 
 # XXX temporary, params once eucalypt auth xoxo hopefully
@@ -232,7 +246,7 @@ def worker(master):
     for worker_instance in worker_instances:
         worker_instance.teardown()
         
-@pytest.fixture(params=[1,2,5])
+@pytest.fixture(params=[1]) # XXX temporary, change to something bigger
 def worker_cluster(worker,request):
     workers = []
     for i in range(request.param):

@@ -36,3 +36,26 @@ def assert_log_chain(chain:list):
     for fun in chain:
         ans = fun()
         assert ans != None
+        
+def get_file_iterators(directory):
+    file_iterators = []
+    
+    # Iterate over all files in the given directory
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        
+        # Check if it's a file and not a directory
+        if os.path.isfile(file_path):
+            # Open the file and create an iterator
+            file = open(file_path, 'r')
+            iterator = iter(file)
+            file_iterators.append(iterator)
+
+    return file_iterators
+
+def serialize_iterators(iterators):
+    all_lines = []
+    for file_iterator in iterators:
+        for line in file_iterator:
+            all_lines.append(line.strip())
+    return all_lines

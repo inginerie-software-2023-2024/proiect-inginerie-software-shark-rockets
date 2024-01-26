@@ -2,6 +2,7 @@ import pytest
 from consts import UserExecutable as UE
 import itertools
 from utils import assert_log_chain
+import solvers
 
 job_types = [UE.SAMPLE, UE.WORD_COUNTER, UE.REAL_ESTATE]
 all_combinations = []
@@ -30,3 +31,11 @@ def test_run_multiple_jobs(user_code, job_combination):
             job.later_wait_on_log_contains("Binary running in user mode"),
             job.later_wait_on_log_contains("succes")
         ])
+        
+def test_sample_correctness(user_code):
+    job = user_code(UE.SAMPLE)
+    job.wait_for_process_exit()
+    out = job.output()
+    data = job.input()
+    correct = solvers.sample(data)
+    assert out == correct

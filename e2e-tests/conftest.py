@@ -10,6 +10,7 @@ import consts
 import utils
 import data
 import shutil
+import random
 from functools import lru_cache
 
 class SubprocessRunner:
@@ -116,7 +117,7 @@ class SubprocessRunner:
             if wait != None and elapsed_time > wait:
                 return
 
-    def wait_for_process_exit(self, timeout=consts.SANITY_TIMEOUT):
+    def wait_for_process_exit(self, timeout=None):
         start_time = time.time()
         while True:
             exit_code = self.process.poll()
@@ -124,7 +125,7 @@ class SubprocessRunner:
                 return exit_code
             
             elapsed_time = time.time() - start_time
-            if elapsed_time > timeout:
+            if timeout!=None and elapsed_time > timeout:
                 return -1
 
             time.sleep(0.1)
@@ -249,20 +250,65 @@ def worker(master):
     for worker_instance in worker_instances:
         worker_instance.teardown()
         
-@pytest.fixture(params=[1]) # XXX temporary, change to something bigger
+@pytest.fixture(params=consts.CLUSTER_SIZES)
 def worker_cluster(worker,request):
-    workers = []
-    for i in range(request.param):
-        workers.append(worker(consts.START_PORT + i))
+    workers = [worker(consts.START_PORT + i) for i in range(request.param)]
     for worker in workers:
         worker.wait_serving()
     yield workers
+    for worker in workers:
+        worker.teardown()
+    
+def terminate_workers_randomly(workers, percentage):    
+    num_workers = len(workers)
+    num_to_terminate = max(1, int(num_workers * percentage / 100))
+
+    # Ensure at least one worker remains
+    if num_to_terminate >= num_workers:
+        num_to_terminate = num_workers - 1
+
+    workers_to_terminate = random.sample(workers, num_to_terminate)
+    for worker in workers_to_terminate:
+        worker.terminate()
+
+@pytest.fixture(params=[(size, percent) for size in consts.CLUSTER_SIZES for percent in [25, 50, 90]])
+def unstable_worker_cluster(worker, request):
+    cluster_size, terminate_percentage = request.param
+    workers = [worker(consts.START_PORT + i) for i in range(cluster_size)]
+    for worker in workers:
+        worker.wait_serving()
+
+    terminator_thread = threading.Thread(target=terminate_workers_randomly, args=(workers, terminate_percentage))
+    terminator_thread.start()
+
+    yield workers
+
+    terminator_thread.join()
+
+    for worker in workers:
+        worker.teardown()
     
 @pytest.fixture
-def user_code(guest,worker_cluster):
+def user_job(guest,worker_cluster):
     instances = []
     
     def _make_job(job:consts.UserExecutable,args:list=[]) -> UserCode:
+        instance = UserCode(guest,job)
+        instances.append(instance)
+        return instance
+    
+    yield _make_job
+    
+    for instance in instances:
+        instance.teardown()
+        instance.clean_nfs()
+
+@pytest.fixture
+def unstable_user_job(guest,unstable_worker_cluster):
+    instances = []
+    
+    def _make_job(job:consts.UserExecutable,args:list=[]) -> UserCode:
+        time.sleep(1) # wait a second so that the unstable workers are killed, master will have to reassign to finish the job
         instance = UserCode(guest,job)
         instances.append(instance)
         return instance

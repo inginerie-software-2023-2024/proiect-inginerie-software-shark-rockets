@@ -3,7 +3,6 @@
 import pytest
 import consts
 
-
 def test_master_listening(master):
     log = master.wait_on_log_contains("Master: listening")
     assert log != None
@@ -26,4 +25,3 @@ def test_cluster(master,worker_cluster):
     for _ in worker_cluster:
         log = master.wait_on_log_match_regex(pattern)
         assert log != None
-

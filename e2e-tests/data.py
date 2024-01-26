@@ -4,6 +4,8 @@ from consts import UserExecutable as UE
 from consts import PATH_NFS as NFS
 sys.path.append("..")
 import sandbox.data.word_counter as word_counter
+import sandbox.data.sample as sample
+
 from functools import lru_cache
 import logging
 
@@ -17,7 +19,7 @@ def gen_data(user,executable,*args, **kwargs):
     
     match executable:
         case UE.SAMPLE:
-            pass
+            sample.generate(dir=data_dir,*args, **kwargs)
         case UE.WORD_COUNTER:
             word_counter.generate(dir=data_dir,*args, **kwargs)
         case _:

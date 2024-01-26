@@ -32,3 +32,7 @@ def sync(src_path, dst_path):
             if not os.path.exists(d) or not files_are_same(s, d):
                 shutil.copy2(s, d)
 
+def assert_log_chain(chain:list):
+    for fun in chain:
+        ans = fun()
+        assert ans != None

@@ -9,6 +9,7 @@ import re
 import consts
 import utils
 import data
+
 class SubprocessRunner:
     def __init__(self, command: consts.Executable, args: list):
         unique_id = str(uuid.uuid4())
@@ -76,6 +77,16 @@ class SubprocessRunner:
         compiled_pattern = re.compile(pattern)
         return self._wait_for_condition(lambda line: compiled_pattern.search(line), timeout)
     
+    def later_wait_on_log(self, timeout=consts.SANITY_TIMEOUT):
+        return lambda: self._wait_for_condition(lambda _: True, timeout)
+
+    def later_wait_on_log_contains(self, substring, timeout=consts.SANITY_TIMEOUT):
+        return lambda: self._wait_for_condition(lambda line: substring in line, timeout)
+
+    def later_wait_on_log_match_regex(self, pattern, timeout=consts.SANITY_TIMEOUT):
+        compiled_pattern = re.compile(pattern)
+        return lambda: self._wait_for_condition(lambda line: compiled_pattern.search(line), timeout)
+        
     def dump_logs_timed(self,wait=None):
         start_time = time.time()
         while True:

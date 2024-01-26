@@ -119,7 +119,8 @@ class Worker(SubprocessRunner):
     def __init__(self, args=[]):
         super().__init__(consts.Executable.WORKER, args)
         self.register_log = (self.wait_on_log_contains("Worker: listening on port") != None)
-        print("worker status",self.register_log)
+    def wait_serving(self):
+        self.wait_on_log_contains("SERVING")
     def registered(self):
         return self.register_log
         
@@ -136,7 +137,7 @@ class UserCode(SubprocessRunner):
     
 
 # XXX temporary, params once eucalypt once eucalypt auth
-@pytest.fixture
+@pytest.fixture(scope="session")
 def guest():
     guest = User()
     yield guest
@@ -169,6 +170,8 @@ def worker_cluster(worker,request):
     workers = []
     for i in range(request.param):
         workers.append(worker(consts.START_PORT + i))
+    for worker in workers:
+        worker.wait_serving()
     yield workers
     
 @pytest.fixture

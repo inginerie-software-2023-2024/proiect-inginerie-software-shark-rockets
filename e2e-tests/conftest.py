@@ -8,12 +8,13 @@ import uuid
 import re
 import consts
 import utils
+import data
 class SubprocessRunner:
     def __init__(self, command: consts.Executable, args: list):
         unique_id = str(uuid.uuid4())
         timestamp = time.strftime("%Y%m%d%H%M%S")
         log_filename = f"custom_log_file_{timestamp}_{unique_id}.log"
-        binary_path = os.path.join(consts.PATH_TO_PACKAGE, command.value)
+        binary_path = os.path.join(consts.PATH_NFS, command.value)
         full_command = [binary_path] + args + ['--log-file', log_filename]
         self.log_file_path = os.path.join('./logs', log_filename)
 
@@ -51,7 +52,7 @@ class SubprocessRunner:
         start_time = time.time()
         while True:
             try:
-                if timeout != float('inf'):
+                if timeout != None:
                     elapsed_time = time.time() - start_time
                     if elapsed_time >= timeout:
                         return None
@@ -74,6 +75,32 @@ class SubprocessRunner:
     def wait_on_log_match_regex(self, pattern, timeout=consts.SANITY_TIMEOUT):
         compiled_pattern = re.compile(pattern)
         return self._wait_for_condition(lambda line: compiled_pattern.search(line), timeout)
+    
+    def dump_logs_timed(self,wait=None):
+        start_time = time.time()
+        while True:
+            log = self.wait_on_log(timeout=0.1)
+            if log != None:
+                print(log)
+            elif wait == None:
+                return
+            
+            elapsed_time = time.time() - start_time
+            if wait != None and elapsed_time > wait:
+                return
+
+    def wait_for_process_exit(self, timeout=consts.SANITY_TIMEOUT):
+        start_time = time.time()
+        while True:
+            exit_code = self.process.poll()
+            if exit_code is not None:
+                return exit_code
+            
+            elapsed_time = time.time() - start_time
+            if elapsed_time > timeout:
+                return None
+
+            time.sleep(0.1) 
 
     def terminate(self):
         if self.process.poll() is None:
@@ -91,11 +118,28 @@ class Master(SubprocessRunner):
 class Worker(SubprocessRunner):
     def __init__(self, args=[]):
         super().__init__(consts.Executable.WORKER, args)
+        self.register_log = (self.wait_on_log_contains("Worker: listening on port") != None)
+        print("worker status",self.register_log)
+    def registered(self):
+        return self.register_log
         
+class User():
+    def __init__(self,email="guest"):
+        self.email = email
+    def dir(self):
+        return self.email
+
 class UserCode(SubprocessRunner):
-    def __init__(self,user_executable:consts.UserExecutable,args):
+    def __init__(self,user:User,user_executable:consts.UserExecutable,args=[]):
+        data.gen_data(user,user_executable)
         super().__init__(user_executable,args + ["--mode","user"])
     
+
+# XXX temporary, params once eucalypt once eucalypt auth
+@pytest.fixture
+def guest():
+    guest = User()
+    yield guest
 
 @pytest.fixture
 def master():
@@ -109,8 +153,8 @@ def master():
 def worker(master):
     worker_instances = []
     
-    def _make_worker(port:int) -> Worker:
-        worker_instance = Worker(["--port",f"{port}"])
+    def _make_worker(port:int,args:list=[]) -> Worker:
+        worker_instance = Worker(["--port",f"{port}"] + args)
         worker_instances.append(worker_instance)
         return worker_instance
     
@@ -126,6 +170,21 @@ def worker_cluster(worker,request):
     for i in range(request.param):
         workers.append(worker(consts.START_PORT + i))
     yield workers
+    
+@pytest.fixture
+def user_code(guest,worker_cluster):
+    instances = []
+    
+    def _make_job(job:consts.UserExecutable,args:list=[]) -> UserCode:
+        instance = UserCode(guest,job)
+        instances.append(instance)
+        return instance
+    
+    yield _make_job
+    
+    for instance in instances:
+        instance.terminate()
+        instance.clean()
 
 @pytest.fixture(scope="session", autouse=True)
 def nfs_file_sync():

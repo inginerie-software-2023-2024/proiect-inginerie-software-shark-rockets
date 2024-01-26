@@ -1,6 +1,11 @@
 import os
 import shutil
-import pytest
+
+def files_are_same(src_file, dst_file):
+    """Check if two files are the same based on size and modification time."""
+    src_stat = os.stat(src_file)
+    dst_stat = os.stat(dst_file)
+    return src_stat.st_size == dst_stat.st_size and src_stat.st_mtime == dst_stat.st_mtime
 
 def sync(src_path, dst_path):
     """Syncs everything from src_path to dst_path and removes extra items in dst_path."""
@@ -11,9 +16,9 @@ def sync(src_path, dst_path):
     for item in dst_items - src_items:
         item_path = os.path.join(dst_path, item)
         if os.path.isdir(item_path):
-            shutil.rmtree(item_path)
+            continue # dont remove folders for now, XXX create a method to cleanup jobs after tests
+            # shutil.rmtree(item_path)
         else:
-            print(f"Removing: {item_path}")
             os.remove(item_path)
 
     for item in src_items:
@@ -23,7 +28,7 @@ def sync(src_path, dst_path):
         if os.path.isdir(s):
             sync(s, d)
         else:
-            print(f"Copying: {s} to {d}")
-            shutil.copy2(s, d)
-
+            # Copy file only if it's different or doesn't exist in the destination
+            if not os.path.exists(d) or not files_are_same(s, d):
+                shutil.copy2(s, d)
 

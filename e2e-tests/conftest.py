@@ -9,6 +9,8 @@ import re
 import consts
 import utils
 import data
+import shutil
+from functools import lru_cache
 
 class SubprocessRunner:
     def __init__(self, command: consts.Executable, args: list):
@@ -133,8 +135,9 @@ class SubprocessRunner:
         self.process.wait()
 
     def clean(self):
-        if os.path.exists(self.log_file_path):
-            os.remove(self.log_file_path)
+        log_dir = "./logs"
+        if os.path.exists(log_dir):
+            shutil.rmtree(log_dir)
 
     def _assert_no_error(self):
         self._dump_logs_storage()
@@ -146,6 +149,17 @@ class SubprocessRunner:
         self.terminate()
         self._assert_no_error()
         self.clean()
+        
+    def find_log(self, pattern, timeout=consts.SANITY_TIMEOUT):
+        compiled_pattern = re.compile(pattern)
+
+        # First, check the existing logs
+        for log in self.log_storage:
+            if compiled_pattern.search(log):
+                return log
+
+        # If not found, wait for new logs
+        return self.wait_on_log_match_regex(pattern, timeout)
 
 class Master(SubprocessRunner):
     def __init__(self, args=[]):
@@ -168,11 +182,30 @@ class User():
 
 class UserCode(SubprocessRunner):
     def __init__(self,user:User,user_executable:consts.UserExecutable,args=[]):
+        self.user=user
         data.gen_data(user,user_executable)
         super().__init__(user_executable,args + ["--mode","user"])
+        
+    @lru_cache(maxsize=1)
+    def get_uuid(self): # best effort, will rotate logs in memory, but the user code has only 5 logs so it shouldn't be a problem
+        pattern = r"Job uuid is \[.*\]"
+        uuid_log = self.find_log(pattern)
+        if uuid_log:
+            start_phrase = "Job uuid is ["
+            start_index = uuid_log.find(start_phrase)
+            if start_index != -1:
+                start_index += len(start_phrase)
+                end_index = uuid_log.find(']', start_index)
+                if end_index != -1:
+                    return uuid_log[start_index:end_index]
+        return None
+        
+    def __del__(self):
+        job_dir = f"{consts.PATH_NFS}/{self.user.dir()}/job-{self.get_uuid()}"
+        shutil.rmtree(job_dir)
     
 
-# XXX temporary, params once eucalypt once eucalypt auth
+# XXX temporary, params once eucalypt auth xoxo hopefully
 @pytest.fixture(scope="session")
 def guest():
     guest = User()

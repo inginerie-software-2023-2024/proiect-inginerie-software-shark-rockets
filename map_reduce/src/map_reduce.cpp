@@ -395,11 +395,12 @@ map_reduce::job_uuid map_reduce::register_job(const std::string& mapper_name,
     LOG_INFO << "User: success, got " << reply.ok() << " from master\n";
   } else {
     if (register_status.error_code() == grpc::StatusCode::RESOURCE_EXHAUSTED) {
-      LOG_INFO << "User: " << register_status.error_message() << '\n';
+      LOG_ERROR << "User: " << register_status.error_message() << '\n';
     } else {
-      LOG_INFO << "Connection: failure, status is not ok\n";
+      LOG_ERROR << "Connection: failure, status is not ok\n";
     }
   }
+  LOG_INFO << "Job uuid is [" << uuid << "]";
   return uuid;
 }
 

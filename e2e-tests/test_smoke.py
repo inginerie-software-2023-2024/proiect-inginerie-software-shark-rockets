@@ -5,11 +5,11 @@ import consts
 
 
 def test_master_listening(master):
-    log = master.wait_on_log()
+    log = master.wait_on_log_contains("Master: listening")
     assert log != None
 
 @pytest.mark.parametrize("worker_count", [1, 2, 5, 10])
-def test_multiple_workers(master, worker, worker_count):
+def test_multiple_workers(worker, worker_count):
     workers = []
 
     for i in range(worker_count):

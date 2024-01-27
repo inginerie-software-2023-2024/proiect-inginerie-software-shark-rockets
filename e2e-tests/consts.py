@@ -1,7 +1,9 @@
 import enum
 import os
 
-CLUSTER_SIZES=[5]
+CLUSTER_SIZES=[4]
+FAULTY_PERCENT=[50]
+
 PATH_TO_PACKAGE = "../package"
 PATH_NFS = os.path.expanduser("~/nfs")
 

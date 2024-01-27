@@ -160,9 +160,8 @@ void MasterState::assign_tasks() {
         } catch (std::exception& e) {
           LOG_WARNING << "An exception occurred while assigning task: "
                       << e.what() << '\n';
-          pending_tasks.push_back(task_uuid);
         }
-        push_worker(std::move(worker));
+        push_worker(std::move(worker)); // only the health monitor should have the power to kill workers
       }
     }
   }

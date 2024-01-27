@@ -57,7 +57,6 @@ def test_real_estate_correctness(user_job):
     correct = solvers.real_estate(data)
     assert out == correct
 
-@pytest.mark.skip(reason="master gets locked on assign")
 @pytest.mark.parametrize("job_type", job_types)
 def test_run_jobs_unstable(unstable_user_job, job_type):
     job = unstable_user_job(job_type)
@@ -67,7 +66,6 @@ def test_run_jobs_unstable(unstable_user_job, job_type):
         job.later_wait_on_log_contains("succes")
     ])
 
-@pytest.mark.skip(reason="master gets locked on assign")
 @pytest.mark.parametrize("job_combination", all_combinations)
 def test_run_multiple_jobs_unstable(unstable_user_job, job_combination):
     jobs = []
@@ -82,7 +80,6 @@ def test_run_multiple_jobs_unstable(unstable_user_job, job_combination):
             job.later_wait_on_log_contains("succes")
         ])
 
-@pytest.mark.skip(reason="master gets locked on assign")
 def test_sample_correctness_unstable(unstable_user_job):
     job = unstable_user_job(UE.SAMPLE)
     job.wait_for_process_exit()
@@ -91,7 +88,7 @@ def test_sample_correctness_unstable(unstable_user_job):
     correct = solvers.sample(data)
     assert out == correct
 
-@pytest.mark.skip(reason="master gets locked on assign")
+
 def test_wc_correctness_unstable(master,unstable_user_job):
     job = unstable_user_job(UE.WORD_COUNTER)
     job.wait_for_process_exit()
@@ -99,9 +96,7 @@ def test_wc_correctness_unstable(master,unstable_user_job):
     data = job.input()
     correct = solvers.word_counter(data)
     assert out == correct
-    master.dump_logs_timed()
 
-@pytest.mark.skip(reason="master gets locked on assign")
 def test_real_estate_correctness_unstable(unstable_user_job):
     job = unstable_user_job(UE.REAL_ESTATE)
     job.wait_for_process_exit()

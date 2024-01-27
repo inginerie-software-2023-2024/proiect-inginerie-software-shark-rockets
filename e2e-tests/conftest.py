@@ -271,7 +271,7 @@ def terminate_workers_randomly(workers, percentage):
     for worker in workers_to_terminate:
         worker.terminate()
 
-@pytest.fixture(params=[(size, percent) for size in consts.CLUSTER_SIZES for percent in [25, 50, 90]])
+@pytest.fixture(params=[(size, percent) for size in consts.CLUSTER_SIZES for percent in consts.FAULTY_PERCENT])
 def unstable_worker_cluster(worker, request):
     cluster_size, terminate_percentage = request.param
     workers = [worker(consts.START_PORT + i) for i in range(cluster_size)]

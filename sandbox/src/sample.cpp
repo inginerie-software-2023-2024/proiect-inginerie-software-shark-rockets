@@ -38,7 +38,8 @@ int main(int argc, char** argv) {
   map_reduce::init(argc, argv);
 
   // We submit a job to be computed
-  auto job = map_reduce::register_job("MyMapper", "MyReducer", "^sample/.*.txt$", 5);
+  auto job =
+      map_reduce::register_job("MyMapper", "MyReducer", "^sample/.*.txt$", 5);
 
   auto start = std::chrono::system_clock::now();
   map_reduce::join_job(job);

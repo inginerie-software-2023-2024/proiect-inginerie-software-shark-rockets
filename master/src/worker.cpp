@@ -43,9 +43,6 @@ bool Worker::assign_work(const Job& job, const Task& task) {
   request.set_m(job.get_M());
   request.set_r(job.get_R());
 
-  auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(1);  // 1 second from now
-  context.set_deadline(deadline);
-
   AssignWorkReply reply;
   auto status = stub->AssignWork(&context, request, &reply);
 

@@ -146,22 +146,23 @@ void MasterState::assign_tasks() {
       auto task = task_metadata.at(task_uuid);
       auto job = job_metadata.at(task.get_job_uuid());
 
-      try {
+      {
         std::lock_guard<std::mutex> lock(
             master_lock);  // this portion needs to be atomic - otherwise acks and heartbeats will fail
         auto worker = pop_worker();
+        try {
+          worker->assign_work(job, task);
 
-        worker->assign_work(job, task);
+          // push start task update to Eucalypt
+          Persistor::get_instance()->start_task(StartTaskEvent(
+              task, time_utils::get_time(), worker->get_listen_socket()));
 
-        // push start task update to Eucalypt
-        Persistor::get_instance()->start_task(StartTaskEvent(
-            task, time_utils::get_time(), worker->get_listen_socket()));
-
+        } catch (std::exception& e) {
+          LOG_WARNING << "An exception occurred while assigning task: "
+                      << e.what() << '\n';
+          pending_tasks.push_back(task_uuid);
+        }
         push_worker(std::move(worker));
-      } catch (std::exception& e) {
-        LOG_ERROR << "An exception occurred while assigning task: " << e.what()
-                  << '\n';
-        // should probably re-insert the task in the pending list
       }
     }
   }

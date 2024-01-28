@@ -13,7 +13,7 @@ bool containsPattern(const std::string& line, const std::string& pattern) {
 class GenomicMapper : public map_reduce::Mapper {
  public:
   void map(const std::string& line) {
-    const std::string pattern = "ATCGGCATCCT";  // Example pattern
+    const std::string pattern = "ATC";  // Example pattern
     // find number of occurrences of pattern in line
     int count = 0;
     for (int i = 0; i < (int)line.size() - (int)pattern.size() + 1; i++) {
@@ -21,7 +21,7 @@ class GenomicMapper : public map_reduce::Mapper {
         count++;
       }
     }
-    emit(line, std::to_string(count));
+    emit("Occurences["+pattern+"]", std::to_string(count));
   }
 };
 REGISTER_MAPPER(GenomicMapper);
@@ -34,7 +34,6 @@ class GenomicReducer : public map_reduce::Reducer {
     while (iter.has_next()) {
       count += std::stoi(iter.get());
     }
-    std::cout << key << ": " << count << std::endl;
     emit(key, std::to_string(count));
   }
 };
@@ -45,7 +44,7 @@ int main(int argc, char** argv) {
 
   // We submit a job to be computed
   auto job = map_reduce::register_job("GenomicMapper", "GenomicReducer",
-                                      "^genomic_dna/.*.csv$", 1);
+                                      "^genomic_sample/.*.csv$", 1);
 
   auto start = std::chrono::system_clock::now();
   map_reduce::join_job(job);

@@ -1,4 +1,6 @@
 from collections import Counter
+import re
+
 
 def sample(words):
     word_lengths = [len(word) for word in words]
@@ -23,3 +25,15 @@ def real_estate(csv_lines):
             good_deals.add(line)
 
     return good_deals
+
+
+
+def genomic_sample(genomic_samples):
+    PATTERN="ATC"
+    ans = 0
+    for sample in genomic_samples:
+        count = len(re.findall(PATTERN,sample))
+        ans += count
+    
+    return {f"Occurences[{PATTERN}]":str(ans)}
+

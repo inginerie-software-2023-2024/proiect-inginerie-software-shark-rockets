@@ -4,7 +4,7 @@ import itertools
 from utils import assert_log_chain
 import solvers
 
-job_types = [UE.SAMPLE, UE.WORD_COUNTER, UE.REAL_ESTATE]
+job_types = [UE.SAMPLE, UE.WORD_COUNTER, UE.REAL_ESTATE, UE.GENOMIC_SAMPLE]
 all_combinations = []
 for r in range(1, len(job_types) + 1):
     all_combinations.extend(itertools.combinations(job_types, r))
@@ -56,6 +56,15 @@ def test_real_estate_correctness(user_job):
     data = job.input()
     correct = solvers.real_estate(data)
     assert out == correct
+    
+def test_genomic_sample_correctness(user_job):
+    job = user_job(UE.GENOMIC_SAMPLE)
+    job.wait_for_process_exit()
+    out = job.output()
+    data = job.input()
+    correct = solvers.genomic_sample(data)
+    assert out == correct
+    
 
 @pytest.mark.parametrize("job_type", job_types)
 def test_run_jobs_unstable(unstable_user_job, job_type):
@@ -103,4 +112,12 @@ def test_real_estate_correctness_unstable(unstable_user_job):
     out = job.output()
     data = job.input()
     correct = solvers.real_estate(data)
+    assert out == correct
+
+def test_genomic_sample_correctness_unstable(unstable_user_job):
+    job = unstable_user_job(UE.GENOMIC_SAMPLE)
+    job.wait_for_process_exit()
+    out = job.output()
+    data = job.input()
+    correct = solvers.genomic_sample(data)
     assert out == correct

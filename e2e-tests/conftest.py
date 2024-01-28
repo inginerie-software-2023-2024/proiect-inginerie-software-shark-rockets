@@ -352,4 +352,4 @@ def eucalypt():
     yield
     instance.terminate()
     instance.wait()
-    subprocess.run(["pkill","node"]) # XXX npm seems to start 3 node process, instance.terminate() only kills one, but pkill is a bit nuclear
+    subprocess.run(["pkill","node"]) # XXX npm seems to start 3 node process, instance.terminate() only kills one, but pkill is a bit

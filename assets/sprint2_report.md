@@ -1,7 +1,8 @@
 # Sprint 2 - Report
 
 - Contains the dates of the sprint (when it started, when it ended)
-  - 12 – 18.12
+  - 04.12 – 18.12
+  - Last commit hash [68d05bfb28f8f7d5e5e7f6f495c9eda6c0b6043c](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/68d05bfb28f8f7d5e5e7f6f495c9eda6c0b6043c)
 - Overview of the team and their planned capacity
   - Full team available
 - List of backlog items planned to be developed in the current Sprint

@@ -85,6 +85,7 @@ JWT_SECRET=<jwt_secret without quotes>
 6. Ctest support test parelization, ```ctest -j <threads>``` however I did not write the tests with this in mind so you will have to redesign and rewrite some tests if you have this ambition
 
 #### Running end to end tests
+- USE TEST DB in the .env
 - In the ```e2e-tests``` directory run ```python3 -m pytest```
 - Requirements: just pip install until it stops complaining
 - Usefull flags: (```-s``` show test output to stdout, ```-v``` verbose), a good idea to use ```-sv```

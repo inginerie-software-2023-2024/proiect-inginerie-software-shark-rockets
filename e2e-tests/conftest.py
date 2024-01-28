@@ -358,6 +358,9 @@ def eucalypt():
     os.chdir(original_directory)
     time.sleep(5) # wait for backend
     yield
+    os.chdir(consts.PATH_EUCALYPT_BACKEND)
     instance.terminate()
     instance.wait()
     subprocess.run(["pkill","node"]) # XXX npm seems to start 3 node process, instance.terminate() only kills one, but pkill is a bit
+    subprocess.run(["npm","run","clear"]) # clear db
+    os.chdir(original_directory)

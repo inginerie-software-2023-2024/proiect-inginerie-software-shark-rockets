@@ -10,8 +10,8 @@ Worker::Worker(std::string addr, int listen_port, int emit_port,
 
   auto on_failure = [&active = active_, &tasks = assigned_tasks,
                      cb = std::move(failure_cb)]() {
-    active = false;
     cb(tasks);
+    active = false;
   };
   monitor_ = std::make_unique<HealthCheckMonitor>(channel, get_emit_socket(),
                                                   std::move(on_failure));
@@ -46,13 +46,17 @@ bool Worker::assign_work(const Job& job, const Task& task) {
   AssignWorkReply reply;
   auto status = stub->AssignWork(&context, request, &reply);
 
-  if (!status.ok()) {
-    throw std::runtime_error("Grpc call failed" + status.error_message());
-  }
+  // NOTE: we will consider the job assigned to the dead worker for now
+  // before this the job was forever lost, same with the worker
+  // will be reassign on hearbeat failure
+  // FIXME: if the worker is alive and just missed this assign/revives this job will never be executed
+  // if (!status.ok()) {
+  //   throw std::runtime_error("Grpc call failed" + status.error_message());
+  // }
 
-  if (reply.ok()) {
+  // if (reply.ok()) { 
     assigned_tasks.insert(task.get_task_uuid());
-  }
+  // }
 
   return reply.ok();
 }

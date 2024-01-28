@@ -1,22 +1,23 @@
 # pip install lorem
-# pip install numpy
 # run this in nfs/user/data/real_estate/
 
 import lorem
-import numpy as np
+import os
+import random
 
-num_files = 5
-num_entries_per_file = 10
+def generate(num_files=5, num_entries_per_file=10, dir='.'):
+    for i in range(num_files):
+        with open(os.path.join(dir, f"{i}.txt"), "w") as f:
+            for _ in range(num_entries_per_file):
+                # format: address,num_bedrooms,price
+                f.write(
+                    lorem.text().split()[0]
+                    + ","
+                    + str(random.randint(1, 5))
+                    + ","
+                    + str(random.randint(30000, 60000))
+                    + "\n"
+                )
 
-for i in range(num_files):
-    with open(f"{i}.txt", "w") as f:
-        for _ in range(num_entries_per_file):
-            # format: address,num_bedrooms,price
-            f.write(
-                lorem.text().split()[0]
-                + ","
-                + str(np.random.randint(1, 5 + 1))
-                + ","
-                + str(np.random.randint(30000, 60000 + 1))
-                + "\n"
-            )
+if __name__ == "__main__":
+    generate()

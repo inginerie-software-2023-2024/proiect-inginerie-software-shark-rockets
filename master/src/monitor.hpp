@@ -8,7 +8,7 @@
 #include "health_service.pb.h"
 
 // Macros for constants
-#define MAX_RETRIES 5
+#define MAX_RETRIES 3
 #define BASE_DELAY 2  // Base delay in seconds
 
 template <typename F>

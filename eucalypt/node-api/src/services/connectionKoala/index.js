@@ -91,22 +91,32 @@ export const getTokenHandler = async (id, res) => {
 export const generateTokenHandler = async (id, res) => {
     let currentDate = new Date();
 
-    let alreadyExistantToken = await tokenModel.findOne({user_id: id, expiration_date: { $gt: currentDate}});
+    let alreadyExistantToken = await tokenModel.findOne({
+        user_id: id, 
+        expiration_date: { $gt: currentDate },
+        job_uuid: { $exists: false }
+    });
+
     if(alreadyExistantToken != null) {
         res.send(alreadyExistantToken);
         return;
     }
 
-    currentDate.setMinutes(currentDate.getMinutes() + 5);
+    let expirationDate = new Date(currentDate);
+    expirationDate.setMinutes(expirationDate.getMinutes() + 5);
 
     const newToken = new tokenModel({
-        expiration_date: currentDate,
+        expiration_date: expirationDate,
         user_id: id
-      });
-
+    });
+    
     await newToken.save();
     
-    let existantToken = await tokenModel.findOne({ user_id: id, expiration_date: { $gt: new Date()} });
+    let existantToken = await tokenModel.findOne({
+        user_id: id, 
+        expiration_date: { $gt: currentDate },
+        job_uuid: { $exists: false }
+    });
 
     res.send(existantToken)
 };

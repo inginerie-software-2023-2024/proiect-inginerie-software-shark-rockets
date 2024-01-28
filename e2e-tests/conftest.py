@@ -12,6 +12,7 @@ import data
 import shutil
 import random
 from functools import lru_cache
+import eucalypt_endpoint as api
 
 class SubprocessRunner:
     def __init__(self, command: consts.Executable, args: list):
@@ -176,8 +177,16 @@ class Worker(SubprocessRunner):
         return self.register_log
         
 class User():
-    def __init__(self,email="guest"):
+    def __init__(self,email="user",password=None):
         self.email = email
+        if password:
+            self.password = password
+            self.uuid = api.get_id(self.email,self.password)
+            
+    def get_token(self):
+        if not hasattr(self,'uuid'):
+            return None
+        return api.generate_token(self.uuid)
     def dir(self):
         return self.email
 
@@ -185,7 +194,11 @@ class UserCode(SubprocessRunner):
     def __init__(self,user:User,user_executable:consts.UserExecutable,args=[]):
         self.user=user
         data.gen_data(user,user_executable)
-        super().__init__(user_executable,args + ["--mode","user"])
+        extra_args = ["--mode","user"]
+        token = user.get_token()
+        if token:
+            extra_args += ["--token",token]
+        super().__init__(user_executable,args+extra_args)
         
     @lru_cache(maxsize=1)
     def get_uuid(self): # best effort, will rotate logs in memory, but the user code has only 5 logs so it shouldn't be a problem
@@ -223,11 +236,11 @@ class UserCode(SubprocessRunner):
         shutil.rmtree(self.job_dir())
     
 
-# XXX temporary, params once eucalypt auth xoxo hopefully
-@pytest.fixture(scope="session")
-def guest():
-    guest = User()
-    yield guest
+@pytest.fixture(scope="session",params=consts.USERS)
+def user(eucalypt,request):
+    creds = consts.USERS_CREDS[request.param]
+    user = User(creds['email'],creds['password'])
+    yield user
 
 @pytest.fixture
 def master():
@@ -289,11 +302,11 @@ def unstable_worker_cluster(worker, request):
         worker.teardown()
     
 @pytest.fixture
-def user_job(guest,worker_cluster):
+def user_job(user,worker_cluster):
     instances = []
     
     def _make_job(job:consts.UserExecutable,args:list=[]) -> UserCode:
-        instance = UserCode(guest,job)
+        instance = UserCode(user,job)
         instances.append(instance)
         return instance
     
@@ -304,12 +317,12 @@ def user_job(guest,worker_cluster):
         instance.clean_nfs()
 
 @pytest.fixture
-def unstable_user_job(guest,unstable_worker_cluster):
+def unstable_user_job(user,unstable_worker_cluster):
     instances = []
     
     def _make_job(job:consts.UserExecutable,args:list=[]) -> UserCode:
         time.sleep(1) # wait a second so that the unstable workers are killed, master will have to reassign to finish the job
-        instance = UserCode(guest,job)
+        instance = UserCode(user,job)
         instances.append(instance)
         return instance
     
@@ -323,3 +336,20 @@ def unstable_user_job(guest,unstable_worker_cluster):
 def nfs_file_sync():
     utils.sync(consts.PATH_TO_PACKAGE, consts.PATH_NFS)
     yield
+
+@pytest.fixture(scope="session")
+def eucalypt():
+    original_directory = os.getcwd()
+    os.chdir(consts.PATH_EUCALYPT_BACKEND)
+    
+    instance = subprocess.Popen(
+            ['npm','run','start:dev'], 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.DEVNULL
+        )
+    os.chdir(original_directory)
+    time.sleep(5) # wait for backend
+    yield
+    instance.terminate()
+    instance.wait()
+    subprocess.run(["pkill","node"]) # XXX npm seems to start 3 node process, instance.terminate() only kills one, but pkill is a bit nuclear

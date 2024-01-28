@@ -6,6 +6,21 @@ FAULTY_PERCENT=[50]
 
 PATH_TO_PACKAGE = "../package"
 PATH_NFS = os.path.expanduser("~/nfs")
+PATH_EUCALYPT_BACKEND = "../eucalypt/node-api/"
+
+USERS_CREDS = {
+    "guest":
+    {
+        'email':'guest',
+        'password':None
+    },
+    "test_user":
+    {
+        'email':'test@test.com',
+        'password':'testtest'
+    }
+}
+USERS = ['guest','test_user']
 
 class Executable(enum.Enum):
     MASTER = 'master'

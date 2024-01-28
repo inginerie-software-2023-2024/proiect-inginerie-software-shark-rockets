@@ -44,7 +44,7 @@ def register(name, email, password):
     return eucalypt_api.post("register", payload)
 
 def generate_token(id):
-    return eucalypt_api.get(f"connection/generateToken/{id}")
+    return eucalypt_api.get(f"connection/generateToken/{id}")['id']
 
 def get_me(token):
     auth_headers = HEADERS.copy()
@@ -62,5 +62,5 @@ if __name__ == "__main__":
 
     my_id = get_id(email, password)
 
-    token_response = generate_token(my_id)['id']
+    token_response = generate_token(my_id)
     print(token_response)

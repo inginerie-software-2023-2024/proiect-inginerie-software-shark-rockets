@@ -95,10 +95,10 @@ class MasterServiceImpl final : public MasterService::Service {
 
       token_request.set_token(request->token());
       token_request.set_job_uuid(uuid);
-
+      LOG_INFO << "Validating token";
       auto token_status = connection_service->CheckConnectionToken(
           &contextToken, token_request, &token_reply);
-
+      LOG_INFO << "Token answer received";
       if (token_status.ok()) {
         if (token_reply.ok() == 0) {
           const std::string error_msg =

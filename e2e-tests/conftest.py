@@ -166,6 +166,9 @@ class SubprocessRunner:
 class Master(SubprocessRunner):
     def __init__(self, args=[]):
         super().__init__(consts.Executable.MASTER, args)
+    def wait_on_validation(self):
+        self.wait_on_log_contains("Validating token")
+        self.wait_on_log_contains("Token answer received")
 
 class Worker(SubprocessRunner):
     def __init__(self, args=[]):
@@ -182,9 +185,12 @@ class User():
         if password:
             self.password = password
             self.uuid = api.get_id(self.email,self.password)
-            
+    
+    def uses_token(self):
+        return hasattr(self,'uuid')
+    
     def get_token(self):
-        if not hasattr(self,'uuid'):
+        if not self.uses_token():
             return None
         return api.generate_token(self.uuid)
     def dir(self):
@@ -302,10 +308,12 @@ def unstable_worker_cluster(worker, request):
         worker.teardown()
     
 @pytest.fixture
-def user_job(user,worker_cluster):
+def user_job(user,master,worker_cluster):
     instances = []
     
     def _make_job(job:consts.UserExecutable,args:list=[]) -> UserCode:
+        if instances and user.uses_token():
+            master.wait_on_validation()
         instance = UserCode(user,job)
         instances.append(instance)
         return instance
@@ -344,7 +352,7 @@ def eucalypt():
     
     instance = subprocess.Popen(
             ['npm','run','start:dev'], 
-            stdout=subprocess.PIPE, 
+            stdout=subprocess.DEVNULL, 
             stderr=subprocess.DEVNULL
         )
     os.chdir(original_directory)

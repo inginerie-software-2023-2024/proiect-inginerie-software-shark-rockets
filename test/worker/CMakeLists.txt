@@ -11,6 +11,7 @@ target_include_directories(
     PRIVATE 
         ${CMAKE_SOURCE_DIR}
         ${GENERATED_OUTPUT_DIR}/src
+        ${UTIL_INCLUDE}
 )
 
 target_link_libraries(
@@ -18,4 +19,5 @@ target_link_libraries(
     GTest::GTest 
     GTest::Main
     proto
+    shared_util
 )

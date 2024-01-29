@@ -1,0 +1,30 @@
+# Sprint 2 - Report
+
+- Contains the dates of the sprint (when it started, when it ended)
+  - 04.12.2023 – 18.12.2023
+  - Last commit hash: [68d05bfb28f8f7d5e5e7f6f495c9eda6c0b6043c](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/68d05bfb28f8f7d5e5e7f6f495c9eda6c0b6043c)
+- Overview of the team and their planned capacity
+  - Full team available
+- List of backlog items planned to be developed in the current Sprint
+  - Addressed user stories (global list of user stories, along with acceptance criteria: [User stories](user_stories.md))
+    - As a guest, I want to submit a user account creation request so that I can benefit from the cluster's resources in the future.
+    - As a user, I want to create a map-reduce job and submit it for computation on the cluster so that I can efficiently process large amounts of data.
+    - As an admin, I want to accept user account creation requests so that new users can access the resources of the cluster.
+    - As an admin, I want to be able to promote a user to admin status so that I can delegate administrative responsibilities.
+  - Indicate items that were added after the Sprint start
+    - [Implement quota modification by admin and by job completion](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/4d71c58c822b595cf6285770993085cf56cb242a)
+    - [add eucalypt services to docker compose](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/263cd3513db2e4254a08554fea2c492e885f49f1)
+    - [change-frontend-to-eucalypt-theme](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/ae0f2db55a647f347f847fec179b62b80c4946e2)
+    - [start reduce leg after the map leg has finished](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/3053c66826f3693587fd21f6014e93d688d29f8a)
+  - Indicate items that were removed before the Sprint end
+    - As a user, I want to configure I/O parameters for map-reduce jobs, namely the number of input and output files, so that I have control over the size of the generated files.
+    - As a user, I want to monitor ongoing jobs created by me so that I can track their progress and view utilization statistics.
+- Status of planned items and their status
+  - Marking the done items
+    - As a guest, I want to submit a user account creation request so that I can benefit from the cluster's resources in the future.
+    - As an admin, I want to accept user account creation requests so that new users can access the resources of the cluster.
+    - As an admin, I want to be able to promote a user to admin status so that I can delegate administrative responsibilities.
+  - Marking the unsolved items, and what are you going to do with them (push to future sprint, eliminate from project, etc.)
+    - As a user, I want to create a map-reduce job and submit it for computation on the cluster so that I can efficiently process large amounts of data. – currently it only runs on local machine, future sprints should implement hosting on cloud
+- Sprint Review (This can be an audio recording of your team's discussion)
+  - Significant strides were made in delivering essential functionalities. Accomplishments include successful implementation of user account creation, map-reduce job submission, admin acceptance of user account creation requests, and the ability to promote users to admin status. These completed tasks align with the project roadmap. The project has not yet reached the Minimal Viable Product (MVP) stage, remaining very few steps to be done: cloud hosting, reduce implementation and connection between Eucalypt adn Koala. The sprint included the implementation of quota modification by admin and by job completion, the addition of Eucalypt services to Docker compose, initiation of the Eucalypt theme change, and the introduction of starting the reduce leg after the map leg has finished.

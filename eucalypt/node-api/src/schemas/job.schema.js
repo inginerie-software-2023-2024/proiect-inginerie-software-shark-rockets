@@ -13,7 +13,7 @@ const jobSchema = new mongoose.Schema({
 });
 
 jobSchema.virtual("id").get(function () {
-    return this._id.toHexString();
+    return this._id;
 });
 
 jobSchema.set("toJSON", { virtuals: true });

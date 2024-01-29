@@ -1,4 +1,8 @@
 FROM ubuntu:23.10 as build_app
 
+COPY scripts/sync_boost sync_boost
 COPY scripts/sync_depends sync_depends
+RUN apt-get update
+RUN apt-get -y install wget
 RUN ./sync_depends
+RUN apt-get -y remove wget

@@ -1,10 +1,20 @@
 #include "worker.hpp"
+#include "logging.hpp"
 
-Worker::Worker(std::string addr, int listen_port, int emit_port)
+Worker::Worker(std::string addr, int listen_port, int emit_port,
+               reassign_cb failure_cb)
     : addr_(std::move(addr)), listen_port_(listen_port), emit_port_(emit_port) {
   std::string target = addr_ + ":" + std::to_string(listen_port_);
   channel = grpc::CreateChannel(target, grpc::InsecureChannelCredentials());
   stub = WorkerService::NewStub(channel);
+
+  auto on_failure = [&active = active_, &tasks = assigned_tasks,
+                     cb = std::move(failure_cb)]() {
+    cb(tasks);
+    active = false;
+  };
+  monitor_ = std::make_unique<HealthCheckMonitor>(channel, get_emit_socket(),
+                                                  std::move(on_failure));
 }
 
 bool Worker::assign_work(const Job& job, const Task& task) {
@@ -12,10 +22,10 @@ bool Worker::assign_work(const Job& job, const Task& task) {
   std::string input_file_str =
       input_file.has_value() ? input_file.value().string() : "does_not_matter";
 
-  std::cout << "Assign task " << task.get_task_uuid() << ", index "
-            << task.get_idx() << " to " << address() << ":" << listen_port()
-            << " with load = " << load() << ", input file: " << input_file_str
-            << std::endl;
+  LOG_INFO << "Assign task " << task.get_task_uuid() << ", index "
+           << task.get_idx() << " to " << address() << ":" << listen_port()
+           << " with load = " << load() << ", input file: " << input_file_str
+           << std::endl;
 
   std::string mode =
       (job.get_current_leg() == JobLeg::Map) ? "mapper" : "reducer";
@@ -36,13 +46,17 @@ bool Worker::assign_work(const Job& job, const Task& task) {
   AssignWorkReply reply;
   auto status = stub->AssignWork(&context, request, &reply);
 
-  if (!status.ok()) {
-    throw std::runtime_error("Grpc call failed" + status.error_message());
-  }
+  // NOTE: we will consider the job assigned to the dead worker for now
+  // before this the job was forever lost, same with the worker
+  // will be reassign on hearbeat failure
+  // FIXME: if the worker is alive and just missed this assign/revives this job will never be executed
+  // if (!status.ok()) {
+  //   throw std::runtime_error("Grpc call failed" + status.error_message());
+  // }
 
-  if (reply.ok()) {
+  // if (reply.ok()) { 
     assigned_tasks.insert(task.get_task_uuid());
-  }
+  // }
 
   return reply.ok();
 }
@@ -69,4 +83,8 @@ int Worker::load() const {
 
 void Worker::finish_task(const std::string& task_uuid) {
   assigned_tasks.erase(task_uuid);
+}
+
+bool Worker::is_active() const {
+  return active_.load();
 }

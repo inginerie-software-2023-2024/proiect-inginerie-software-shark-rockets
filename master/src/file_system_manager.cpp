@@ -3,6 +3,7 @@
 #include <boost/regex.hpp>
 #include <iostream>
 #include <vector>
+#include "logging.hpp"
 #include "utils.hpp"
 
 namespace nfs {
@@ -36,13 +37,13 @@ std::vector<fs::path> list_files_matching_pattern(
 bool create_job_structure(const fs::path& job_root) {
 
   if (!ensure_directory(job_root)) {
-    std::cerr << "Failed to ensure job root " << job_root << std::endl;
+    LOG_ERROR << "Failed to ensure job root " << job_root << std::endl;
     return false;
   }
 
   for (const auto& job_dir : {"input", "intermediary", "output"}) {
     if (!ensure_directory(job_root / job_dir)) {
-      std::cerr << "Failed to ensure job dir" << job_root << std::endl;
+      LOG_ERROR << "Failed to ensure job dir" << job_root << std::endl;
       return false;
     }
   }
@@ -87,11 +88,11 @@ std::vector<fs::path> on_job_register_request(const std::string& uuid,
                                               const std::unique_ptr<User>& user,
                                               const std::string& file_regex) {
 
-  fs::path user_dir = NFS_ROOT / user->get_name();
+  fs::path user_dir = NFS_ROOT / user->get_email();
   fs::path user_data_dir = user_dir / "data";
 
   if (!nfs::ensure_directory(user_data_dir)) {
-    std::cerr << "Failed to ensure directory: " << user_data_dir << std::endl;
+    LOG_ERROR << "Failed to ensure directory: " << user_data_dir << std::endl;
     return {};
   }
 
@@ -100,22 +101,21 @@ std::vector<fs::path> on_job_register_request(const std::string& uuid,
   fs::path job_root = user_dir / ("job-" + uuid);
 
   if (!create_job_structure(job_root)) {
-    std::cerr << "Creating job structure failed " << std::endl;
+    LOG_ERROR << "Creating job structure failed " << std::endl;
     return {};
   }
 
   try {
     return sym_link_data(files, job_root);
   } catch (const fs::filesystem_error& e) {
-    std::cerr
+    LOG_ERROR
         << "Creating symbolic links failed, defaulting to normal paths, error="
         << e.what() << std::endl;
     return files;
   }
 }
 
-fs::path get_job_root_dir(const std::string& uuid,
-                          const std::string& email) {
+fs::path get_job_root_dir(const std::string& uuid, const std::string& email) {
   fs::path job_root_dir = NFS_ROOT / email / ("job-" + uuid);
   return job_root_dir;
 }

@@ -3,6 +3,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <iostream>
+#include "logging.hpp"
 #include "map_reduce.hpp"
 
 std::string generate_uuid() {
@@ -51,6 +52,13 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       "master-address,m",
       po::value<std::string>()->default_value("0.0.0.0:50051"),
       "Specify where the worker can find master: ip.ip.ip.ip:port")(
+      "eucalypt-address,e",
+      po::value<std::string>()->default_value("localhost:5555"),
+      "Specify where Eucalypt backend can can be found: ip.ip.ip.ip:port")(
+      "token,k", po::value<std::string>()->default_value(""),
+      "Specify your job token")(
+      "cronJob,j", po::value<int>()->default_value(0),
+      "Specify the number of minutes between 2 periodic jobs")(
       "class,c", po::value<std::string>(),
       "name of class to run, if mode is mapper or reducer")(
       "file,f", po::value<std::string>(), "input file for map task")(
@@ -59,6 +67,8 @@ std::unique_ptr<po::variables_map> parse_args(int argc, char** argv) {
       "idx,x", po::value<int>(), "index of the task to run")(
       "m", po::value<int>(), "number of input files")("r", po::value<int>(),
                                                       "number of ouput files");
+  desc.add(logging::Logger::get_logger_desc());
+
   try {
     auto vm = std::make_unique<po::variables_map>();
     po::store(po::parse_command_line(argc, argv, desc), *vm);

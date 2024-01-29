@@ -3,12 +3,14 @@ import passport from "passport";
 import jwt from 'jsonwebtoken';
 
 const router = express.Router();
-import {  getUserRouteHandler,
-          getUsersRouteHandler,
-          createUserRouteHandler,
-          editUserRouteHandler,
-          deleteUserRouteHandler,
-          acceptUserRouteHandler
+import {
+    getUserRouteHandler,
+    getUsersRouteHandler,
+    createUserRouteHandler,
+    editUserRouteHandler,
+    deleteUserRouteHandler,
+    acceptUserRouteHandler,
+    getUserJobsRouteHandler
 } from "../../services/users";
 
 // get all users
@@ -45,6 +47,11 @@ router.delete("/deleteUser/:id", passport.authenticate('jwt',{session: false}), 
 router.patch("/acceptUser/:id", passport.authenticate('jwt',{session: false}), (req, res) => {
   acceptUserRouteHandler(req, res);
 }
+);
+
+router.get("/getUserJobs/:id", passport.authenticate('jwt',{session: false}), (req, res) => {
+        getUserJobsRouteHandler(req, res);
+    }
 );
 
 export default router;

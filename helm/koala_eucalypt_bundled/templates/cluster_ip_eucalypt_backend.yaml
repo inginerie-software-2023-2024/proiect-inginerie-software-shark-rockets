@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eucalypt-backend-cluster-ip
+spec:
+  selector:
+    internal: eucalypt-backend-internal
+  ports:
+    - protocol: TCP
+      name: "grpc"
+      port: {{ .Values.eucalypt_backend.grpc_port }}
+      targetPort: {{ .Values.eucalypt_backend.grpc_port }}
+  clusterIP: {{ .Values.eucalypt_backend.address }}

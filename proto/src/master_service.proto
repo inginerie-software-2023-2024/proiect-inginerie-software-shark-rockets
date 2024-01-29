@@ -4,6 +4,7 @@ service MasterService {
     rpc RegisterWorker(RegisterWorkerRequest) returns (RegisterWorkerReply) {}
     rpc RegisterJob(RegisterJobRequest) returns (RegisterJobReply) {}
     rpc AckWorkerFinish(AckWorkerFinishRequest) returns (AckWorkerFinishReply) {}
+    rpc JoinJob(JoinJobRequest) returns (JoinJobReply) {}
 }
 
 message RegisterWorkerRequest {
@@ -18,9 +19,19 @@ message RegisterJobRequest {
     string path = 1;
     string mapper = 2;
     string reducer = 3;
-    optional string email = 4;
     string file_regex = 5;
     int32 R = 6;
+    string token = 7;
+    string type = 8;
+    string email = 9;
+}
+
+message JoinJobRequest{
+    string job_uuid = 1; 
+}
+
+message JoinJobReply{
+    // Various usage metrics should go here.
 }
 
 message RegisterJobReply {

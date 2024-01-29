@@ -7,6 +7,7 @@
 #include <thread>
 #include "file_system_manager.hpp"
 #include "job.hpp"
+#include "job_wait_handle.hpp"
 #include "persistor.hpp"
 #include "task.hpp"
 #include "worker.hpp"
@@ -18,11 +19,15 @@ class MasterState {
   // The value is a unique_ptr to worker wrapper
   // This representation is useful for worker acks and heartbeats
   WorkerDict worker_dict;
+  std::mutex worker_dict_lock;
 
   // Job info
   std::unordered_map<std::string, Job> job_metadata;  // metadata of a job
   std::unordered_map<std::string, std::unordered_set<std::string>>
       expected_tasks;  // unfinished tasks for the current leg of a job
+
+  // Used for join()-ing jobs.
+  std::unordered_map<std::string, std::shared_ptr<JobWaitHandle>> wait_handles;
 
   // Task info
   std::unordered_map<std::string, Task> task_metadata;  // metadata of a task
@@ -38,6 +43,8 @@ class MasterState {
 
  public:
   MasterState();
+  void create_worker(const std::string& addr, const int listen_port,
+                     const int emit_port);
 
   // Moves a new worker into the data structure, transferring ownership.
   void push_worker(std::unique_ptr<Worker> new_worker);
@@ -65,6 +72,13 @@ class MasterState {
 
   // Periodically assign pending tasks to workers
   void assign_tasks();
+
+  // Get the wait handle for a specified job.
+  std::shared_ptr<JobWaitHandle> get_wait_handle(const std::string& job_uuid);
+
+  // Remove the wait handle for a specified job as it is no longer needed
+  // (the job has been join()-ed).
+  void remove_wait_handle(const std::string& job_uuid);
 
   ~MasterState();
 };

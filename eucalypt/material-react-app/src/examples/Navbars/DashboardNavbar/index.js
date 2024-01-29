@@ -114,8 +114,16 @@ function DashboardNavbar({ absolute, light, isMini }) {
     authContext.logout();
   };
 
-  const handleConnection = async () => {
-    const response = await ConnectionService.checkConnection();
+  const handleStopCronJobs = async () => {
+    const myData = {
+      data: {
+        type: "stopcronjob",
+        attributes: {
+          id: authContext.id
+        }
+      }
+    }
+    const response = await ConnectionService.stopCronJobs(myData);
   };
 
   const title = route.includes('user-management') && route.length > 2 ? route[route.length - 2] : route[route.length - 1];
@@ -172,9 +180,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   color="info"
                   fullWidth
                   type="button"
-                  onClick={handleConnection}
+                  onClick={handleStopCronJobs}
                 >
-                  Check connection
+                  Stop cron jobs
                 </MDButton>
               </MDBox>
 

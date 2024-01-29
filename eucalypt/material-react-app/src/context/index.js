@@ -32,6 +32,7 @@ const MaterialUI = createContext();
 export const AuthContext = createContext({
   isAuthenticated: false,
   isAdmin: false,
+  id: "",
   login: () => {},
   register: () => {},
   logout: () => {},
@@ -40,6 +41,7 @@ export const AuthContext = createContext({
 const AuthContextProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [id, setId] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,6 +52,7 @@ const AuthContextProvider = ({ children }) => {
       if (!token) return;
 
       const user = await AuthService.getProfile();
+      setId(user.data.id);
   
       if(user.data.attributes.role == 'admin')
         setIsAdmin(true);
@@ -65,6 +68,7 @@ const AuthContextProvider = ({ children }) => {
       if (!token) return;
 
       const user = await AuthService.getProfile();
+      setId(user.data.id);
   
       if(user.data.attributes.role == 'admin')
         setIsAdmin(true);
@@ -93,7 +97,7 @@ const AuthContextProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isAdmin, login, register, logout,}}>
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, id, login, register, logout,}}>
       {children}
     </AuthContext.Provider>
   );

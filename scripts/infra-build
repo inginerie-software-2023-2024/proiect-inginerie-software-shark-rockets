@@ -1,0 +1,35 @@
+#!/bin/bash
+
+{
+    cd eucalypt/node-api && ./build_docker_image &> /dev/null;
+} & pid1=$!
+
+{
+    cd eucalypt/material-react-app && docker build . -t eucalypt_frontend:0.0.1 &> /dev/null;
+} & pid2=$!
+
+{
+    docker compose build &> /dev/null;
+} & pid3=$!
+
+wait $pid1
+status1=$?
+
+wait $pid2
+status2=$?
+
+wait $pid3
+status3=$?
+
+if [ $status1 -ne 0 ] || [ $status2 -ne 0 ]; then
+    echo "An error occurred in eucalypt"
+    exit 1
+fi
+
+if [ $status3 -ne 0 ]; then
+    echo "An error occurred in koala"
+    exit 1
+fi
+
+echo "Fresh images ready"
+

@@ -1,4 +1,5 @@
 .vscode/*
+.idea/*
 !.vscode/c_cpp_properties.json
 build/
 grpc/
@@ -7,3 +8,7 @@ package/
 install/
 eucalypt/*/node_modules
 docker-compose.yml
+shark-rockets.log
+__pycache__
+logs
+.pytest_cache

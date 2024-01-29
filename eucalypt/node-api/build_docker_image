@@ -9,8 +9,10 @@
 
 cp ../../proto/src/eucalypt_service.proto eucalypt_service.proto
 cp ../../proto/src/persistor_service.proto persistor_service.proto
+cp ../../proto/src/connection_service.proto connection_service.proto
 
 docker build . -t eucalypt_backend:0.0.1
 
 rm eucalypt_service.proto
 rm persistor_service.proto
+rm connection_service.proto 

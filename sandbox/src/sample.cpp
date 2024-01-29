@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <chrono>
 #include <iostream>
 #include "koala.hpp"
 
@@ -8,6 +9,7 @@ class MyMapper : public map_reduce::Mapper {
   void map(const std::string& line) {
     // for each line, emit it's length and 1
     // in the reducer, we should sum up all the 1s for a given key, s.t. we'll have a frequency map of line lengths
+    std::cout << line << std::endl;
     emit(std::to_string(line.size()), std::to_string(1));
   }
 };
@@ -16,10 +18,15 @@ REGISTER_MAPPER(MyMapper);
 // User's reducer function
 class MyReducer : public map_reduce::Reducer {
  public:
-  void reduce() {
-    std::cout << "Hello from reduce function!\n";
-    sleep(7);
-    std::cout << "Reduce function finished!\n";
+  void reduce(const std::string& key, map_reduce::ValueIterator& iter) {
+    // calculate frequency for a given line length
+    int sum = 0;
+    while (iter.has_next()) {
+      sum += std::stoi(iter.get());
+    }
+
+    std::cout << key << ' ' << sum << std::endl;
+    emit(key, std::to_string(sum));
   }
 };
 REGISTER_REDUCER(MyReducer);
@@ -31,7 +38,15 @@ int main(int argc, char** argv) {
   map_reduce::init(argc, argv);
 
   // We submit a job to be computed
-  map_reduce::register_job("MyMapper", "MyReducer", "^.*.txt$", 5, "dimi0402@yahoo.com");
+  auto job =
+      map_reduce::register_job("MyMapper", "MyReducer", "^sample/.*.txt$", 5);
 
+  auto start = std::chrono::system_clock::now();
+  map_reduce::join_job(job);
+  auto end = std::chrono::system_clock::now();
+
+  auto elapsed =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+  std::cout << "Job finished, took: " << elapsed.count() << " ms" << std::endl;
   return 0;
 }

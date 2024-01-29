@@ -84,8 +84,22 @@ JWT_SECRET=<jwt_secret without quotes>
 5. If you want docker to build and run tests use ```--build-arg RUN_TESTS=true```, note that the image will fail if any test fails
 6. Ctest support test parelization, ```ctest -j <threads>``` however I did not write the tests with this in mind so you will have to redesign and rewrite some tests if you have this ambition
 
+#### Running end to end tests
+- USE TEST DB in the .env
+- In the ```e2e-tests``` directory run ```python3 -m pytest```
+- Requirements: just pip install until it stops complaining
+- Usefull flags: (```-s``` show test output to stdout, ```-v``` verbose), a good idea to use ```-sv```
+- Run a suite ```python3 -m pytest test_smoke.py```
+- Run a test from a suite ```python3 -m pytest  test_smoke.py::test_master_listening```
+
 #### How to build your changes?
 - If you just modified the source code: ```cd build && cmake --build .```
 - If you modified the source code and cmake configuration: ```cd build && cmake .. && cmake --build .```
 - If you modified the definition of the protobufs (they need to be regenerated): make sure to add the files into the ./proto/CMakeLista.txt
 - If you want to recreate the docker image: ```docker build . -t map_reduce:<version>```
+
+#### Deployment
+- Connect to Digital Ocean's (or other cloud's) Kubernetes service
+- Tweak values in ```helm/koala_eucalypt_bundled``` (this deploys master, workers, user nodes and the eucalypt backend) and ```helm/eucalypt_frontend``` (this deploys eucalypt react app)
+- ```helm install koala koala_eucalypt_bundled```
+- ```helm install eucalypt eucalypt_frontend```

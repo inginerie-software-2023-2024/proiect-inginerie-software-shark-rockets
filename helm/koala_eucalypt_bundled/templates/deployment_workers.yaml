@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workers-deployment
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: {{ .Values.worker.image_name }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.worker.grpc_port }}
+          volumeMounts:
+            - mountPath: "/nfs"
+              name: nfs-storage
+          command:
+            [
+              "/bin/sh",
+              "-c",
+              "./worker --master-address {{ .Values.master.address }}:{{ .Values.master.grpc_port }} --port {{ .Values.worker.grpc_port }} --log-file $(hostname).log"
+            ]
+          tty: true
+      volumes:
+        - name: nfs-storage
+          persistentVolumeClaim:
+            claimName: nfs-claim

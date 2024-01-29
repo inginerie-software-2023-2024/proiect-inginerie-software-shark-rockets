@@ -2,6 +2,8 @@
 
 import dotenv from "dotenv";
 import { userModel } from "../../schemas/user.schema";
+import {jobModel} from "../../schemas/job.schema.js";
+import {taskModel} from "../../schemas/task.schema.js";
 
 dotenv.config();
 
@@ -68,6 +70,26 @@ export const acceptUserRouteHandler = async (req, res) => {
         res.send({ data: user });
     } catch (error) {
         res.status(500).send({ message: "Could not accept user." });
+    }
+};
+
+export const getUserJobsRouteHandler = async (req, res) => {
+    try {
+        const user = await userModel.findOne({ _id: req.params.id });
+        const userJobs = await jobModel.find({ job_user: user.email });
+
+        const jobsWithTasks = [];
+        for (const job of userJobs) {
+            const tasks = await taskModel.find({ job_uuid: job._id });
+            jobsWithTasks.push({
+                job,
+                tasks,
+            });
+        }
+        res.send({ data: jobsWithTasks });
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({ message: "Could not fetch job data." });
     }
 };
 

@@ -1,4 +1,5 @@
 #include "event.hpp"
+#include "logging.hpp"
 
 void StartJobEvent::send_update(
     const std::unique_ptr<PersistorService::Stub>& eucalypt_stub) {
@@ -18,9 +19,8 @@ void StartJobEvent::send_update(
   auto status = eucalypt_stub->StartJobUpdate(&context, request, &reply);
 
   if (!status.ok()) {
-    std::cout
-        << "Warning, persistor failed to send start job update to Eucalypt: "
-        << status.error_message() << std::endl;
+    LOG_TRACE << "Persistor failed to send start job update to Eucalypt: "
+                << status.error_message() << std::endl;
   }
 }
 
@@ -44,9 +44,8 @@ void StartTaskEvent::send_update(
   auto status = eucalypt_stub->StartTaskUpdate(&context, request, &reply);
 
   if (!status.ok()) {
-    std::cout
-        << "Warning, persistor failed to send start task update to Eucalypt: "
-        << status.error_message() << std::endl;
+    LOG_TRACE << "Persistor failed to send start task update to Eucalypt: "
+                << status.error_message() << std::endl;
   }
 }
 
@@ -63,8 +62,8 @@ void CompleteEvent::send_update(
   auto status = eucalypt_stub->CompleteEventUpdate(&context, request, &reply);
 
   if (!status.ok()) {
-    std::cout << "Warning, persistor failed to send complete event update to "
-                 "Eucalypt: "
-              << status.error_message() << std::endl;
+    LOG_TRACE << "Persistor failed to send complete event update to "
+                   "Eucalypt: "
+                << status.error_message() << std::endl;
   }
 }

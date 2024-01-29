@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-function configs(labels, datasets) {
+function configs(labels, datasets,lineHeightY) {
   return {
     data: {
       labels,
@@ -26,11 +26,12 @@ function configs(labels, datasets) {
           borderSkipped: false,
           backgroundColor: "rgba(255, 255, 255, 0.8)",
           data: datasets.data,
-          maxBarThickness: 6,
+          maxBarThickness: 7,
         },
       ],
     },
     options: {
+      indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
@@ -50,7 +51,7 @@ function configs(labels, datasets) {
             drawOnChartArea: true,
             drawTicks: false,
             borderDash: [5, 5],
-            color: "rgba(255, 255, 255, .2)",
+            color: "rgba(255,255,255,0.66)",
           },
           ticks: {
             suggestedMin: 0,
@@ -62,20 +63,21 @@ function configs(labels, datasets) {
               weight: 300,
               family: "Roboto",
               style: "normal",
-              lineHeight: 2,
+              lineHeight: lineHeightY,
             },
             color: "#fff",
           },
         },
         x: {
-          grid: {
-            drawBorder: false,
-            display: true,
-            drawOnChartArea: true,
-            drawTicks: false,
-            borderDash: [5, 5],
-            color: "rgba(255, 255, 255, .2)",
-          },
+          beginAtZero: true,
+          // grid: {
+          //   drawBorder: false,
+          //   display: true,
+          //   drawOnChartArea: true,
+          //   drawTicks: false,
+          //   borderDash: [5, 5],
+          //   color: "rgba(255, 255, 255, .2)",
+          // },
           ticks: {
             display: true,
             color: "#f8f9fa",

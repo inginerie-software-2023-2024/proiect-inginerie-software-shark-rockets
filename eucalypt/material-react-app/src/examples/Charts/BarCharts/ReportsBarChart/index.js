@@ -1,26 +1,26 @@
 /**
-=========================================================
-* Material Dashboard 2 React - v2.1.0
-=========================================================
+ =========================================================
+ * Material Dashboard 2 React - v2.1.0
+ =========================================================
 
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
+ * Product Page: https://www.creative-tim.com/product/material-dashboard-react
+ * Copyright 2022 Creative Tim (https://www.creative-tim.com)
 
-Coded by www.creative-tim.com
+ Coded by www.creative-tim.com
 
  =========================================================
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ */
 
-import { useMemo } from "react";
+import {useMemo} from "react";
 
 // porp-types is a library for typechecking of props
 import PropTypes from "prop-types";
 
 // react-chartjs-2 components
 import "chart.js/auto";
-import { Chart } from "react-chartjs-2";
+import {Chart} from "react-chartjs-2";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -34,64 +34,78 @@ import MDTypography from "components/MDTypography";
 // ReportsBarChart configurations
 import configs from "examples/Charts/BarCharts/ReportsBarChart/configs";
 
-function ReportsBarChart({ color, title, description, date, chart }) {
-  const { data, options } = configs(chart.labels || [], chart.datasets || {});
+function ReportsBarChart({color, title, description, date, actualizationDate, chart, lineHeightsY}) {
+    let Height = 25.5;
+    const lineHeightY = Height / lineHeightsY * 0.1;
+    const {data, options} = configs(chart.labels || [], chart.datasets || {}, lineHeightY);
+    return (
+        <Card sx={{height: "100%"}}>
+            <MDBox padding="1rem">
+                {useMemo(
+                    () => (
+                        <MDBox
+                            variant="gradient"
+                            bgColor={color}
+                            borderRadius="lg"
+                            coloredShadow={color}
+                            py={2}
+                            pr={0.5}
+                            mt={-10}
+                            height={`${Height}rem`}
+                        >
+                            <Chart type="bar" data={data} options={options}/>
+                        </MDBox>
+                    ),
+                    [chart, color]
+                )}
+                <MDBox pt={3} pb={1} px={1}>
+                    <MDTypography variant="h6" textTransform="capitalize">
+                        {title}
+                    </MDTypography>
+                    <MDTypography component="div" variant="button" color="text" fontWeight="light">
+                        {description}
+                    </MDTypography>
+                    <Divider/>
+                    <MDBox display="flex" alignItems="center">
+                        <MDTypography variant="button" color="text" lineHeight={1} sx={{mt: 0.15, mr: 0.5}}>
+                            <Icon>schedule</Icon>
+                        </MDTypography>
+                        <MDTypography variant="button" color="text" fontWeight="light">
+                            {date}
+                        </MDTypography>
 
-  return (
-    <Card sx={{ height: "100%" }}>
-      <MDBox padding="1rem">
-        {useMemo(
-          () => (
-            <MDBox
-              variant="gradient"
-              bgColor={color}
-              borderRadius="lg"
-              coloredShadow={color}
-              py={2}
-              pr={0.5}
-              mt={-5}
-              height="12.5rem"
-            >
-              <Chart type="bar" data={data} options={options} />
+                    </MDBox>
+                    <MDBox display="flex" alignItems="center">
+                        <MDTypography variant="button" color="text" lineHeight={1} sx={{mt: 0.15, mr: 0.5}}>
+                            <Icon>schedule</Icon>
+                        </MDTypography>
+
+                        <MDTypography variant="button" color="text" fontWeight="light">
+                            {actualizationDate}
+                        </MDTypography>
+
+                    </MDBox>
+
+                </MDBox>
             </MDBox>
-          ),
-          [chart, color]
-        )}
-        <MDBox pt={3} pb={1} px={1}>
-          <MDTypography variant="h6" textTransform="capitalize">
-            {title}
-          </MDTypography>
-          <MDTypography component="div" variant="button" color="text" fontWeight="light">
-            {description}
-          </MDTypography>
-          <Divider />
-          <MDBox display="flex" alignItems="center">
-            <MDTypography variant="button" color="text" lineHeight={1} sx={{ mt: 0.15, mr: 0.5 }}>
-              <Icon>schedule</Icon>
-            </MDTypography>
-            <MDTypography variant="button" color="text" fontWeight="light">
-              {date}
-            </MDTypography>
-          </MDBox>
-        </MDBox>
-      </MDBox>
-    </Card>
-  );
+        </Card>
+    );
 }
 
 // Setting default values for the props of ReportsBarChart
 ReportsBarChart.defaultProps = {
-  color: "dark",
-  description: "",
+    color: "dark",
+    description: "",
 };
 
 // Typechecking props for the ReportsBarChart
 ReportsBarChart.propTypes = {
-  color: PropTypes.oneOf(["primary", "secondary", "info", "success", "warning", "error", "dark"]),
-  title: PropTypes.string.isRequired,
-  description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-  date: PropTypes.string.isRequired,
-  chart: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.array, PropTypes.object])).isRequired,
+    color: PropTypes.oneOf(["primary", "secondary", "info", "success", "warning", "error", "dark"]),
+    title: PropTypes.string.isRequired,
+    description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    date: PropTypes.string.isRequired,
+    actualizationDate: PropTypes.string.isRequired,
+    chart: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.array, PropTypes.object])).isRequired,
 };
 
 export default ReportsBarChart;

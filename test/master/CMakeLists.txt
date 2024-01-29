@@ -1,7 +1,7 @@
 
 set(TARGET test_master)
 
-find_package(Boost REQUIRED COMPONENTS filesystem regex)
+find_package(Boost REQUIRED COMPONENTS filesystem regex program_options)
 
 add_executable(
     ${TARGET}
@@ -13,7 +13,7 @@ target_include_directories(
     PRIVATE 
         ${CMAKE_SOURCE_DIR}
         ${GENERATED_OUTPUT_DIR}/src
-        
+        ${UTIL_INCLUDE}
 )
 
 target_link_libraries(
@@ -22,4 +22,5 @@ target_link_libraries(
     GTest::Main
     proto
     ${Boost_LIBRARIES}
+    shared_util
 )

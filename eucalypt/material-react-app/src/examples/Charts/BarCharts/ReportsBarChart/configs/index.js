@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-function configs(labels, datasets,lineHeightY) {
+function configs(labels, datasets, lineHeightY) {
   return {
     data: {
       labels,
@@ -26,7 +26,7 @@ function configs(labels, datasets,lineHeightY) {
           borderSkipped: false,
           backgroundColor: "rgba(255, 255, 255, 0.8)",
           data: datasets.data,
-          maxBarThickness: 7,
+          maxBarThickness: 6,
         },
       ],
     },
@@ -57,10 +57,10 @@ function configs(labels, datasets,lineHeightY) {
             suggestedMin: 0,
             suggestedMax: 500,
             beginAtZero: true,
-            padding: 10,
+            padding: 5,
             font: {
-              size: 14,
-              weight: 300,
+              size: 9,
+              weight: 100,
               family: "Roboto",
               style: "normal",
               lineHeight: lineHeightY,

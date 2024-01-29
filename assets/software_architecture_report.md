@@ -28,6 +28,9 @@ Running: Read [Running locally](setup.md#Running-locally), [Running in docker](s
 <br>
 Deploy: Read [Deployment](setup.md#Deployment).
 
+### Contribution Guide
+Read [contribution guide](../CONTRIBUTING.md).
+
 ### Application entrypoints
 Data sources (storage): a NFS for the computing cluster and a MongoDB database for the Web UI.
 <br>

@@ -1,8 +1,8 @@
 # Sprint 1 - Report
 
 - Contains the dates of the sprint (when it started, when it ended)
-  - 20.11 – 03.12 
-  - Last commit hash [7364a15842f4be7bc0777640b184c7aaff0b5c84](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/7364a15842f4be7bc0777640b184c7aaff0b5c84)
+  - 20.11.2023 – 03.12.2023 
+  - Last commit hash: [7364a15842f4be7bc0777640b184c7aaff0b5c84](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/7364a15842f4be7bc0777640b184c7aaff0b5c84)
 - Overview of the team and their planned capacity
   - Full team available
 - List of backlog items planned to be developed in the current Sprint
@@ -30,5 +30,4 @@
     - As a guest, I want to submit a user account creation request so that I can benefit from the cluster's resources in the future. – push to future sprints
 - Sprint Review (This can be an audio recording of your team's discussion)
   - We successfully delivered key functionalities, including user account creation, sample map-reduce job viewing, and user deletion/banning by the admin. These have been marked as done, ensuring progress aligns with the project roadmap. While we've made significant strides, we're not yet at the Minimal Viable Product (MVP) stage. Some planned features, like the Eucalypt theme change and additional user account creation scenarios, still require attention. We introduced valuable additions to our sprint, such as implementing Docker compose, creating a frontend with login functionalities for Eucalypt, and integrating an NFS file structure manager.
-
-Our focus for the upcoming sprint is on completing outstanding tasks, particularly the Eucalypt theme change and refining user account creation scenarios, while also delivering new features.
+  - Our focus for the upcoming sprint is on completing outstanding tasks, particularly the Eucalypt theme change and refining user account creation scenarios, while also delivering new features.

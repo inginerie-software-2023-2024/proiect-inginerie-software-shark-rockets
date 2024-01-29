@@ -2,7 +2,7 @@
 
 - Contains the dates of the sprint (when it started, when it ended)
     - 19.12.2023 – 13.01.2024
-    - Last commit hash [a9807c3664ba77410f03bf7e9382fca34f4892be](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/a9807c3664ba77410f03bf7e9382fca34f4892be)
+    - Last commit hash: [a9807c3664ba77410f03bf7e9382fca34f4892be](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/a9807c3664ba77410f03bf7e9382fca34f4892be)
 - Overview of the team and their planned capacity
     - Full team available
 - List of backlog items planned to be developed in the current Sprint

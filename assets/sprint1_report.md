@@ -6,7 +6,7 @@
 - Overview of the team and their planned capacity
   - Full team available
 - List of backlog items planned to be developed in the current Sprint
-  - Addressed user stories
+  - Addressed user stories (global list of user stories, along with acceptance criteria: [User stories](user_stories.md))
     - As a guest, I want to submit a user account creation request so that I can benefit from the cluster's resources in the future.
     - As a guest, I want to view sample map-reduce jobs so that I can understand the capabilities of Koala.
     - As an admin, I want to delete/ban users so that I can manage the user base effectively.
@@ -19,12 +19,7 @@
 - Status of planned items and their status
   - Marking the done items
     - As an admin, I want to delete/ban users so that I can manage the user base effectively.
-      - Scenario: Banning an user.
     - As a guest, I want to view sample map-reduce jobs so that I can understand the capabilities of Koala.
-      - Scenario: Viewing sample map-reduce jobs.
-    - As a guest, I want to submit a user account creation request so that I can benefit from the cluster's resources in the future.
-      - Scenario: Successful creation of a new account.
-      - Scenario: Registration with invalid details.
   - Marking the unsolved items, and what are you going to do with them (push to future sprint, eliminate from project, etc.)
     - Change frontend to eucalypt theme – push to next sprint
     - As a guest, I want to submit a user account creation request so that I can benefit from the cluster's resources in the future. – push to future sprints

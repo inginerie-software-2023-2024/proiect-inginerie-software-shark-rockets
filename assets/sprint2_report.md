@@ -6,7 +6,7 @@
 - Overview of the team and their planned capacity
   - Full team available
 - List of backlog items planned to be developed in the current Sprint
-  - Addressed user stories
+  - Addressed user stories (global list of user stories, along with acceptance criteria: [User stories](user_stories.md))
     - As a guest, I want to submit a user account creation request so that I can benefit from the cluster's resources in the future.
     - As a user, I want to create a map-reduce job and submit it for computation on the cluster so that I can efficiently process large amounts of data.
     - As an admin, I want to accept user account creation requests so that new users can access the resources of the cluster.
@@ -22,8 +22,8 @@
 - Status of planned items and their status
   - Marking the done items
     - As a guest, I want to submit a user account creation request so that I can benefit from the cluster's resources in the future.
+    - As an admin, I want to accept user account creation requests so that new users can access the resources of the cluster.
     - As an admin, I want to be able to promote a user to admin status so that I can delegate administrative responsibilities.
-    - As a guest, I want to submit a user account creation request so that I can benefit from the cluster's resources in the future.
   - Marking the unsolved items, and what are you going to do with them (push to future sprint, eliminate from project, etc.)
     - As a user, I want to create a map-reduce job and submit it for computation on the cluster so that I can efficiently process large amounts of data. – currently it only runs on local machine, future sprints should implement hosting on cloud
 - Sprint Review (This can be an audio recording of your team's discussion)

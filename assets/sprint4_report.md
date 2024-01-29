@@ -13,7 +13,7 @@ Full team available
 ### List of backlog items planned to be developed in the current sprint
 
 <ul>
-    <li>Addressed user stories:
+    <li>Addressed user stories (global list of user stories, along with acceptance criteria: [User stories](user_stories.md))
         <ul>
             <li>As a network administrator, I want to be able to set up this infrastructure on my Kubernetes cluster, so that my organization can benefit from the parallelization features provided</li>
             <li>As a network administrator, I want to be able to scale the cluster by adding or removing machines dynamically so that the cluster perfectly fits the users’ needs</li>

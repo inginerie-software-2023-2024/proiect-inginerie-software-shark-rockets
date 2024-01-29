@@ -6,10 +6,11 @@
 - Overview of the team and their planned capacity
     - Full team available
 - List of backlog items planned to be developed in the current Sprint
-    - Addressed user stories
+    - Addressed user stories (global list of user stories, along with acceptance criteria: [User stories](user_stories.md))
       - As a user, I want to monitor ongoing jobs created by me so that I can track their progress and view utilization statistics.
       - As an admin, I want to monitor all ongoing jobs and utilization metrics so that I can assess the performance and cost of the cluster.
       - As a user, I want to create a map-reduce job and submit it for computation on the cluster so that I can efficiently process large amounts of data.
+      - As a user, I want to configure I/O parameters for map-reduce jobs, namely the number of input and output files, so that I have control over the size of the generated files.
     - Indicate items that were added after the Sprint start
         - [Generate Token](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/ca969e0bdb1d693ef0911b45cf650949d2a2c0b0)
         - [Koala CI pipeline, compiling and unit tests](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/979cb88ba9c0e55bdaa906eff72a168f7c9b79cd)
@@ -25,6 +26,7 @@
         - As a user, I want to monitor ongoing jobs created by me so that I can track their progress and view utilization statistics.
         - As an admin, I want to monitor all ongoing jobs and utilization metrics so that I can assess the performance and cost of the cluster.
         - As a user, I want to create a map-reduce job and submit it for computation on the cluster so that I can efficiently process large amounts of data.
+        - As a user, I want to configure I/O parameters for map-reduce jobs, namely the number of input and output files, so that I have control over the size of the generated files.
   
 - Sprint Review (This can be an audio recording of your team's discussion)
     - In this sprint, the team achieved significant progress across multiple aspects of the project. The focus on token generation highlights a crucial step in enhancing authentication and security. The Continuous Integration (CI) pipeline received attention, with improvements in compilation, unit testing, and worker heartbeat monitoring. The implementation of Koala logging enhances the project's monitoring and debugging capabilities. The introduction of job completion notifications improves the team's ability to track task progress effectively. The development of reducer logic suggests efforts to enhance state management within the application. Addressing performance considerations, the static compilation of Boost with -fPic reflects a commitment to optimizing efficiency. Lastly, the inclusion of graphing user utilization metrics underscores the team's dedication to monitoring and analyzing system usage. Collectively, these efforts contribute to a comprehensive approach aimed at strengthening security, functionality, and performance aspects of the project.

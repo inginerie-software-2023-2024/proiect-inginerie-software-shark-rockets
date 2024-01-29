@@ -16,6 +16,7 @@
 - Sprint 4 report: [Sprint 4](assets/sprint4_report.md)
 - Sprint 4 review recording: [Youtube](https://youtu.be/BunA39FKX0U)
 - Paradigme de testare: [Testare](assets/testing_paradigms.md)
+- Burndown chart: [Burndown chart](assets/sprint4_report.md)
 
 # Koala - Intro
 

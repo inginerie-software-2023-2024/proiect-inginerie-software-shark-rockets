@@ -11,9 +11,9 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 Our vision is to keep Koala's API as simple as possible. Thus we don't plan to change Koala's public API and we probably won't accept contributions that do so. Keep this in mind if you ever want to extend it.
 
-We might accept changes that ehance user experience by adding: 
+We might accept changes that enhance user experience by adding: 
 - more parameters that can be tuned when starting a new job
-- more usage statistics to query after a job was finished
+- more usage statistics to query after a job is finished
 
 ### Changes to Koala's core
 
@@ -26,7 +26,7 @@ We also accept improvements to any part of Eucalypt (backend/frontend).
 
 ## Writing code
 
-Check out [Google Style Guide](https://google.github.io/styleguide/cppguide.html) for writing C++ code. Also setup `clang-format` to use [.clang-format](.clang-format). 
+Check out [Google Style Guide](https://google.github.io/styleguide/cppguide.html) for writing C++ code. Also, setup `clang-format` to use [.clang-format](.clang-format). 
 
 ## Pull Request Process
 

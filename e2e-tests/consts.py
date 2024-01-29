@@ -1,8 +1,15 @@
 import enum
 import os
 
+# light
 CLUSTER_SIZES=[4]
 FAULTY_PERCENT=[50]
+
+
+# full testing
+# CLUSTER_SIZES=[1,2,5,10,20,50]
+# FAULTY_PERCENT=[25,50,75]
+
 
 PATH_TO_PACKAGE = "../package"
 PATH_NFS = os.path.expanduser("~/nfs")

@@ -22,27 +22,21 @@ import MDBox from "components/MDBox";
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
-import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
-import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
 
 // Data
 import jobData from "layouts/dashboard/data/jobData";
 
-// Dashboard components
-import Projects from "layouts/dashboard/components/Projects";
-import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
 function Dashboard() {
-    const {jobUtilizationData, dateOfFetch} = jobData();
+    const { jobUtilizationData, dateOfFetch } = jobData();
     return (
         <DashboardLayout>
-            <DashboardNavbar/>
+            <DashboardNavbar />
             <MDBox mt={10}>
                 <Grid container spacing={1}>
                     {jobUtilizationData.map((job, index) => (
-                        <Grid item key={index} xs={12} md={6} lg={6}>
+                        <Grid item key={index} xs={12} md={12} lg={12}>
                             <MDBox mb={10}>
                                 <ReportsBarChart
                                     color="dark"
@@ -56,7 +50,7 @@ function Dashboard() {
                                             data: job.tasks.map((task) => ([task.start_ms.toFixed(2), task.complete_ms.toFixed(2)])).concat([[job.start_ms.toFixed(2), job.complete_ms.toFixed(2)]]),
                                         },
                                     }}
-                                    lineHeightsY = {job.tasks.length + 1}
+                                    lineHeightsY={job.tasks.length + 1}
                                 />
                             </MDBox>
                         </Grid>

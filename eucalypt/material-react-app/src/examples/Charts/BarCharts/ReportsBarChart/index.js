@@ -13,14 +13,14 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  */
 
-import {useMemo} from "react";
+import { useMemo } from "react";
 
 // porp-types is a library for typechecking of props
 import PropTypes from "prop-types";
 
 // react-chartjs-2 components
 import "chart.js/auto";
-import {Chart} from "react-chartjs-2";
+import { Chart } from "react-chartjs-2";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -34,12 +34,14 @@ import MDTypography from "components/MDTypography";
 // ReportsBarChart configurations
 import configs from "examples/Charts/BarCharts/ReportsBarChart/configs";
 
-function ReportsBarChart({color, title, description, date, actualizationDate, chart, lineHeightsY}) {
-    let Height = 25.5;
+function ReportsBarChart({ color, title, description, date, actualizationDate, chart, lineHeightsY }) {
+    let Height = 20;
+    if (lineHeightsY > 20)
+        Height = lineHeightsY * 1.1
     const lineHeightY = Height / lineHeightsY * 0.1;
-    const {data, options} = configs(chart.labels || [], chart.datasets || {}, lineHeightY);
+    const { data, options } = configs(chart.labels || [], chart.datasets || {}, lineHeightY);
     return (
-        <Card sx={{height: "100%"}}>
+        <Card sx={{ height: "100%" }}>
             <MDBox padding="1rem">
                 {useMemo(
                     () => (
@@ -53,7 +55,7 @@ function ReportsBarChart({color, title, description, date, actualizationDate, ch
                             mt={-10}
                             height={`${Height}rem`}
                         >
-                            <Chart type="bar" data={data} options={options}/>
+                            <Chart type="bar" data={data} options={options} />
                         </MDBox>
                     ),
                     [chart, color]
@@ -65,9 +67,9 @@ function ReportsBarChart({color, title, description, date, actualizationDate, ch
                     <MDTypography component="div" variant="button" color="text" fontWeight="light">
                         {description}
                     </MDTypography>
-                    <Divider/>
+                    <Divider />
                     <MDBox display="flex" alignItems="center">
-                        <MDTypography variant="button" color="text" lineHeight={1} sx={{mt: 0.15, mr: 0.5}}>
+                        <MDTypography variant="button" color="text" lineHeight={1} sx={{ mt: 0.15, mr: 0.5 }}>
                             <Icon>schedule</Icon>
                         </MDTypography>
                         <MDTypography variant="button" color="text" fontWeight="light">
@@ -76,7 +78,7 @@ function ReportsBarChart({color, title, description, date, actualizationDate, ch
 
                     </MDBox>
                     <MDBox display="flex" alignItems="center">
-                        <MDTypography variant="button" color="text" lineHeight={1} sx={{mt: 0.15, mr: 0.5}}>
+                        <MDTypography variant="button" color="text" lineHeight={1} sx={{ mt: 0.15, mr: 0.5 }}>
                             <Icon>schedule</Icon>
                         </MDTypography>
 

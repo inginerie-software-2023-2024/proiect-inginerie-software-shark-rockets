@@ -38,11 +38,11 @@
     - Scenario: A user wants to start a new map reduce job with custom input and output files
         - Given: The user has developed their algorithm
         - When: The user specifies a glob pattern to match their input files and provides the number R for the desired output files
-        - Then: he job starts using the provided files as input and generates output distributed across R files
+        - Then: The job starts using the provided files as input and generates output distributed across R files
 
 - As a user, I want to monitor ongoing jobs created by me so that I can track their progress and view utilization statistics.
     - Scenario: A user wants to monitor the progress of their job
-        - Given: The user has already starated a job
+        - Given: The user has already started a job
         - When: The user navigates to the job graph page within Eucalypt
         - Then: The user is presented with visibility into both completed and ongoing map and reduce tasks associated with their job
 

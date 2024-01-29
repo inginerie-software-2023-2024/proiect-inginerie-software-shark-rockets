@@ -2,8 +2,8 @@
 
 import dotenv from "dotenv";
 import { userModel } from "../../schemas/user.schema";
-import {jobModel} from "../../schemas/job.schema.js";
-import {taskModel} from "../../schemas/task.schema.js";
+import { jobModel } from "../../schemas/job.schema.js";
+import { taskModel } from "../../schemas/task.schema.js";
 
 dotenv.config();
 
@@ -76,17 +76,46 @@ export const acceptUserRouteHandler = async (req, res) => {
 export const getUserJobsRouteHandler = async (req, res) => {
     try {
         const user = await userModel.findOne({ _id: req.params.id });
-        const userJobs = await jobModel.find({ job_user: user.email });
+        const usersWithData = [];
+        if (user.role == "user") {
+            const userJobs = await jobModel.find({ job_user: user.email });
 
-        const jobsWithTasks = [];
-        for (const job of userJobs) {
-            const tasks = await taskModel.find({ job_uuid: job._id });
-            jobsWithTasks.push({
-                job,
-                tasks,
+            const jobsWithTasks = [];
+            for (const job of userJobs) {
+                const tasks = await taskModel.find({ job_uuid: job._id });
+                jobsWithTasks.push({
+                    job,
+                    tasks,
+                });
+            }
+            usersWithData.push({
+                user,
+                jobsWithTasks,
             });
         }
-        res.send({ data: jobsWithTasks });
+        if (user.role == "admin") {
+            const users = await userModel.find({});
+
+            for (const user of users) {
+                const userJobs = await jobModel.find({ job_user: user.email });
+
+                const jobsWithTasks = [];
+                for (const job of userJobs) {
+                    const tasks = await taskModel.find({ job_uuid: job._id });
+                    jobsWithTasks.push({
+                        job,
+                        tasks,
+                    });
+                }
+
+                usersWithData.push({
+                    user,
+                    jobsWithTasks,
+                });
+            }
+        }
+        res.send({ data: usersWithData });
+
     } catch (error) {
         console.log(error)
         res.status(500).send({ message: "Could not fetch job data." });

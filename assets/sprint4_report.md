@@ -5,8 +5,7 @@
 <br>
 Last commit hash: [da13ffa1d1fbcd3a7215c2b196b259a80c5b7c9e](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/da13ffa1d1fbcd3a7215c2b196b259a80c5b7c9e)
 <br>
-Recording of the sprint review: [YouTube](https://youtu.be/BunA39FKX0U
-)
+Recording of the sprint review: [YouTube](https://youtu.be/BunA39FKX0U)
 
 ### Overview of the team and their planned capacity
 Full team available
@@ -23,8 +22,8 @@ Full team available
     </li>
     <li>Items added after after the sprint start:
     <ul>
-    <li>Redesign token generation page</li>
-    <li>End-to-end Koala testing</li>
+    <li><a href="https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/f63cb0e1bc38958e3057359b837919284d7ecbbd">Redesign token generation page</a></li>
+    <li><a href="https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/da13ffa1d1fbcd3a7215c2b196b259a80c5b7c9e">End-to-end Koala testing</a></li>
     </ul>
     </li>
     <li>Items removed before the sprint end:

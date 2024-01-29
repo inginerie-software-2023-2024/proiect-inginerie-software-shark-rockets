@@ -7,7 +7,14 @@
 - Activity diagram: [Activity diagram](assets/activity_diagram.md)
 - User stories: [User stories](assets/user_stories.md)
 - Product backlog: [Product backlog](https://trello.com/b/w71cxBJY/map-reduce)
+
+# Final deliverables
 - Software architecture backlog: [Software architecture report](assets/software_architecture_report.md)
+- Sprint 1 report: [Sprint 1](assets/sprint1_report.md)
+- Sprint 2 report: [Sprint 2](assets/sprint2_report.md)
+- Sprint 3 report: [Sprint 3](assets/sprint3_report.md)
+- Sprint 4 report: [Sprint 4](assets/sprint4_report.md)
+- Sprint 4 review recording: [Youtube](https://youtu.be/BunA39FKX0U)
 
 # Koala - Intro
 

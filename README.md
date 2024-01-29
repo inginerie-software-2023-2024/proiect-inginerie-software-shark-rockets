@@ -15,6 +15,7 @@
 - Sprint 3 report: [Sprint 3](assets/sprint3_report.md)
 - Sprint 4 report: [Sprint 4](assets/sprint4_report.md)
 - Sprint 4 review recording: [Youtube](https://youtu.be/BunA39FKX0U)
+- Paradigme de testare: [Testare](assets/testing_paradigms.md)
 
 # Koala - Intro
 

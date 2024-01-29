@@ -1,6 +1,6 @@
 # Software architecture report
 
-This report is up-to-date as of commit ```3bd2d276f0a15b56c4a3ced5d5a65d19c4cdcf7e```.
+This report is up-to-date as of commit [da13ffa1d1fbcd3a7215c2b196b259a80c5b7c9e](https://github.com/inginerie-software-2023-2024/proiect-inginerie-software-shark-rockets/commit/da13ffa1d1fbcd3a7215c2b196b259a80c5b7c9e).
 
 ### Project summary (fulfilled capabilities, future capabilities)
 Available capabilities:
@@ -13,12 +13,12 @@ Available capabilities:
 </li>
 <li>ability to monitor ongoing and past jobs in a web UI</li>
 <li>ability to create/delete/manage users and set quotas (CPU time) for them</li>
+<li>ability to set periodic jobs</li>
 </ul>
 
 Future capabilities:
 <ul>
-<li>ability to run a computation on a single machine (multiprocess)</li>
-<li>ability to set periodic jobs</li>
+<li>ability to run a computation on a single machine (multi-process instead of multi-machine)</li>
 </ul>
 
 ### How to build, run and deploy the project
@@ -43,8 +43,8 @@ Data inputs (how users interact with our product):
 ### CI/CD pipeline
 CI:
 <ul>
-<li>Tests from the <code>test</code> directory are run as part of the GitHub actions workflow</li>
-<li>TODO: end-to-end tests</li>
+<li>Unit tests from the <code>test</code> directory are run as part of the GitHub actions workflow</li>
+<li>End-to-end tests from the <code>e2e-tests</code> directory must be run to ensure cohesion between all the services</li>
 </ul>
 
 CD:

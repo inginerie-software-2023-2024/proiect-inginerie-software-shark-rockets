@@ -1,3 +1,15 @@
+This project is licensed under the CC0-1.0 Universal license. Feel free to use the code in this repository for any purpose without any restrictions.
+
+[![License: CC0-1.0](https://licensebuttons.net/l/zero/1.0/80x15.png)](http://creativecommons.org/publicdomain/zero/1.0/)
+
+# Project owners:
+- [Airinei Andrei](https://github.com/AirineiAndrei)
+- [Dimitriu Andrei](https://github.com/dimi999)
+- [Lung Alexandra](https://github.com/Lung-Alexandra)
+- [Oprea Mihai](https://github.com/mihai145)
+- [Pascu Alexandru](https://github.com/AlexPascu001)
+- [Visan Alexandru](https://github.com/visanalexandru)
+
 # Intermediate deliverables
 
 - Product vision: [Product vision](assets/product_vision.md)
